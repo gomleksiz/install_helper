@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent (Linux) - Command Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Agent (Linux) Installer</h2>
+        <form id="linux-form">
+            <fieldset>
+                <legend>Base Parameters</legend>
+                <div class="form-group">
+                    <label for="oms_servers">OMS Servers:</label>
+                    <input type="text" id="oms_servers" name="oms_servers" placeholder="server1,server2">
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="oms_autostart" name="oms_autostart">
+                    <label for="oms_autostart">OMS Autostart</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="python" name="python">
+                    <label for="python">Use System Python</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">
+                    <label for="register_ubrokerd">Create SystemCtl Service</label>
+                </div>
+                <div class="form-group">
+                    <label for="ac_agent_cluster">Agent Cluster:</label>
+                    <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="e.g., Default Linux Agents">
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-user-options">
+                <label for="toggle-user-options">I want to install with a different user</label>
+            </div>
+            <fieldset id="user-options" style="display: none;">
+                <legend>User Options</legend>
+                <div class="form-group">
+                    <label for="user">User:</label>
+                    <input type="text" id="user" name="user" placeholder="ubroker">
+                </div>
+                <div class="form-group">
+                    <label for="group">Group:</label>
+                    <input type="text" id="group" name="group" placeholder="ubroker">
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="create_user" name="create_user">
+                    <label for="create_user">Create User</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="create_group" name="create_group">
+                    <label for="create_group">Create Group</label>
+                </div>
+                <div id="userdir-group" class="form-group">
+                    <label for="userdir">User Directory:</label>
+                    <input type="text" id="userdir" name="userdir" placeholder="/home/ubroker">
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-user-mode">
+                <label for="toggle-user-mode">I want to install in a different folder</label>
+            </div>
+            <fieldset id="user-mode-parameters" style="display: none;">
+                <legend>User Mode Parameters</legend>
+                <div class="form-group">
+                    <label for="basedir">Base Directory:</label>
+                    <input type="text" id="basedir" name="basedir" placeholder="/usr/local">
+                </div>
+                <div class="form-group">
+                    <label for="unvdir">Install Directory:</label>
+                    <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
+                </div>
+                <div class="form-group">
+                    <label for="unvcfgdir">Config Directory:</label>
+                    <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
+                </div>
+                <div class="form-group">
+                    <label for="unvdatadir">Data Directory:</label>
+                    <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-advanced-options">
+                <label for="toggle-advanced-options">Show me more options</label>
+            </div>
+            <fieldset id="advanced-options" style="display: none;">
+                <legend>Advanced Parameters</legend>
+                <div class="form-group">
+                    <label for="ac_netname">Netname:</label>
+                    <input type="text" id="ac_netname" name="ac_netname" placeholder="e.g., agent_net">
+                </div>
+                <div class="form-group">
+                    <label for="oms_port">OMS Port:</label>
+                    <input type="text" id="oms_port" name="oms_port" placeholder="7878">
+                </div>
+                <div class="form-group">
+                    <label for="unvport">UNV Port:</label>
+                    <input type="text" id="unvport" name="unvport" placeholder="7887">
+                </div>
+                <div class="form-group">
+                    <label for="ac_agent_ip">Agent IP:</label>
+                    <input type="text" id="ac_agent_ip" name="ac_agent_ip" placeholder="e.g., 192.168.1.10">
+                </div>
+                <div class="form-group">
+                    <label for="security">Security:</label>
+                    <select id="security" name="security">
+                        <option value="appdef">Application Default</option>
+                        <option value="default">Default (Password-based)</option>
+                        <option value="inherit">Inherit from Broker</option>
+                        <option value="pam">PAM</option>
+                        <option value="pam_sessions">PAM Sessions</option>
+                    </select>
+                </div>
+                <div id="ubrokerd-id-group" class="form-group" style="display: none;">
+                    <label for="ubrokerd_id">UBrokerD ID:</label>
+                    <input type="text" id="ubrokerd_id" name="ubrokerd_id" placeholder="e.g., agent1">
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="use_tls1_3" name="use_tls1_3">
+                    <label for="use_tls1_3">Use TLS 1.3</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="opscli" name="opscli">
+                    <label for="opscli">Install OpsCLI</label>
+                </div>
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="ubroker_start" name="ubroker_start" checked>
+                    <label for="ubroker_start">Start UBroker after Install</label>
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-additional-params">
+                <label for="toggle-additional-params">Let me write my parameters manually</label>
+            </div>
+            <fieldset id="additional-params-section" style="display: none;">
+                <legend>Additional Parameters</legend>
+                <div class="form-group">
+                    <label for="additional_params">Additional Parameters:</label>
+                    <input type="text" id="additional_params" name="additional_params" placeholder="e.g., -p 8080">
+                </div>
+            </fieldset>
+            
+            <button type="submit">Generate Command</button>
+        </form>
+        <div id="command-output" style="display:none; margin-top: 20px;">
+            <div class="command-section">
+                <h3>Generated Command:</h3>
+                <div class="command-line">
+                    <pre><code id="generated-command"></code></pre>
+                    <button id="copy-button" class="copy-icon" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="additional-command-output" style="display:none;" class="command-section">
+                <h3>Additional Command:</h3>
+                <div class="command-line">
+                    <pre><code id="additional-command"></code></pre>
+                    <button id="copy-additional-button" class="copy-icon" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>

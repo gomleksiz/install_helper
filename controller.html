@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller - Command Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Controller Installer</h2>
+        <form id="controller-form">
+            <fieldset>
+                <legend>Base Parameters</legend>
+                <div class="form-group">
+                    <label for="tomcat_dir">Tomcat Directory:</label>
+                    <input type="text" id="tomcat_dir" name="tomcat_dir" placeholder="e.g., /opt/tomcat">
+                </div>
+                <div class="form-group">
+                    <label for="controllerfile">Controller File:</label>
+                    <input type="text" id="controllerfile" name="controllerfile" value="universal-controller-N.N.N.N-build.N.war">
+                </div>
+                <div class="form-group">
+                    <label for="rdbms">RDBMS:</label>
+                    <select id="rdbms" name="rdbms">
+                        <option value="">Select Database Type</option>
+                        <option value="mysql">MySQL</option>
+                        <option value="postgres">PostgreSQL</option>
+                        <option value="oracle">Oracle</option>
+                        <option value="sqlserver">SQL Server</option>
+                        <option value="sqlserver-jtds">SQL Server JTDS</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dburl">Database URL:</label>
+                    <input type="text" id="dburl" name="dburl" placeholder="Select RDBMS to populate">
+                </div>
+                <div class="form-group">
+                    <label for="dbname">Database Name:</label>
+                    <input type="text" id="dbname" name="dbname" placeholder="uc">
+                </div>
+                <div class="form-group">
+                    <label for="dbuser">Database User:</label>
+                    <input type="text" id="dbuser" name="dbuser" placeholder="e.g., postgres">
+                </div>
+                <div class="form-group">
+                    <label for="dbpass">Database Password:</label>
+                    <input type="text" id="dbpass" name="dbpass" value="<dbpass>" disabled>
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-advanced-options">
+                <label for="toggle-advanced-options">Show me more options</label>
+            </div>
+            <fieldset id="advanced-options" style="display: none;">
+                <legend>Advanced Parameters</legend>
+                <div class="form-group">
+                    <label for="port">Port:</label>
+                    <input type="text" id="port" name="port" placeholder="8080">
+                </div>
+            </fieldset>
+
+            <div class="form-group-checkbox">
+                <input type="checkbox" id="toggle-additional-params">
+                <label for="toggle-additional-params">Let me write my parameters manually</label>
+            </div>
+            <fieldset id="additional-params-section" style="display: none;">
+                <legend>Additional Parameters</legend>
+                <div class="form-group">
+                    <label for="additional_params">Additional Parameters:</label>
+                    <input type="text" id="additional_params" name="additional_params" placeholder="e.g., --verbose">
+                </div>
+            </fieldset>
+            
+            <button type="submit">Generate Command</button>
+        </form>
+        <div id="command-output" style="display:none; margin-top: 20px;">
+            <div class="command-section">
+                <h3>Generated Command:</h3>
+                <div class="command-line">
+                    <pre><code id="generated-command"></code></pre>
+                    <button id="copy-button" class="copy-icon" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div id="additional-command-output" style="display:none;" class="command-section">
+                <h3>Additional Command:</h3>
+                <div class="command-line">
+                    <pre><code id="additional-command"></code></pre>
+                    <button id="copy-additional-button" class="copy-icon" title="Copy to clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                            <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
