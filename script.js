@@ -643,7 +643,7 @@ const sizingMatrix = [
       agent: { cpu: 2, memory: 8, disk: "SSD/GP3 50 GB" },
       controller: { 
         cpu: 4, memory: 8, jvm: 6, baseDisk: 50,
-        aws: { instance: "t3.large", cpu: 2, memory: 8 },
+        aws: { instance: "t3.large", cpu: 4, memory: 8 },
         azure: { instance: "D2s v5", cpu: 2, memory: 8 },
         onprem: { cpu: 4, memory: 8 },
         other: { cpu: 4, memory: 8 }
@@ -684,7 +684,7 @@ const sizingMatrix = [
       agent: { cpu: 2, memory: 8, disk: "SSD/GP3 100 GB" },
       controller: { 
         cpu: 4, memory: 16, jvm: 12, baseDisk: 100,
-        aws: { instance: "m6i.large", cpu: 2, memory: 8 },
+        aws: { instance: "m6i.large", cpu: 4, memory: 16 },
         azure: { instance: "D4s v5", cpu: 4, memory: 16 },
         onprem: { cpu: 4, memory: 16 },
         other: { cpu: 4, memory: 16 }
@@ -725,7 +725,7 @@ const sizingMatrix = [
       agent: { cpu: 4, memory: 16, disk: "SSD/GP3 100 GB" },
       controller: { 
         cpu: 8, memory: 32, jvm: 24, baseDisk: 100,
-        aws: { instance: "m6i.xlarge", cpu: 4, memory: 16 },
+        aws: { instance: "m6i.xlarge", cpu: 8, memory: 32 },
         azure: { instance: "D8s v5", cpu: 8, memory: 32 },
         onprem: { cpu: 8, memory: 32 },
         other: { cpu: 8, memory: 32 }
