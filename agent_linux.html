@@ -21,30 +21,31 @@
     </header>
     <main>
         <h2>Agent (Linux) Installer</h2>
-        <form id="linux-form">
-            <fieldset>
-                <legend>Base Parameters</legend>
-                <div class="form-group">
-                    <label for="oms_servers">OMS Servers:</label>
-                    <input type="text" id="oms_servers" name="oms_servers" placeholder="server1,server2">
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="oms_autostart" name="oms_autostart">
-                    <label for="oms_autostart">OMS Autostart</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="python" name="python">
-                    <label for="python">Use System Python</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">
-                    <label for="register_ubrokerd">Create SystemCtl Service</label>
-                </div>
-                <div class="form-group">
-                    <label for="ac_agent_cluster">Agent Cluster:</label>
-                    <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="e.g., Default Linux Agents">
-                </div>
-            </fieldset>
+        <div class="controller-container">
+            <form id="linux-form" class="controller-form">
+                <fieldset class="base-parameters">
+                    <legend>Base Parameters</legend>
+                    <div class="form-group">
+                        <label for="oms_servers">OMS Servers:</label>
+                        <input type="text" id="oms_servers" name="oms_servers" placeholder="server1,server2">
+                    </div>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="oms_autostart" name="oms_autostart">
+                        <label for="oms_autostart">OMS Autostart</label>
+                    </div>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="python" name="python">
+                        <label for="python">Use Agent Python</label>
+                    </div>
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">
+                        <label for="register_ubrokerd">Create SystemCtl Service</label>
+                    </div>
+                    <div class="form-group">
+                        <label for="ac_agent_cluster">Agent Cluster:</label>
+                        <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="e.g., Default Linux Agents">
+                    </div>
+                </fieldset>
 
             <div class="form-group-checkbox">
                 <input type="checkbox" id="toggle-user-options">
@@ -160,8 +161,43 @@
                 </div>
             </fieldset>
             
-            <button type="submit">Generate Command</button>
-        </form>
+                <button type="submit">Generate Command</button>
+            </form>
+            
+            <div class="help-section">
+                <h3>Agent Installation Guidelines</h3>
+                <div class="help-item">
+                    <h4>OMS Servers</h4>
+                    <p>Specify the OMS (Universal Message Service) hostname or IP address where the Universal Controller is running.</p>
+                    <p class="help-example">Single OMS: <code>7878@localhost</code> or <code>oms-server.company.com</code></p>
+                    <p class="help-example">HA OMS: <code>oms1.company.com,oms2.company.com</code></p>
+                    <p class="help-example">With port: <code>7878@oms-server.company.com</code> (port 7878 is optional)</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>Agent Cluster</h4>
+                    <p>Define which cluster this agent belongs to. Agent clusters help organize and manage groups of agents.</p>
+                    <p class="help-example">Single cluster: <code>Linux Production Agents</code></p>
+                    <p class="help-example">Multiple clusters: <code>Production,Linux,Database</code></p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>Agent Python</h4>
+                    <p>Use the Python distribution that comes bundled with the Universal Agent instead of relying on external Python installations.</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>SystemCtl Service</h4>
+                    <p>Creates a systemd service for automatic startup and better service management on modern Linux distributions.</p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>User Installation</h4>
+                    <p>By default, the agent installs as root. You can specify a different user for security or organizational requirements.</p>
+                    <p class="help-example">Common user: <code>ubroker</code></p>
+                </div>
+            </div>
+        </div>
         <div id="command-output" style="display:none; margin-top: 20px;">
             <div class="command-section">
                 <h3>Generated Command:</h3>

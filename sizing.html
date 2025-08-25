@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>UAC Hardware Sizing Calculator</title>
     <link rel="stylesheet" href="style.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
     <header>
@@ -57,197 +58,191 @@
             </div>
         </div>
 
-        <fieldset>
-            <legend>Sizing Parameters</legend>
-            
-            <div class="form-group">
-                <label for="tasks">Task Executions per Month</label>
-                <div class="slider-container">
-                    <input type="range" id="tasks" min="0" max="13" value="1" step="1" oninput="updateTaskFromSlider(this)">
-                    <div class="slider-value">
-                        <span id="task-display">25K</span> tasks/month
+        <div class="config-container">
+            <fieldset class="config-column">
+                <legend>Sizing Parameters</legend>
+                
+                <div class="form-group form-group-slider">
+                    <div class="slider-label-container">
+                        <label for="tasks">Task Executions per Month</label>
+                        <div class="slider-value">
+                            <span id="task-display">25K</span> tasks/month
+                        </div>
                     </div>
-                    <div class="slider-ticks">
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
-                        <div class="tick"></div>
+                    <div class="slider-container">
+                        <input type="range" id="tasks" min="0" max="13" value="1" step="1" oninput="updateTaskFromSlider(this)">
+                        <div class="slider-ticks">
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                            <div class="tick"></div>
+                        </div>
+                        <div class="slider-labels">
+                            <span>10K</span>
+                            <span>25K</span>
+                            <span>40K</span>
+                            <span>100K</span>
+                            <span>250K</span>
+                            <span>300K</span>
+                            <span>400K</span>
+                            <span>500K</span>
+                            <span>1M</span>
+                            <span>3M</span>
+                            <span>5M</span>
+                            <span>7M</span>
+                            <span>10M</span>
+                            <span>15M</span>
+                        </div>
                     </div>
-                    <div class="slider-labels">
-                        <span>10K</span>
-                        <span>25K</span>
-                        <span>40K</span>
-                        <span>100K</span>
-                        <span>250K</span>
-                        <span>300K</span>
-                        <span>400K</span>
-                        <span>500K</span>
-                        <span>1M</span>
-                        <span>3M</span>
-                        <span>5M</span>
-                        <span>7M</span>
-                        <span>10M</span>
-                        <span>15M</span>
+                </div>
+                
+                <div class="form-group">
+                    <label>Activity Retention Period (Days)</label>
+                    <div class="button-group">
+                        <button type="button" class="option-button active" data-target="activity" data-value="7">7</button>
+                        <button type="button" class="option-button" data-target="activity" data-value="14">14</button>
+                        <button type="button" class="option-button" data-target="activity" data-value="21">21</button>
+                        <button type="button" class="option-button" data-target="activity" data-value="30">30</button>
                     </div>
+                    <input type="hidden" id="activity" value="7">
                 </div>
-            </div>
-            
-            <div class="form-group">
-                <label>Activity Retention Period (Days)</label>
-                <div class="button-group">
-                    <button type="button" class="option-button active" data-target="activity" data-value="7">7</button>
-                    <button type="button" class="option-button" data-target="activity" data-value="14">14</button>
-                    <button type="button" class="option-button" data-target="activity" data-value="21">21</button>
-                    <button type="button" class="option-button" data-target="activity" data-value="30">30</button>
+                
+                <div class="form-group">
+                    <label>History Retention Period (Days)</label>
+                    <div class="button-group">
+                        <button type="button" class="option-button" data-target="history" data-value="30">30</button>
+                        <button type="button" class="option-button active" data-target="history" data-value="60">60</button>
+                        <button type="button" class="option-button" data-target="history" data-value="90">90</button>
+                        <button type="button" class="option-button" data-target="history" data-value="120">120</button>
+                        <button type="button" class="option-button" data-target="history" data-value="180">180</button>
+                        <button type="button" class="option-button" data-target="history" data-value="365">365</button>
+                    </div>
+                    <input type="hidden" id="history" value="60">
                 </div>
-                <input type="hidden" id="activity" value="7">
-            </div>
-            
-            <div class="form-group">
-                <label>History Retention Period (Days)</label>
-                <div class="button-group">
-                    <button type="button" class="option-button" data-target="history" data-value="30">30</button>
-                    <button type="button" class="option-button active" data-target="history" data-value="60">60</button>
-                    <button type="button" class="option-button" data-target="history" data-value="90">90</button>
-                    <button type="button" class="option-button" data-target="history" data-value="120">120</button>
-                    <button type="button" class="option-button" data-target="history" data-value="180">180</button>
-                    <button type="button" class="option-button" data-target="history" data-value="365">365</button>
+                
+                <div class="form-group">
+                    <label>Audit Retention Period (Days)</label>
+                    <div class="button-group">
+                        <button type="button" class="option-button" data-target="audit" data-value="30">30</button>
+                        <button type="button" class="option-button" data-target="audit" data-value="60">60</button>
+                        <button type="button" class="option-button active" data-target="audit" data-value="90">90</button>
+                        <button type="button" class="option-button" data-target="audit" data-value="120">120</button>
+                        <button type="button" class="option-button" data-target="audit" data-value="180">180</button>
+                        <button type="button" class="option-button" data-target="audit" data-value="365">365</button>
+                    </div>
+                    <input type="hidden" id="audit" value="90">
                 </div>
-                <input type="hidden" id="history" value="60">
-            </div>
-            
-            <div class="form-group">
-                <label>Audit Retention Period (Days)</label>
-                <div class="button-group">
-                    <button type="button" class="option-button" data-target="audit" data-value="30">30</button>
-                    <button type="button" class="option-button" data-target="audit" data-value="60">60</button>
-                    <button type="button" class="option-button active" data-target="audit" data-value="90">90</button>
-                    <button type="button" class="option-button" data-target="audit" data-value="120">120</button>
-                    <button type="button" class="option-button" data-target="audit" data-value="180">180</button>
-                    <button type="button" class="option-button" data-target="audit" data-value="365">365</button>
-                </div>
-                <input type="hidden" id="audit" value="90">
-            </div>
-        </fieldset>
+            </fieldset>
 
-        <fieldset>
-            <legend>Deployment Configuration</legend>
-            
-            <div class="form-group">
-                <label>Where to deploy?</label>
-                <div class="button-group">
-                    <button type="button" class="option-button active" data-target="deployment" data-value="saas">SaaS</button>
-                    <button type="button" class="option-button" data-target="deployment" data-value="customer-cloud">Customer Cloud</button>
-                    <button type="button" class="option-button" data-target="deployment" data-value="on-prem">On-Prem</button>
+            <fieldset class="config-column">
+                <legend>Deployment Configuration</legend>
+                
+                <div class="form-group">
+                    <label>Where to deploy?</label>
+                    <div class="button-group">
+                        <button type="button" class="option-button active" data-target="deployment" data-value="saas">SaaS</button>
+                        <button type="button" class="option-button" data-target="deployment" data-value="customer-cloud">Customer Cloud</button>
+                        <button type="button" class="option-button" data-target="deployment" data-value="on-prem">On-Prem</button>
+                    </div>
+                    <input type="hidden" id="deployment" value="saas">
                 </div>
-                <input type="hidden" id="deployment" value="saas">
-            </div>
-            
-            <div class="form-group" id="cloud-provider-group">
-                <label>Cloud Provider</label>
-                <div class="button-group">
-                    <button type="button" class="option-button active" data-target="cloud-provider" data-value="aws">AWS</button>
-                    <button type="button" class="option-button" data-target="cloud-provider" data-value="azure">Azure</button>
-                    <button type="button" class="option-button" data-target="cloud-provider" data-value="other" style="display: none;">Other</button>
+                
+                <div class="form-group" id="cloud-provider-group">
+                    <label>Cloud Provider</label>
+                    <div class="button-group">
+                        <button type="button" class="option-button active" data-target="cloud-provider" data-value="aws">AWS</button>
+                        <button type="button" class="option-button" data-target="cloud-provider" data-value="azure">Azure</button>
+                        <button type="button" class="option-button" data-target="cloud-provider" data-value="other" style="display: none;">Other</button>
+                    </div>
+                    <input type="hidden" id="cloud-provider" value="aws">
                 </div>
-                <input type="hidden" id="cloud-provider" value="aws">
-            </div>
-        </fieldset>
+            </fieldset>
+        </div>
 
         <button onclick="calculateSizing()">Calculate</button>
         <button class="reset-button" onclick="resetResults()">Reset</button>
-        <button class="export-button" onclick="exportResult()">Export as Excel</button>
+        <button class="export-button" onclick="exportAsPDF()">Export as PDF</button>
 
         <div id="sizing-result" class="results-container" style="display:none;">
-            <div class="results-summary">
-                <h3>Sizing Recommendation</h3>
-                <p>Based on your inputs, we recommend the following configuration:</p>
-                <div class="summary-cards">
-                    <div class="summary-card">
-                        <h4>Sizing Category</h4>
-                        <p id="summary-category">Medium</p>
-                    </div>
-                    <div class="summary-card">
-                        <h4>Task Executions</h4>
-                        <p id="summary-tasks">1M/month</p>
-                    </div>
-                    <div class="summary-card">
-                        <h4>Deployment</h4>
-                        <p id="summary-deployment">Customer Cloud (AWS)</p>
-                    </div>
+
+            <h4 class="results-section-header">Server Specifications</h4>
+            <div class="results-grid-3">
+                <div class="results-card">
+                    <h4>Universal Agent Server</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>vCPU</span><span class="spec-value" id="agent-vcpu"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>Memory</span><span class="spec-value" id="agent-ram"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>Disk</span><span class="spec-value" id="agent-disk"></span></div>
+                </div>
+                <div class="results-card">
+                    <h4>Universal Controller Server</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>vCPU</span><span class="spec-value" id="controller-vcpu"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>Memory</span><span class="spec-value" id="controller-ram"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>JVM Heap</span><span class="spec-value" id="controller-jvm"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>Disk</span><span class="spec-value" id="controller-disk"></span></div>
+                </div>
+                <div class="results-card">
+                    <h4>Database Server</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>vCPU</span><span class="spec-value" id="db-vcpu"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>Memory</span><span class="spec-value" id="db-ram"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>Min IOPS</span><span class="spec-value" id="db-iops"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Type</span><span class="spec-value" id="db-type"></span></div>
                 </div>
             </div>
 
-            <h4 class="results-section-header">Server Specifications</h4>
-            <div class="results-grid">
+            <h4 class="results-section-header" id="cloud-recommendation-header">AWS Instance Recommendations</h4>
+            <div class="results-grid-2">
                 <div class="results-card">
-                    <h4>Universal Agent</h4>
-                    <p><strong>vCPU:</strong> <span id="agent-vcpu">2</span></p>
-                    <p><strong>Memory:</strong> <span id="agent-ram">8 GB</span></p>
-                    <p><strong>Disk:</strong> <span id="agent-disk">SSD/GP3 50 GB</span></p>
+                    <h4>Controller Instance</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Instance Type</span><span class="spec-value spec-code" id="controller-instance-rec"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>vCPU</span><span class="spec-value" id="controller-instance-vcpu"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>Memory</span><span class="spec-value" id="controller-instance-ram"></span></div>
                 </div>
                 <div class="results-card">
-                    <h4>Universal Controller</h4>
-                    <p><strong>vCPU:</strong> <span id="controller-vcpu">4</span></p>
-                    <p><strong>Memory:</strong> <span id="controller-ram">16 GB</span></p>
-                    <p><strong>JVM Heap:</strong> <span id="controller-jvm">12 GB</span></p>
-                    <p><strong>Disk:</strong> <span id="controller-disk">SSD/GP3 100 GB</span></p>
-                    <p><strong>Instance (AWS):</strong> <span id="controller-aws">m6i.large</span></p>
-                    <p><strong>Instance (Azure):</strong> <span id="controller-azure">D4s v5</span></p>
-                </div>
-                <div class="results-card">
-                    <h4>Database</h4>
-                    <p><strong>vCPU:</strong> <span id="db-vcpu">4</span></p>
-                    <p><strong>Memory:</strong> <span id="db-ram">32 GB</span></p>
-                    <p><strong>Min IOPS:</strong> <span id="db-iops">6,000</span></p>
-                    <p><strong>Type:</strong> <span id="db-type">MySQL/Postgres/etc.</span></p>
-                    <p><strong>Instance (AWS):</strong> <span id="db-aws">db.r6g.xlarge</span></p>
-                    <p><strong>Instance (Azure):</strong> <span id="db-azure">GP_Gen5_8</span></p>
+                    <h4>Database Instance</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-box"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Instance Type</span><span class="spec-value spec-code" id="db-instance-rec"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-cpu"><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></svg>vCPU</span><span class="spec-value" id="db-instance-vcpu"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-hard-drive"><line x1="22" y1="12" x2="2" y2="12"></line><path d="M5.45 5.11L2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"></path><line x1="6" y1="16" x2="6.01" y2="16"></line><line x1="10" y1="16" x2="10.01" y2="16"></line></svg>Memory</span><span class="spec-value" id="db-instance-ram"></span></div>
                 </div>
             </div>
 
             <h4 class="results-section-header">Additional Components</h4>
-            <div class="results-grid">
+            <div class="results-grid-2">
                 <div class="results-card">
                     <h4>OMS File Share</h4>
-                    <p><strong>Size:</strong> <span id="oms-size">10 GB</span></p>
-                    <p><strong>Type:</strong> <span id="oms-type">EFS</span></p>
-                    <p><strong>Policy:</strong> <span id="oms-policy">Auto growth</span></p>
-                    <p class="note"><span id="oms-note">Managed file storage service</span></p>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Size</span><span class="spec-value" id="oms-size"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Type</span><span class="spec-value" id="oms-type"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Policy</span><span class="spec-value" id="oms-policy"></span></div>
+                    <p class="note"><span id="oms-note"></span></p>
                 </div>
                 <div class="results-card">
                     <h4>Log & Backup Share</h4>
-                    <p><strong>Size:</strong> <span id="backup-size">10 GB</span></p>
-                    <p><strong>Type:</strong> <span id="backup-type">S3</span></p>
-                    <p><strong>Policy:</strong> <span id="backup-policy">Auto growth recommended</span></p>
-                    <p class="note"><span id="backup-note">Cloud object storage</span></p>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-folder"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>Size</span><span class="spec-value" id="backup-size"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Type</span><span class="spec-value" id="backup-type"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Policy</span><span class="spec-value" id="backup-policy"></span></div>
+                    <p class="note"><span id="backup-note"></span></p>
                 </div>
                 <div class="results-card">
                     <h4>Load Balancer</h4>
-                    <p><strong>Type:</strong> <span id="lb-type">ALB/NLB</span></p>
-                    <p><strong>Purpose:</strong> <span id="lb-purpose">High availability and traffic distribution</span></p>
-                    <p class="note"><span id="lb-note">Cloud-native load balancing</span></p>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-layers"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Type</span><span class="spec-value" id="lb-type"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-shield"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>Purpose</span><span class="spec-value" id="lb-purpose"></span></div>
+                    <p class="note"><span id="lb-note"></span></p>
                 </div>
-            </div>
-            
-            <h4 class="results-section-header">Database Storage Calculation</h4>
-            <div class="results-grid">
-                 <div class="results-card">
-                    <h4>Storage Breakdown</h4>
-                    <p><strong>Total Required:</strong> <span id="storage-total">500 GB</span></p>
-                    <p><strong>Activity DB:</strong> <span id="storage-activity">100 GB</span></p>
-                    <p><strong>History DB:</strong> <span id="storage-history">200 GB</span></p>
-                    <p><strong>Audit DB:</strong> <span id="storage-audit">200 GB</span></p>
+                <div class="results-card">
+                    <h4>Database Storage Breakdown</h4>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>Total Required</span><span class="spec-value" id="storage-total"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>Activity DB</span><span class="spec-value" id="storage-activity"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>History DB</span><span class="spec-value" id="storage-history"></span></div>
+                    <div class="spec-item"><span class="spec-label"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-database"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path></svg>Audit DB</span><span class="spec-value" id="storage-audit"></span></div>
                 </div>
             </div>
         </div>

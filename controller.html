@@ -21,72 +21,101 @@
     </header>
     <main>
         <h2>Controller Installer</h2>
-        <form id="controller-form">
-            <fieldset>
-                <legend>Base Parameters</legend>
-                <div class="form-group">
-                    <label for="tomcat_dir">Tomcat Directory:</label>
-                    <input type="text" id="tomcat_dir" name="tomcat_dir" placeholder="e.g., /opt/tomcat">
-                </div>
-                <div class="form-group">
-                    <label for="controllerfile">Controller File:</label>
-                    <input type="text" id="controllerfile" name="controllerfile" value="universal-controller-N.N.N.N-build.N.war">
-                </div>
-                <div class="form-group">
-                    <label for="rdbms">RDBMS:</label>
-                    <select id="rdbms" name="rdbms">
-                        <option value="">Select Database Type</option>
-                        <option value="mysql">MySQL</option>
-                        <option value="postgres">PostgreSQL</option>
-                        <option value="oracle">Oracle</option>
-                        <option value="sqlserver">SQL Server</option>
-                        <option value="sqlserver-jtds">SQL Server JTDS</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="dburl">Database URL:</label>
-                    <input type="text" id="dburl" name="dburl" placeholder="Select RDBMS to populate">
-                </div>
-                <div class="form-group">
-                    <label for="dbname">Database Name:</label>
-                    <input type="text" id="dbname" name="dbname" placeholder="uc">
-                </div>
-                <div class="form-group">
-                    <label for="dbuser">Database User:</label>
-                    <input type="text" id="dbuser" name="dbuser" placeholder="e.g., postgres">
-                </div>
-                <div class="form-group">
-                    <label for="dbpass">Database Password:</label>
-                    <input type="text" id="dbpass" name="dbpass" value="<dbpass>" disabled>
-                </div>
-            </fieldset>
+        <div class="controller-container">
+            <form id="controller-form" class="controller-form">
+                <fieldset class="base-parameters">
+                    <legend>Base Parameters</legend>
+                    <div class="form-group">
+                        <label for="tomcat_dir">Tomcat Directory:</label>
+                        <input type="text" id="tomcat_dir" name="tomcat_dir" placeholder="e.g., /opt/tomcat">
+                    </div>
+                    <div class="form-group">
+                        <label for="controllerfile">Controller File:</label>
+                        <input type="text" id="controllerfile" name="controllerfile" value="universal-controller-N.N.N.N-build.N.war">
+                    </div>
+                    <div class="form-group">
+                        <label for="rdbms">RDBMS:</label>
+                        <select id="rdbms" name="rdbms">
+                            <option value="">Select Database Type</option>
+                            <option value="mysql">MySQL</option>
+                            <option value="postgres">PostgreSQL</option>
+                            <option value="oracle">Oracle</option>
+                            <option value="sqlserver">SQL Server</option>
+                            <option value="sqlserver-jtds">SQL Server JTDS</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dburl">Database URL:</label>
+                        <input type="text" id="dburl" name="dburl" placeholder="Select RDBMS to populate">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbname">Database Name:</label>
+                        <input type="text" id="dbname" name="dbname" placeholder="uc">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbuser">Database User:</label>
+                        <input type="text" id="dbuser" name="dbuser" placeholder="e.g., postgres">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbpass">Database Password:</label>
+                        <input type="text" id="dbpass" name="dbpass" value="<dbpass>" disabled>
+                    </div>
+                </fieldset>
 
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-advanced-options">
-                <label for="toggle-advanced-options">Show me more options</label>
-            </div>
-            <fieldset id="advanced-options" style="display: none;">
-                <legend>Advanced Parameters</legend>
-                <div class="form-group">
-                    <label for="port">Port:</label>
-                    <input type="text" id="port" name="port" placeholder="8080">
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="toggle-advanced-options">
+                    <label for="toggle-advanced-options">Show me more options</label>
                 </div>
-            </fieldset>
+                <fieldset id="advanced-options" style="display: none;">
+                    <legend>Advanced Parameters</legend>
+                    <div class="form-group">
+                        <label for="port">Port:</label>
+                        <input type="text" id="port" name="port" placeholder="8080">
+                    </div>
+                </fieldset>
 
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-additional-params">
-                <label for="toggle-additional-params">Let me write my parameters manually</label>
-            </div>
-            <fieldset id="additional-params-section" style="display: none;">
-                <legend>Additional Parameters</legend>
-                <div class="form-group">
-                    <label for="additional_params">Additional Parameters:</label>
-                    <input type="text" id="additional_params" name="additional_params" placeholder="e.g., --verbose">
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="toggle-additional-params">
+                    <label for="toggle-additional-params">Let me write my parameters manually</label>
                 </div>
-            </fieldset>
+                <fieldset id="additional-params-section" style="display: none;">
+                    <legend>Additional Parameters</legend>
+                    <div class="form-group">
+                        <label for="additional_params">Additional Parameters:</label>
+                        <input type="text" id="additional_params" name="additional_params" placeholder="e.g., --verbose">
+                    </div>
+                </fieldset>
+                
+                <button type="submit">Generate Command</button>
+            </form>
             
-            <button type="submit">Generate Command</button>
-        </form>
+            <div class="help-section">
+                <h3>Installation Guidelines</h3>
+                <div class="help-item">
+                    <h4>Tomcat Directory</h4>
+                    <p>Specify the full path to your Tomcat installation directory. This should be where Tomcat is installed and running.</p>
+                    <p class="help-example">Linux: <code>/opt/tomcat</code> or <code>/usr/local/tomcat</code></p>
+                    <p class="help-example">Windows: <code>C:\Program Files\Apache Software Foundation\Tomcat 9.0</code></p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>Controller File</h4>
+                    <p>The Universal Controller WAR file name. Replace N.N.N.N with your actual version number and build number.</p>
+                    <p class="help-example">Example: <code>universal-controller-7.2.1.3-build.2.war</code></p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>Database Configuration</h4>
+                    <p>Select your database type first, then fill in the connection details. The Database URL will be automatically populated based on your selection.</p>
+                    <p class="help-example">Database Name: Usually <code>uc</code> or <code>uac</code></p>
+                </div>
+                
+                <div class="help-item">
+                    <h4>Database Password</h4>
+                    <p>The actual password will be prompted during installation for security reasons.</p>
+                </div>
+            </div>
+        </div>
         <div id="command-output" style="display:none; margin-top: 20px;">
             <div class="command-section">
                 <h3>Generated Command:</h3>

@@ -482,13 +482,9 @@ function handleWindowsForm(form, script, prefix, defaults) {
         } else if (name === 'python') {
             msiParams.push(`PYTHON=${value ? 'yes' : 'no'}`);
         } else if (name === 'ac_agent_cluster' && value.trim()) {
-            // Handle spaces in cluster name with quotes
+            // Windows agent cluster always needs escaped double quotes
             const clusterValue = value.trim();
-            if (clusterValue.includes(' ')) {
-                msiParams.push(`AC_AGENT_CLUSTER="${clusterValue}"`);
-            } else {
-                msiParams.push(`AC_AGENT_CLUSTER=${clusterValue}`);
-            }
+            msiParams.push(`AC_AGENT_CLUSTER=\\"${clusterValue}\\"`);
         } else if (name === 'additional_params' && value.trim()) {
             // Add additional parameters directly
             msiParams.push(value.trim());
@@ -975,65 +971,49 @@ function calculateSizing() {
     const omsSizeGB = 10;
     const controllerDiskGB = category.controller.baseDisk + omsSizeGB + backupSizeGB;
 
-    // --- Populate Summary ---
-    document.getElementById('summary-category').textContent = category.name;
-    document.getElementById('summary-tasks').textContent = `${taskLabels[index]}/month`;
-    let deploymentText = deployment.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
-    if (deployment !== 'on-prem') {
-        deploymentText += ` (${cloudProvider.toUpperCase()})`;
-    }
-    document.getElementById('summary-deployment').textContent = deploymentText;
-
     // --- Populate Server Specifications ---
-    // Agent
     document.getElementById('agent-vcpu').textContent = category.agent.cpu;
     document.getElementById('agent-ram').textContent = `${category.agent.memory} GB`;
     document.getElementById('agent-disk').textContent = category.agent.disk;
-    // Controller
     document.getElementById('controller-vcpu').textContent = category.controller.cpu;
     document.getElementById('controller-ram').textContent = `${category.controller.memory} GB`;
     document.getElementById('controller-jvm').textContent = `${category.controller.jvm} GB`;
     document.getElementById('controller-disk').textContent = `SSD/GP3 ${controllerDiskGB} GB`;
-    document.getElementById('controller-aws').textContent = category.controller.aws.instance;
-    document.getElementById('controller-azure').textContent = category.controller.azure.instance;
-    // Database
     document.getElementById('db-vcpu').textContent = category.database.cpu;
     document.getElementById('db-ram').textContent = `${category.database.memory} GB`;
     document.getElementById('db-iops').textContent = formatNumber(category.database.iops);
-    document.getElementById('db-type').textContent = `MySQL/Oracle/SQL Server/Postgres`;
-    document.getElementById('db-aws').textContent = category.database.aws.instance;
-    document.getElementById('db-azure').textContent = category.database.azure.instance;
+    document.getElementById('db-type').textContent = `MySQL, Oracle, SQL Server, Postgres`;
+
+    // --- Populate Cloud Instance Recommendations ---
+    const cloudHeader = document.getElementById('cloud-recommendation-header');
+    const controllerInstance = category.controller[environmentKey];
+    const dbInstance = category.database[environmentKey];
+    
+    cloudHeader.textContent = `${cloudProvider.toUpperCase()} Instance Recommendations`;
+    
+    document.getElementById('controller-instance-rec').textContent = controllerInstance.instance;
+    document.getElementById('controller-instance-vcpu').textContent = controllerInstance.cpu;
+    document.getElementById('controller-instance-ram').textContent = `${controllerInstance.memory} GB`;
+    
+    document.getElementById('db-instance-rec').textContent = dbInstance.instance;
+    document.getElementById('db-instance-vcpu').textContent = dbInstance.cpu;
+    document.getElementById('db-instance-ram').textContent = `${dbInstance.memory} GB`;
 
     // --- Populate Additional Components ---
-    const omsNotes = {
-        onprem: 'Requires NFSv4 support',
-        aws: 'Managed file storage service',
-        azure: 'Managed file storage service',
-        other: 'Use your cloud provider\'s file storage service'
-    };
-    const backupNotes = {
-        onprem: 'Local storage solution',
-        aws: 'Cloud object storage',
-        azure: 'Cloud object storage',
-        other: 'Use your cloud provider\'s object storage service'
-    };
-    const lbNotes = {
-        onprem: 'Hardware or software-based',
-        aws: 'Cloud-native load balancing',
-        azure: 'Cloud-native load balancing',
-        other: 'Use your cloud provider\'s load balancing service'
-    };
-    // OMS
+    const omsNotes = { onprem: 'Requires NFSv4 support', aws: 'Managed file storage service', azure: 'Managed file storage service', other: 'Use your cloud provider\'s file storage service' };
+    const backupNotes = { onprem: 'Local storage solution', aws: 'Cloud object storage', azure: 'Cloud object storage', other: 'Use your cloud provider\'s object storage service' };
+    const lbNotes = { onprem: 'Hardware or software-based', aws: 'Cloud-native load balancing', azure: 'Cloud-native load balancing', other: 'Use your cloud provider\'s load balancing service' };
+    
     document.getElementById('oms-size').textContent = category.oms.size;
     document.getElementById('oms-type').textContent = category.oms[environmentKey].type;
     document.getElementById('oms-policy').textContent = category.oms.policy;
     document.getElementById('oms-note').textContent = omsNotes[environmentKey];
-    // Backup
+    
     document.getElementById('backup-size').textContent = `${backupSizeGB} GB`;
     document.getElementById('backup-type').textContent = category.backup[environmentKey].type;
     document.getElementById('backup-policy').textContent = 'Auto growth recommended';
     document.getElementById('backup-note').textContent = backupNotes[environmentKey];
-    // Load Balancer
+    
     document.getElementById('lb-type').textContent = category.loadbalancer[environmentKey].type;
     document.getElementById('lb-purpose').textContent = 'High availability and traffic distribution';
     document.getElementById('lb-note').textContent = lbNotes[environmentKey];
@@ -1085,4 +1065,253 @@ function exportResult() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+}
+
+function exportAsPDF() {
+    const resultDiv = document.getElementById("sizing-result");
+    if (!resultDiv || resultDiv.style.display === 'none') {
+        alert("No data to export. Please calculate sizing first.");
+        return;
+    }
+    
+    // Helper function to safely get element text content
+    function safeGetText(elementId, defaultValue = 'N/A') {
+        const element = document.getElementById(elementId);
+        if (!element) {
+            console.warn(`Element with ID '${elementId}' not found`);
+            return defaultValue;
+        }
+        const text = element.textContent || element.innerText || '';
+        return text.trim() || defaultValue;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF();
+    
+    // Helper function to draw table
+    function drawTable(startX, startY, headers, rows, columnWidths) {
+        const rowHeight = 8;
+        let currentY = startY;
+        
+        // Draw headers
+        pdf.setFillColor(240, 240, 240);
+        pdf.rect(startX, currentY, columnWidths.reduce((a, b) => a + b), rowHeight, 'F');
+        pdf.setFontSize(10);
+        pdf.setFont(undefined, 'bold');
+        
+        let currentX = startX;
+        headers.forEach((header, i) => {
+            pdf.text(header, currentX + 2, currentY + 6);
+            currentX += columnWidths[i];
+        });
+        
+        currentY += rowHeight;
+        
+        // Draw rows
+        pdf.setFont(undefined, 'normal');
+        rows.forEach((row, rowIndex) => {
+            // Alternate row colors
+            if (rowIndex % 2 === 0) {
+                pdf.setFillColor(250, 250, 250);
+                pdf.rect(startX, currentY, columnWidths.reduce((a, b) => a + b), rowHeight, 'F');
+            }
+            
+            currentX = startX;
+            row.forEach((cell, i) => {
+                pdf.text(String(cell), currentX + 2, currentY + 6);
+                currentX += columnWidths[i];
+            });
+            currentY += rowHeight;
+        });
+        
+        // Draw table borders
+        pdf.setDrawColor(0, 0, 0);
+        pdf.rect(startX, startY, columnWidths.reduce((a, b) => a + b), (rows.length + 1) * rowHeight);
+        
+        // Draw vertical lines
+        currentX = startX;
+        columnWidths.forEach(width => {
+            currentX += width;
+            if (currentX < startX + columnWidths.reduce((a, b) => a + b)) {
+                pdf.line(currentX, startY, currentX, startY + (rows.length + 1) * rowHeight);
+            }
+        });
+        
+        // Draw horizontal lines
+        for (let i = 1; i <= rows.length; i++) {
+            pdf.line(startX, startY + i * rowHeight, startX + columnWidths.reduce((a, b) => a + b), startY + i * rowHeight);
+        }
+        
+        return currentY + 5;
+    }
+    
+    // Add title
+    pdf.setFontSize(20);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('UAC Hardware Sizing Report', 20, 20);
+    
+    // Get current date
+    const date = new Date().toLocaleDateString();
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'normal');
+    pdf.text(`Generated on: ${date}`, 20, 35);
+    
+    let yPosition = 50;
+    
+    // Get input values
+    const tasks = safeGetText('task-display');
+    const activity = document.getElementById('activity')?.value || 'N/A';
+    const history = document.getElementById('history')?.value || 'N/A';
+    const audit = document.getElementById('audit')?.value || 'N/A';
+    const deployment = document.getElementById('deployment')?.value || 'N/A';
+    const cloudProvider = document.getElementById('cloud-provider')?.value || 'N/A';
+    
+    // Configuration Parameters Table
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Configuration Parameters', 20, yPosition);
+    yPosition += 10;
+    
+    // Get the selected sizing category
+    const selectedCategoryBox = document.querySelector('.category-box.selected');
+    const sizingCategory = selectedCategoryBox ? selectedCategoryBox.getAttribute('data-category') : 'Not Selected';
+    
+    const configHeaders = ['Parameter', 'Value'];
+    const configRows = [
+        ['Sizing Category', sizingCategory],
+        ['Task Executions', `${tasks}/month`],
+        ['Activity Retention', `${activity} days`],
+        ['History Retention', `${history} days`],
+        ['Audit Retention', `${audit} days`],
+        ['Deployment Type', deployment],
+    ];
+    
+    if (deployment !== 'saas') {
+        configRows.push(['Cloud Provider', cloudProvider]);
+    }
+    
+    yPosition = drawTable(20, yPosition, configHeaders, configRows, [60, 100]);
+    yPosition += 10;
+    
+    // Server Specifications Table
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Server Specifications', 20, yPosition);
+    yPosition += 10;
+    
+    const serverHeaders = ['Component', 'Specification', 'Value'];
+    const serverRows = [
+        ['Universal Agent Server', 'vCPU', safeGetText('agent-vcpu')],
+        ['', 'Memory', safeGetText('agent-ram')],
+        ['', 'Disk', safeGetText('agent-disk')],
+        ['Universal Controller Server', 'vCPU', safeGetText('controller-vcpu')],
+        ['', 'Memory', safeGetText('controller-ram')],
+        ['', 'JVM Heap', safeGetText('controller-jvm')],
+        ['', 'Disk', safeGetText('controller-disk')],
+        ['Database Server', 'vCPU', safeGetText('db-vcpu')],
+        ['', 'Memory', safeGetText('db-ram')],
+        ['', 'Min IOPS', safeGetText('db-iops')],
+        ['', 'Type', safeGetText('db-type')],
+    ];
+    
+    yPosition = drawTable(20, yPosition, serverHeaders, serverRows, [70, 50, 50]);
+    yPosition += 10;
+    
+    // Check if we need a new page
+    if (yPosition > 220) {
+        pdf.addPage();
+        yPosition = 20;
+    }
+    
+    // Cloud Instance Recommendations (if visible on page)
+    const cloudHeader = document.getElementById('cloud-recommendation-header');
+    if (cloudHeader && cloudHeader.style.display !== 'none') {
+        pdf.setFontSize(14);
+        pdf.setFont(undefined, 'bold');
+        
+        // Get cloud provider text from the header or use default
+        const headerText = cloudHeader.textContent || `${cloudProvider.toUpperCase()} Instance Recommendations`;
+        pdf.text(headerText, 20, yPosition);
+        yPosition += 10;
+        
+        const cloudHeaders = ['Instance Type', 'Specification', 'Value'];
+        const cloudRows = [
+            ['Controller Instance', 'Instance Type', safeGetText('controller-instance-rec')],
+            ['', 'vCPU', safeGetText('controller-instance-vcpu')],
+            ['', 'Memory', safeGetText('controller-instance-ram')],
+            ['Database Instance', 'Instance Type', safeGetText('db-instance-rec')],
+            ['', 'vCPU', safeGetText('db-instance-vcpu')],
+            ['', 'Memory', safeGetText('db-instance-ram')],
+        ];
+        
+        yPosition = drawTable(20, yPosition, cloudHeaders, cloudRows, [70, 50, 50]);
+        yPosition += 10;
+    }
+    
+    // Additional Components Table
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Additional Components', 20, yPosition);
+    yPosition += 10;
+    
+    const additionalHeaders = ['Component', 'Specification', 'Value'];
+    const additionalRows = [
+        ['OMS File Share', 'Size', safeGetText('oms-size')],
+        ['', 'Type', safeGetText('oms-type')],
+        ['', 'Policy', safeGetText('oms-policy')],
+        ['Log & Backup Share', 'Size', safeGetText('backup-size')],
+        ['', 'Type', safeGetText('backup-type')],
+        ['', 'Policy', safeGetText('backup-policy')],
+        ['Load Balancer', 'Type', safeGetText('lb-type')],
+        ['', 'Purpose', safeGetText('lb-purpose')],
+    ];
+    
+    yPosition = drawTable(20, yPosition, additionalHeaders, additionalRows, [70, 50, 50]);
+    yPosition += 10;
+    
+    // Check if we need a new page
+    if (yPosition > 220) {
+        pdf.addPage();
+        yPosition = 20;
+    }
+    
+    // Database Storage Breakdown Table
+    pdf.setFontSize(14);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Database Storage Breakdown', 20, yPosition);
+    yPosition += 10;
+    
+    const storageHeaders = ['Storage Component', 'Required Space'];
+    const storageRows = [
+        ['Total Required', safeGetText('storage-total')],
+        ['Activity Database', safeGetText('storage-activity')],
+        ['History Database', safeGetText('storage-history')],
+        ['Audit Database', safeGetText('storage-audit')],
+    ];
+    
+    yPosition = drawTable(20, yPosition, storageHeaders, storageRows, [80, 70]);
+    
+    // Add notes section
+    yPosition += 15;
+    pdf.setFontSize(12);
+    pdf.setFont(undefined, 'bold');
+    pdf.text('Notes:', 20, yPosition);
+    yPosition += 8;
+    
+    pdf.setFontSize(10);
+    pdf.setFont(undefined, 'normal');
+    const notes = [
+        '• All specifications are minimum requirements',
+        '• Storage calculations include growth buffer',
+        '• Cloud instance recommendations are optimized for performance',
+        '• Database IOPS requirements may vary based on workload patterns',
+    ];
+    
+    notes.forEach(note => {
+        pdf.text(note, 25, yPosition);
+        yPosition += 6;
+    });
+    
+    // Save the PDF
+    pdf.save('uac_hardware_sizing_report.pdf');
 }
