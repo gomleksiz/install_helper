@@ -984,20 +984,12 @@ function calculateSizing() {
     document.getElementById('db-iops').textContent = formatNumber(category.database.iops);
     document.getElementById('db-type').textContent = `MySQL, Oracle, SQL Server, Postgres`;
 
-    // --- Populate Cloud Instance Recommendations ---
-    const cloudHeader = document.getElementById('cloud-recommendation-header');
+    // --- Populate Instance Types in Server Cards ---
     const controllerInstance = category.controller[environmentKey];
     const dbInstance = category.database[environmentKey];
     
-    cloudHeader.textContent = `${cloudProvider.toUpperCase()} Instance Recommendations`;
-    
     document.getElementById('controller-instance-rec').textContent = controllerInstance.instance;
-    document.getElementById('controller-instance-vcpu').textContent = controllerInstance.cpu;
-    document.getElementById('controller-instance-ram').textContent = `${controllerInstance.memory} GB`;
-    
     document.getElementById('db-instance-rec').textContent = dbInstance.instance;
-    document.getElementById('db-instance-vcpu').textContent = dbInstance.cpu;
-    document.getElementById('db-instance-ram').textContent = `${dbInstance.memory} GB`;
 
     // --- Populate Additional Components ---
     const omsNotes = { onprem: 'Requires NFSv4 support', aws: 'Managed file storage service', azure: 'Managed file storage service', other: 'Use your cloud provider\'s file storage service' };
@@ -1204,11 +1196,13 @@ function exportAsPDF() {
         ['Universal Agent Server', 'vCPU', safeGetText('agent-vcpu')],
         ['', 'Memory', safeGetText('agent-ram')],
         ['', 'Disk', safeGetText('agent-disk')],
-        ['Universal Controller Server', 'vCPU', safeGetText('controller-vcpu')],
+        ['Universal Controller Server', 'Instance Type', safeGetText('controller-instance-rec')],
+        ['', 'vCPU', safeGetText('controller-vcpu')],
         ['', 'Memory', safeGetText('controller-ram')],
         ['', 'JVM Heap', safeGetText('controller-jvm')],
         ['', 'Disk', safeGetText('controller-disk')],
-        ['Database Server', 'vCPU', safeGetText('db-vcpu')],
+        ['Database Server', 'Instance Type', safeGetText('db-instance-rec')],
+        ['', 'vCPU', safeGetText('db-vcpu')],
         ['', 'Memory', safeGetText('db-ram')],
         ['', 'Min IOPS', safeGetText('db-iops')],
         ['', 'Type', safeGetText('db-type')],
@@ -1221,31 +1215,6 @@ function exportAsPDF() {
     if (yPosition > 220) {
         pdf.addPage();
         yPosition = 20;
-    }
-    
-    // Cloud Instance Recommendations (if visible on page)
-    const cloudHeader = document.getElementById('cloud-recommendation-header');
-    if (cloudHeader && cloudHeader.style.display !== 'none') {
-        pdf.setFontSize(14);
-        pdf.setFont(undefined, 'bold');
-        
-        // Get cloud provider text from the header or use default
-        const headerText = cloudHeader.textContent || `${cloudProvider.toUpperCase()} Instance Recommendations`;
-        pdf.text(headerText, 20, yPosition);
-        yPosition += 10;
-        
-        const cloudHeaders = ['Instance Type', 'Specification', 'Value'];
-        const cloudRows = [
-            ['Controller Instance', 'Instance Type', safeGetText('controller-instance-rec')],
-            ['', 'vCPU', safeGetText('controller-instance-vcpu')],
-            ['', 'Memory', safeGetText('controller-instance-ram')],
-            ['Database Instance', 'Instance Type', safeGetText('db-instance-rec')],
-            ['', 'vCPU', safeGetText('db-instance-vcpu')],
-            ['', 'Memory', safeGetText('db-instance-ram')],
-        ];
-        
-        yPosition = drawTable(20, yPosition, cloudHeaders, cloudRows, [70, 50, 50]);
-        yPosition += 10;
     }
     
     // Additional Components Table
@@ -1292,7 +1261,13 @@ function exportAsPDF() {
     yPosition = drawTable(20, yPosition, storageHeaders, storageRows, [80, 70]);
     
     // Add notes section
-    yPosition += 15;
+    if (yPosition > 200) {
+        pdf.addPage();
+        yPosition = 20;
+    } else {
+        yPosition += 15;
+    }
+    
     pdf.setFontSize(12);
     pdf.setFont(undefined, 'bold');
     pdf.text('Notes:', 20, yPosition);
