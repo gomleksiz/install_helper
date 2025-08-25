@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UAC Hardware Sizing Calculator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+                <li><a href="sizing.html">Sizing Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Stonebranch UAC Hardware Sizing Calculator</h2>
+        <p>Calculate recommended hardware specifications based on your expected task volume and retention requirements.</p>
+
+        <div class="sizing-categories">
+            <h3>Recommended Sizing Category</h3>
+            <div class="category-grid" id="category-selector">
+                <div class="category-box" data-category="Micro" data-tasks="25000">
+                    <div class="category-header">
+                        <h4>Micro</h4>
+                        <div class="task-limit">≤ 100K tasks/month</div>
+                    </div>
+                    <p class="category-desc">Suitable for small environments or test systems</p>
+                </div>
+                <div class="category-box" data-category="Small" data-tasks="250000">
+                    <div class="category-header">
+                        <h4>Small</h4>
+                        <div class="task-limit">≤ 500K tasks/month</div>
+                    </div>
+                    <p class="category-desc">Recommended for smaller production workloads</p>
+                </div>
+                <div class="category-box" data-category="Medium" data-tasks="1000000">
+                    <div class="category-header">
+                        <h4>Medium</h4>
+                        <div class="task-limit">≤ 3M tasks/month</div>
+                    </div>
+                    <p class="category-desc">Standard mid-size production environments</p>
+                </div>
+                <div class="category-box" data-category="Large" data-tasks="10000000">
+                    <div class="category-header">
+                        <h4>Large</h4>
+                        <div class="task-limit">≤ 15M tasks/month</div>
+                    </div>
+                    <p class="category-desc">Enterprise-grade high-volume environments</p>
+                </div>
+            </div>
+        </div>
+
+        <fieldset>
+            <legend>Sizing Parameters</legend>
+            
+            <div class="form-group">
+                <label for="tasks">Task Executions per Month</label>
+                <div class="slider-container">
+                    <input type="range" id="tasks" min="0" max="13" value="1" step="1" oninput="updateTaskFromSlider(this)">
+                    <div class="slider-value">
+                        <span id="task-display">25K</span> tasks/month
+                    </div>
+                    <div class="slider-ticks">
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                        <div class="tick"></div>
+                    </div>
+                    <div class="slider-labels">
+                        <span>10K</span>
+                        <span>25K</span>
+                        <span>40K</span>
+                        <span>100K</span>
+                        <span>250K</span>
+                        <span>300K</span>
+                        <span>400K</span>
+                        <span>500K</span>
+                        <span>1M</span>
+                        <span>3M</span>
+                        <span>5M</span>
+                        <span>7M</span>
+                        <span>10M</span>
+                        <span>15M</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Activity Retention Period (Days)</label>
+                <div class="button-group">
+                    <button type="button" class="option-button active" data-target="activity" data-value="7">7</button>
+                    <button type="button" class="option-button" data-target="activity" data-value="14">14</button>
+                    <button type="button" class="option-button" data-target="activity" data-value="21">21</button>
+                    <button type="button" class="option-button" data-target="activity" data-value="30">30</button>
+                </div>
+                <input type="hidden" id="activity" value="7">
+            </div>
+            
+            <div class="form-group">
+                <label>History Retention Period (Days)</label>
+                <div class="button-group">
+                    <button type="button" class="option-button" data-target="history" data-value="30">30</button>
+                    <button type="button" class="option-button active" data-target="history" data-value="60">60</button>
+                    <button type="button" class="option-button" data-target="history" data-value="90">90</button>
+                    <button type="button" class="option-button" data-target="history" data-value="120">120</button>
+                    <button type="button" class="option-button" data-target="history" data-value="180">180</button>
+                    <button type="button" class="option-button" data-target="history" data-value="365">365</button>
+                </div>
+                <input type="hidden" id="history" value="60">
+            </div>
+            
+            <div class="form-group">
+                <label>Audit Retention Period (Days)</label>
+                <div class="button-group">
+                    <button type="button" class="option-button" data-target="audit" data-value="30">30</button>
+                    <button type="button" class="option-button" data-target="audit" data-value="60">60</button>
+                    <button type="button" class="option-button active" data-target="audit" data-value="90">90</button>
+                    <button type="button" class="option-button" data-target="audit" data-value="120">120</button>
+                    <button type="button" class="option-button" data-target="audit" data-value="180">180</button>
+                    <button type="button" class="option-button" data-target="audit" data-value="365">365</button>
+                </div>
+                <input type="hidden" id="audit" value="90">
+            </div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Deployment Configuration</legend>
+            
+            <div class="form-group">
+                <label>Where to deploy?</label>
+                <div class="button-group">
+                    <button type="button" class="option-button active" data-target="deployment" data-value="saas">SaaS</button>
+                    <button type="button" class="option-button" data-target="deployment" data-value="customer-cloud">Customer Cloud</button>
+                    <button type="button" class="option-button" data-target="deployment" data-value="on-prem">On-Prem</button>
+                </div>
+                <input type="hidden" id="deployment" value="saas">
+            </div>
+            
+            <div class="form-group" id="cloud-provider-group">
+                <label>Cloud Provider</label>
+                <div class="button-group">
+                    <button type="button" class="option-button active" data-target="cloud-provider" data-value="aws">AWS</button>
+                    <button type="button" class="option-button" data-target="cloud-provider" data-value="azure">Azure</button>
+                    <button type="button" class="option-button" data-target="cloud-provider" data-value="other" style="display: none;">Other</button>
+                </div>
+                <input type="hidden" id="cloud-provider" value="aws">
+            </div>
+        </fieldset>
+
+        <button onclick="calculateSizing()">Calculate</button>
+        <button class="reset-button" onclick="resetResults()">Reset</button>
+        <button class="export-button" onclick="exportResult()">Export as Excel</button>
+
+        <div id="sizing-result" class="results-container" style="display:none;">
+            <div class="results-summary">
+                <h3>Sizing Recommendation</h3>
+                <p>Based on your inputs, we recommend the following configuration:</p>
+                <div class="summary-cards">
+                    <div class="summary-card">
+                        <h4>Sizing Category</h4>
+                        <p id="summary-category">Medium</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Task Executions</h4>
+                        <p id="summary-tasks">1M/month</p>
+                    </div>
+                    <div class="summary-card">
+                        <h4>Deployment</h4>
+                        <p id="summary-deployment">Customer Cloud (AWS)</p>
+                    </div>
+                </div>
+            </div>
+
+            <h4 class="results-section-header">Server Specifications</h4>
+            <div class="results-grid">
+                <div class="results-card">
+                    <h4>Universal Agent</h4>
+                    <p><strong>vCPU:</strong> <span id="agent-vcpu">2</span></p>
+                    <p><strong>Memory:</strong> <span id="agent-ram">8 GB</span></p>
+                    <p><strong>Disk:</strong> <span id="agent-disk">SSD/GP3 50 GB</span></p>
+                </div>
+                <div class="results-card">
+                    <h4>Universal Controller</h4>
+                    <p><strong>vCPU:</strong> <span id="controller-vcpu">4</span></p>
+                    <p><strong>Memory:</strong> <span id="controller-ram">16 GB</span></p>
+                    <p><strong>JVM Heap:</strong> <span id="controller-jvm">12 GB</span></p>
+                    <p><strong>Disk:</strong> <span id="controller-disk">SSD/GP3 100 GB</span></p>
+                    <p><strong>Instance (AWS):</strong> <span id="controller-aws">m6i.large</span></p>
+                    <p><strong>Instance (Azure):</strong> <span id="controller-azure">D4s v5</span></p>
+                </div>
+                <div class="results-card">
+                    <h4>Database</h4>
+                    <p><strong>vCPU:</strong> <span id="db-vcpu">4</span></p>
+                    <p><strong>Memory:</strong> <span id="db-ram">32 GB</span></p>
+                    <p><strong>Min IOPS:</strong> <span id="db-iops">6,000</span></p>
+                    <p><strong>Type:</strong> <span id="db-type">MySQL/Postgres/etc.</span></p>
+                    <p><strong>Instance (AWS):</strong> <span id="db-aws">db.r6g.xlarge</span></p>
+                    <p><strong>Instance (Azure):</strong> <span id="db-azure">GP_Gen5_8</span></p>
+                </div>
+            </div>
+
+            <h4 class="results-section-header">Additional Components</h4>
+            <div class="results-grid">
+                <div class="results-card">
+                    <h4>OMS File Share</h4>
+                    <p><strong>Size:</strong> <span id="oms-size">10 GB</span></p>
+                    <p><strong>Type:</strong> <span id="oms-type">EFS</span></p>
+                    <p><strong>Policy:</strong> <span id="oms-policy">Auto growth</span></p>
+                    <p class="note"><span id="oms-note">Managed file storage service</span></p>
+                </div>
+                <div class="results-card">
+                    <h4>Log & Backup Share</h4>
+                    <p><strong>Size:</strong> <span id="backup-size">10 GB</span></p>
+                    <p><strong>Type:</strong> <span id="backup-type">S3</span></p>
+                    <p><strong>Policy:</strong> <span id="backup-policy">Auto growth recommended</span></p>
+                    <p class="note"><span id="backup-note">Cloud object storage</span></p>
+                </div>
+                <div class="results-card">
+                    <h4>Load Balancer</h4>
+                    <p><strong>Type:</strong> <span id="lb-type">ALB/NLB</span></p>
+                    <p><strong>Purpose:</strong> <span id="lb-purpose">High availability and traffic distribution</span></p>
+                    <p class="note"><span id="lb-note">Cloud-native load balancing</span></p>
+                </div>
+            </div>
+            
+            <h4 class="results-section-header">Database Storage Calculation</h4>
+            <div class="results-grid">
+                 <div class="results-card">
+                    <h4>Storage Breakdown</h4>
+                    <p><strong>Total Required:</strong> <span id="storage-total">500 GB</span></p>
+                    <p><strong>Activity DB:</strong> <span id="storage-activity">100 GB</span></p>
+                    <p><strong>History DB:</strong> <span id="storage-history">200 GB</span></p>
+                    <p><strong>Audit DB:</strong> <span id="storage-audit">200 GB</span></p>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    
+    <script src="script.js"></script>
+</body>
+</html>

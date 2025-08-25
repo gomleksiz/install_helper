@@ -1,4 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // --- Initialize Button Selectors ---
+    initializeButtonSelectors();
+    
+    // --- Initialize Task Slider (only on sizing page) ---
+    const taskSlider = document.getElementById('tasks');
+    if (taskSlider) {
+        updateTaskFromSlider(taskSlider);
+        updateCategorySelection();
+        
+        // --- Initialize Category Selector (only on sizing page) ---
+        initializeCategorySelector();
+    }
     // --- Form Definitions ---
     const forms = {
         'linux-form': {
@@ -583,4 +595,494 @@ function handleControllerForm(form, script, prefix, defaults) {
     // Controller doesn't have additional commands
     const additionalCommandOutput = document.getElementById('additional-command-output');
     additionalCommandOutput.style.display = 'none';
+}
+
+// --- Sizing Calculator Functions ---
+const sizingMatrix = [
+    { 
+      name: "Micro", 
+      max_tasks: 100000,
+      description: "Suitable for small environments or test systems",
+      agent: { cpu: 2, memory: 4, disk: "SSD/GP3 50 GB" },
+      controller: { 
+        cpu: 2, memory: 8, jvm: 4, baseDisk: 50,
+        aws: { instance: "t3.medium", cpu: 2, memory: 8 },
+        azure: { instance: "D2s v5", cpu: 2, memory: 8 },
+        onprem: { cpu: 2, memory: 8 },
+        other: { cpu: 2, memory: 8 }
+      },
+      database: { 
+        cpu: 2, memory: 8, iops: 1500,
+        aws: { instance: "db.t4g.medium", cpu: 2, memory: 8 },
+        azure: { instance: "GP_Gen5_2", cpu: 2, memory: 8 },
+        onprem: { cpu: 2, memory: 8 },
+        other: { cpu: 2, memory: 8 }
+      },
+      oms: { 
+        size: "10 GB", 
+        policy: "Auto growth",
+        aws: { type: "EFS" },
+        azure: { type: "Azure Files" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud File Storage" }
+      },
+      backup: { 
+        size: "10 GB",
+        aws: { type: "S3" },
+        azure: { type: "Azure Storage" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud Object Storage" }
+      },
+      loadbalancer: { 
+        aws: { type: "ALB/NLB" },
+        azure: { type: "Azure Load Balancer" },
+        onprem: { type: "Hardware Load Balancer" },
+        other: { type: "Cloud Load Balancer" }
+      }
+    },
+    { 
+      name: "Small", 
+      max_tasks: 500000,
+      description: "Recommended for smaller production workloads",
+      agent: { cpu: 2, memory: 8, disk: "SSD/GP3 50 GB" },
+      controller: { 
+        cpu: 4, memory: 8, jvm: 6, baseDisk: 50,
+        aws: { instance: "t3.large", cpu: 2, memory: 8 },
+        azure: { instance: "D2s v5", cpu: 2, memory: 8 },
+        onprem: { cpu: 4, memory: 8 },
+        other: { cpu: 4, memory: 8 }
+      },
+      database: { 
+        cpu: 2, memory: 16, iops: 3000,
+        aws: { instance: "db.t4g.large", cpu: 2, memory: 16 },
+        azure: { instance: "GP_Gen5_4", cpu: 4, memory: 16 },
+        onprem: { cpu: 2, memory: 16 },
+        other: { cpu: 2, memory: 16 }
+      },
+      oms: { 
+        size: "10 GB", 
+        policy: "Auto growth",
+        aws: { type: "EFS" },
+        azure: { type: "Azure Files" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud File Storage" }
+      },
+      backup: { 
+        size: "10 GB",
+        aws: { type: "S3" },
+        azure: { type: "Azure Storage" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud Object Storage" }
+      },
+      loadbalancer: { 
+        aws: { type: "ALB/NLB" },
+        azure: { type: "Azure Load Balancer" },
+        onprem: { type: "Hardware Load Balancer" },
+        other: { type: "Cloud Load Balancer" }
+      }
+    },
+    { 
+      name: "Medium", 
+      max_tasks: 3000000,
+      description: "Standard mid-size production environments",
+      agent: { cpu: 2, memory: 8, disk: "SSD/GP3 100 GB" },
+      controller: { 
+        cpu: 4, memory: 16, jvm: 12, baseDisk: 100,
+        aws: { instance: "m6i.large", cpu: 2, memory: 8 },
+        azure: { instance: "D4s v5", cpu: 4, memory: 16 },
+        onprem: { cpu: 4, memory: 16 },
+        other: { cpu: 4, memory: 16 }
+      },
+      database: { 
+        cpu: 4, memory: 32, iops: 6000,
+        aws: { instance: "db.r6g.xlarge", cpu: 4, memory: 32 },
+        azure: { instance: "GP_Gen5_8", cpu: 8, memory: 32 },
+        onprem: { cpu: 4, memory: 32 },
+        other: { cpu: 4, memory: 32 }
+      },
+      oms: { 
+        size: "10 GB", 
+        policy: "Auto growth",
+        aws: { type: "EFS" },
+        azure: { type: "Azure Files" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud File Storage" }
+      },
+      backup: { 
+        size: "10 GB",
+        aws: { type: "S3" },
+        azure: { type: "Azure Storage" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud Object Storage" }
+      },
+      loadbalancer: { 
+        aws: { type: "ALB/NLB" },
+        azure: { type: "Azure Load Balancer" },
+        onprem: { type: "Hardware Load Balancer" },
+        other: { type: "Cloud Load Balancer" }
+      }
+    },
+    { 
+      name: "Large", 
+      max_tasks: 15000000,
+      description: "Enterprise-grade high-volume environments",
+      agent: { cpu: 4, memory: 16, disk: "SSD/GP3 100 GB" },
+      controller: { 
+        cpu: 8, memory: 32, jvm: 24, baseDisk: 100,
+        aws: { instance: "m6i.xlarge", cpu: 4, memory: 16 },
+        azure: { instance: "D8s v5", cpu: 8, memory: 32 },
+        onprem: { cpu: 8, memory: 32 },
+        other: { cpu: 8, memory: 32 }
+      },
+      database: { 
+        cpu: 8, memory: 64, iops: 12000,
+        aws: { instance: "db.r6g.2xlarge", cpu: 8, memory: 64 },
+        azure: { instance: "GP_Gen5_16", cpu: 16, memory: 64 },
+        onprem: { cpu: 8, memory: 64 },
+        other: { cpu: 8, memory: 64 }
+      },
+      oms: { 
+        size: "10 GB", 
+        policy: "Auto growth",
+        aws: { type: "EFS" },
+        azure: { type: "Azure Files" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud File Storage" }
+      },
+      backup: { 
+        size: "10 GB",
+        aws: { type: "S3" },
+        azure: { type: "Azure Storage" },
+        onprem: { type: "NAS/SAN" },
+        other: { type: "Cloud Object Storage" }
+      },
+      loadbalancer: { 
+        aws: { type: "ALB/NLB" },
+        azure: { type: "Azure Load Balancer" },
+        onprem: { type: "Hardware Load Balancer" },
+        other: { type: "Cloud Load Balancer" }
+      }
+    }
+];
+
+function formatNumber(num) {
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+function parseFormattedNumber(str) {
+    return parseInt(str.replace(/,/g, ''));
+}
+
+function liveFormatTasks(input) {
+    const cursorPosition = input.selectionStart;
+    const rawValue = input.value.replace(/,/g, '');
+
+    if (!isNaN(rawValue) && rawValue !== "") {
+      const formatted = formatNumber(Number(rawValue));
+      input.value = formatted;
+
+      const newCursorPosition = cursorPosition + (formatted.length - rawValue.length);
+      input.setSelectionRange(newCursorPosition, newCursorPosition);
+    }
+}
+
+// Define the discrete task values
+const taskValues = [10000, 25000, 40000, 100000, 250000, 300000, 400000, 500000, 1000000, 3000000, 5000000, 7000000, 10000000, 15000000];
+const taskLabels = ['10K', '25K', '40K', '100K', '250K', '300K', '400K', '500K', '1M', '3M', '5M', '7M', '10M', '15M'];
+
+function updateTaskFromSlider(slider) {
+    const index = parseInt(slider.value);
+    const value = taskValues[index];
+    const label = taskLabels[index];
+    const display = document.getElementById('task-display');
+    
+    display.textContent = label;
+    // The slider itself now holds the actual task count value for calculations
+    slider.setAttribute('data-value', value);
+    
+    // Update category selection
+    updateCategorySelection();
+}
+
+// --- Category Selection Functions ---
+function initializeCategorySelector() {
+    const categoryBoxes = document.querySelectorAll('.category-box');
+    categoryBoxes.forEach(box => {
+        box.addEventListener('click', function() {
+            const tasks = parseInt(this.dataset.tasks);
+            setTaskSliderValue(tasks);
+        });
+        
+        // Add cursor pointer style
+        box.style.cursor = 'pointer';
+    });
+}
+
+function setTaskSliderValue(targetTasks) {
+    const slider = document.getElementById('tasks');
+    
+    // Find the closest slider index for the target tasks
+    let closestIndex = 0;
+    let minDiff = Math.abs(taskValues[0] - targetTasks);
+    
+    for (let i = 1; i < taskValues.length; i++) {
+        const diff = Math.abs(taskValues[i] - targetTasks);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+        }
+    }
+    
+    slider.value = closestIndex;
+    updateTaskFromSlider(slider);
+}
+
+function updateCategorySelection() {
+    const slider = document.getElementById('tasks');
+    const currentTasks = taskValues[parseInt(slider.value)];
+    
+    // Find which category this task count belongs to
+    let selectedCategory = null;
+    for (const category of sizingMatrix) {
+        if (currentTasks <= category.max_tasks) {
+            selectedCategory = category;
+            break;
+        }
+    }
+    
+    // If still null, use Large (for values above 15M)
+    if (!selectedCategory) {
+        selectedCategory = sizingMatrix.find(c => c.name === "Large");
+    }
+    
+    // Update category box styling
+    const categoryBoxes = document.querySelectorAll('.category-box');
+    categoryBoxes.forEach(box => {
+        const categoryName = box.dataset.category;
+        if (categoryName === selectedCategory.name) {
+            box.classList.add('selected');
+            box.classList.remove('inactive');
+        } else {
+            box.classList.remove('selected');
+            box.classList.add('inactive');
+        }
+    });
+}
+
+let currentResultHTML = "";
+
+// --- Button Selector Functions ---
+function initializeButtonSelectors() {
+    // Add click handlers to all option buttons
+    document.querySelectorAll('.option-button').forEach(button => {
+        button.addEventListener('click', function() {
+            const target = this.dataset.target;
+            const value = this.dataset.value;
+            
+            // Remove active class from siblings
+            this.parentNode.querySelectorAll('.option-button').forEach(sibling => {
+                sibling.classList.remove('active');
+            });
+            
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            // Update hidden input value
+            const hiddenInput = document.getElementById(target);
+            if (hiddenInput) {
+                hiddenInput.value = value;
+            }
+            
+            // Handle deployment type changes
+            if (target === 'deployment') {
+                updateCloudProviderVisibility(value);
+            }
+        });
+    });
+    
+    // Initialize cloud provider visibility (only on sizing page)
+    const deploymentElement = document.getElementById('deployment');
+    if (deploymentElement) {
+        const deploymentValue = deploymentElement.value;
+        updateCloudProviderVisibility(deploymentValue);
+    }
+}
+
+function updateCloudProviderVisibility(deploymentType) {
+    const cloudProviderGroup = document.getElementById('cloud-provider-group');
+    const otherButton = document.querySelector('[data-target="cloud-provider"][data-value="other"]');
+    
+    if (deploymentType === 'on-prem') {
+        cloudProviderGroup.style.display = 'none';
+    } else {
+        cloudProviderGroup.style.display = 'block';
+        
+        if (deploymentType === 'customer-cloud') {
+            otherButton.style.display = 'inline-block';
+        } else {
+            otherButton.style.display = 'none';
+            // If "Other" was selected, switch to AWS
+            if (document.getElementById('cloud-provider').value === 'other') {
+                document.querySelector('[data-target="cloud-provider"][data-value="aws"]').click();
+            }
+        }
+    }
+}
+
+function calculateSizing() {
+    const slider = document.getElementById("tasks");
+    const index = parseInt(slider.value);
+    const tasks = taskValues[index];
+    const activity = parseInt(document.getElementById("activity").value);
+    const history = parseInt(document.getElementById("history").value);
+    const audit = parseInt(document.getElementById("audit").value);
+    const deployment = document.getElementById("deployment").value;
+    const cloudProvider = document.getElementById("cloud-provider").value;
+
+    if (isNaN(tasks)) {
+      alert("Please fill in task count correctly.");
+      return;
+    }
+
+    let category = sizingMatrix.find(c => tasks <= c.max_tasks) || sizingMatrix[sizingMatrix.length - 1];
+
+    // --- Storage Calculation ---
+    const WAR_FILE_MB = 310;
+    const TASK_EXEC_KB = 10;
+    const AUDIT_PERCENT = 0.25;
+    const RISK_FACTOR = 4;
+    const KB_TO_MB = 1024;
+    const MB_TO_GB = 1024;
+
+    const task_kb = (tasks / 30) * TASK_EXEC_KB;
+    const activity_kb = task_kb * activity;
+    const history_kb = task_kb * history;
+    const audit_kb = audit / history * (task_kb + activity_kb + history_kb) * AUDIT_PERCENT;
+
+    const total_kb = task_kb + activity_kb + history_kb + audit_kb;
+    const total_storage_mb = (total_kb / KB_TO_MB) + WAR_FILE_MB;
+    const total_storage_mb_risk = total_storage_mb * RISK_FACTOR;
+    const total_storage_gb = total_storage_mb_risk / MB_TO_GB;
+    
+    const baseBackupSize = 10;
+    const backupSizeGB = total_storage_gb > baseBackupSize ? Math.ceil(total_storage_gb / 10) * 10 : baseBackupSize;
+
+    let environmentKey = 'onprem';
+    if (deployment !== 'on-prem') {
+        environmentKey = cloudProvider;
+    }
+
+    const omsSizeGB = 10;
+    const controllerDiskGB = category.controller.baseDisk + omsSizeGB + backupSizeGB;
+
+    // --- Populate Summary ---
+    document.getElementById('summary-category').textContent = category.name;
+    document.getElementById('summary-tasks').textContent = `${taskLabels[index]}/month`;
+    let deploymentText = deployment.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+    if (deployment !== 'on-prem') {
+        deploymentText += ` (${cloudProvider.toUpperCase()})`;
+    }
+    document.getElementById('summary-deployment').textContent = deploymentText;
+
+    // --- Populate Server Specifications ---
+    // Agent
+    document.getElementById('agent-vcpu').textContent = category.agent.cpu;
+    document.getElementById('agent-ram').textContent = `${category.agent.memory} GB`;
+    document.getElementById('agent-disk').textContent = category.agent.disk;
+    // Controller
+    document.getElementById('controller-vcpu').textContent = category.controller.cpu;
+    document.getElementById('controller-ram').textContent = `${category.controller.memory} GB`;
+    document.getElementById('controller-jvm').textContent = `${category.controller.jvm} GB`;
+    document.getElementById('controller-disk').textContent = `SSD/GP3 ${controllerDiskGB} GB`;
+    document.getElementById('controller-aws').textContent = category.controller.aws.instance;
+    document.getElementById('controller-azure').textContent = category.controller.azure.instance;
+    // Database
+    document.getElementById('db-vcpu').textContent = category.database.cpu;
+    document.getElementById('db-ram').textContent = `${category.database.memory} GB`;
+    document.getElementById('db-iops').textContent = formatNumber(category.database.iops);
+    document.getElementById('db-type').textContent = `MySQL/Oracle/SQL Server/Postgres`;
+    document.getElementById('db-aws').textContent = category.database.aws.instance;
+    document.getElementById('db-azure').textContent = category.database.azure.instance;
+
+    // --- Populate Additional Components ---
+    const omsNotes = {
+        onprem: 'Requires NFSv4 support',
+        aws: 'Managed file storage service',
+        azure: 'Managed file storage service',
+        other: 'Use your cloud provider\'s file storage service'
+    };
+    const backupNotes = {
+        onprem: 'Local storage solution',
+        aws: 'Cloud object storage',
+        azure: 'Cloud object storage',
+        other: 'Use your cloud provider\'s object storage service'
+    };
+    const lbNotes = {
+        onprem: 'Hardware or software-based',
+        aws: 'Cloud-native load balancing',
+        azure: 'Cloud-native load balancing',
+        other: 'Use your cloud provider\'s load balancing service'
+    };
+    // OMS
+    document.getElementById('oms-size').textContent = category.oms.size;
+    document.getElementById('oms-type').textContent = category.oms[environmentKey].type;
+    document.getElementById('oms-policy').textContent = category.oms.policy;
+    document.getElementById('oms-note').textContent = omsNotes[environmentKey];
+    // Backup
+    document.getElementById('backup-size').textContent = `${backupSizeGB} GB`;
+    document.getElementById('backup-type').textContent = category.backup[environmentKey].type;
+    document.getElementById('backup-policy').textContent = 'Auto growth recommended';
+    document.getElementById('backup-note').textContent = backupNotes[environmentKey];
+    // Load Balancer
+    document.getElementById('lb-type').textContent = category.loadbalancer[environmentKey].type;
+    document.getElementById('lb-purpose').textContent = 'High availability and traffic distribution';
+    document.getElementById('lb-note').textContent = lbNotes[environmentKey];
+
+    // --- Populate Storage Breakdown ---
+    document.getElementById('storage-total').textContent = `${Math.ceil(total_storage_gb)} GB`;
+    document.getElementById('storage-activity').textContent = `${Math.ceil(activity_kb / KB_TO_MB / MB_TO_GB * RISK_FACTOR)} GB`;
+    document.getElementById('storage-history').textContent = `${Math.ceil(history_kb / KB_TO_MB / MB_TO_GB * RISK_FACTOR)} GB`;
+    document.getElementById('storage-audit').textContent = `${Math.ceil(audit_kb / KB_TO_MB / MB_TO_GB * RISK_FACTOR)} GB`;
+
+    // --- Show and Scroll to Results ---
+    const resultContainer = document.getElementById("sizing-result");
+    resultContainer.style.display = "block";
+    setTimeout(() => {
+        resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
+}
+
+function resetResults() {
+    document.getElementById("sizing-result").innerHTML = "";
+    document.getElementById("sizing-result").style.display = "none";
+}
+
+function exportResult() {
+    const resultDiv = document.getElementById("sizing-result");
+    if (!resultDiv.innerHTML.trim()) {
+      alert("No data to export. Please calculate sizing first.");
+      return;
+    }
+
+    const html = `
+      <html xmlns:o="urn:schemas-microsoft-com:office:office" 
+            xmlns:x="urn:schemas-microsoft-com:office:excel" 
+            xmlns="http://www.w3.org/TR/REC-html40">
+        <head><!--[if gte mso 9]><xml>
+          <x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+            <x:Name>Hardware Sizing</x:Name>
+            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions>
+          </x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook>
+        </xml><![endif]--></head>
+        <body>${resultDiv.innerHTML}</body>
+      </html>
+    `;
+
+    const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'uac_hardware_sizing.xls';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
