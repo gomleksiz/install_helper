@@ -37,7 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 additional_params: '',
                 unvdir: '',
                 unvcfgdir: '',
-                unvdatadir: ''
+                unvdatadir: '',
+                'no-root-install': false,
+                'no-root-postinstall': false
             }
         },
         'windows-form': {
@@ -135,6 +137,60 @@ document.addEventListener('DOMContentLoaded', () => {
     setupVisibilityToggle('toggle-user-mode', 'user-mode-parameters');
     setupVisibilityToggle('toggle-advanced-options', 'advanced-options');
     setupVisibilityToggle('toggle-additional-params', 'additional-params-section');
+    
+    // --- Root Privilege Options Logic ---
+    const noRootInstallCheckbox = document.getElementById('no-root-install');
+    const noRootPostinstallGroup = document.getElementById('no-root-postinstall-group');
+    const toggleUserOptions = document.getElementById('toggle-user-options');
+    const toggleUserMode = document.getElementById('toggle-user-mode');
+    
+    function handleNoRootInstall() {
+        if (noRootInstallCheckbox && noRootPostinstallGroup) {
+            const createUserCheckbox = document.getElementById('create_user');
+            const createGroupCheckbox = document.getElementById('create_group');
+            
+            if (noRootInstallCheckbox.checked) {
+                noRootPostinstallGroup.style.display = 'block';
+                // Auto-select user and folder options
+                if (toggleUserOptions && !toggleUserOptions.checked) {
+                    toggleUserOptions.click();
+                }
+                if (toggleUserMode && !toggleUserMode.checked) {
+                    toggleUserMode.click();
+                }
+                
+                // Disable and uncheck Create User and Create Group options
+                if (createUserCheckbox) {
+                    createUserCheckbox.checked = false;
+                    createUserCheckbox.disabled = true;
+                }
+                if (createGroupCheckbox) {
+                    createGroupCheckbox.checked = false;
+                    createGroupCheckbox.disabled = true;
+                }
+            } else {
+                noRootPostinstallGroup.style.display = 'none';
+                // Uncheck the post-install checkbox when hiding
+                const noRootPostinstallCheckbox = document.getElementById('no-root-postinstall');
+                if (noRootPostinstallCheckbox) {
+                    noRootPostinstallCheckbox.checked = false;
+                }
+                
+                // Re-enable Create User and Create Group options
+                if (createUserCheckbox) {
+                    createUserCheckbox.disabled = false;
+                }
+                if (createGroupCheckbox) {
+                    createGroupCheckbox.disabled = false;
+                }
+            }
+        }
+    }
+
+    if (noRootInstallCheckbox) {
+        noRootInstallCheckbox.addEventListener('change', handleNoRootInstall);
+        handleNoRootInstall();
+    }
 
     const createUserCheckbox = document.getElementById('create_user');
     const userDirGroup = document.getElementById('userdir-group');
@@ -223,34 +279,49 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- RDBMS Dropdown Handler for Controller Form ---
     const rdbmsSelect = document.getElementById('rdbms');
     const dburlField = document.getElementById('dburl');
+    const dbnameField = document.getElementById('dbname');
+
+    function updateJdbcUrl() {
+        if (!rdbmsSelect || !dburlField) return;
+        
+        const rdbmsValue = rdbmsSelect.value;
+        const dbname = dbnameField ? dbnameField.value.trim() || 'uc' : 'uc';
+        let defaultUrl = '';
+
+        switch (rdbmsValue) {
+            case 'mysql':
+                defaultUrl = `jdbc:mysql://localhost:3306/${dbname}`;
+                break;
+            case 'postgres':
+                defaultUrl = `jdbc:postgresql://localhost:5432/${dbname}`;
+                break;
+            case 'oracle':
+                defaultUrl = 'jdbc:oracle:thin:@//localhost:1521/ServiceName';
+                break;
+            case 'sqlserver':
+                defaultUrl = `jdbc:sqlserver://localhost:1433;DatabaseName=${dbname}`;
+                break;
+            case 'sqlserver-jtds':
+                defaultUrl = `jdbc:jtds:sqlserver://localhost:1433/${dbname}`;
+                break;
+            default:
+                defaultUrl = '';
+        }
+
+        dburlField.value = defaultUrl;
+    }
 
     if (rdbmsSelect && dburlField) {
-        rdbmsSelect.addEventListener('change', function() {
-            const rdbmsValue = this.value;
-            let defaultUrl = '';
-
-            switch (rdbmsValue) {
-                case 'mysql':
-                    defaultUrl = 'jdbc:mysql://localhost:3306/';
-                    break;
-                case 'postgres':
-                    defaultUrl = 'jdbc:postgresql://localhost:5432/';
-                    break;
-                case 'oracle':
-                    defaultUrl = 'jdbc:oracle:thin:@//localhost:1521/ServiceName';
-                    break;
-                case 'sqlserver':
-                    defaultUrl = 'jdbc:sqlserver://localhost:1433;DatabaseName=uc';
-                    break;
-                case 'sqlserver-jtds':
-                    defaultUrl = 'jdbc:jtds:sqlserver://localhost:1433/uc';
-                    break;
-                default:
-                    defaultUrl = '';
-            }
-
-            dburlField.value = defaultUrl;
-        });
+        rdbmsSelect.addEventListener('change', updateJdbcUrl);
+        
+        if (dbnameField) {
+            dbnameField.addEventListener('input', function() {
+                // Only update URL if an RDBMS is already selected
+                if (rdbmsSelect.value) {
+                    updateJdbcUrl();
+                }
+            });
+        }
     }
 });
 
@@ -273,7 +344,11 @@ function setupForm(form, script, prefix, defaults) {
             return;
         }
         
-        let command = prefix + script;
+        // Check if no-root installation is selected
+        const noRootInstall = document.getElementById('no-root-install')?.checked || false;
+        const actualPrefix = noRootInstall ? '' : prefix;
+        
+        let command = actualPrefix + script;
         const elements = form.elements;
 
         for (let i = 0; i < elements.length; i++) {
@@ -331,6 +406,11 @@ function setupForm(form, script, prefix, defaults) {
                 continue;
             }
 
+            // Skip the new root privilege checkboxes - they're handled separately
+            if (name === 'no-root-install' || name === 'no-root-postinstall') {
+                continue;
+            }
+
             // Special handling for ac_netname - also sets ubroker_id
             if (name === 'ac_netname') {
                 const netnameValue = element.value.trim();
@@ -341,20 +421,8 @@ function setupForm(form, script, prefix, defaults) {
                 continue;
             }
 
-            // Special handling for oms_port and unvport - only add if not empty and not default
-            if (name === 'oms_port') {
-                const omsPortValue = element.value.trim();
-                if (omsPortValue && omsPortValue !== '7878') {
-                    command += ` --oms_port ${omsPortValue}`;
-                }
-                continue;
-            }
-
-            if (name === 'unvport') {
-                const unvPortValue = element.value.trim();
-                if (unvPortValue && unvPortValue !== '7887') {
-                    command += ` --unvport ${unvPortValue}`;
-                }
+            // Special handling for oms_port and unvport - will be handled after directory validation
+            if (name === 'oms_port' || name === 'unvport') {
                 continue;
             }
 
@@ -388,6 +456,16 @@ function setupForm(form, script, prefix, defaults) {
         const dirValues = [unvdirValue, unvcfgdirValue, unvdatadirValue];
         const hasAnyDir = dirValues.some(dir => dir !== '');
         const hasAllDirs = dirValues.every(dir => dir !== '');
+        const toggleUserModeChecked = document.getElementById('toggle-user-mode')?.checked || false;
+
+        // Clear any previous validation errors
+        clearDirectoryValidationErrors();
+
+        // Check if "different folder" is selected but directories are not complete
+        if (toggleUserModeChecked && !hasAllDirs) {
+            showDirectoryValidationErrors('When "I want to install in a different folder" is selected, all three directories must have values.');
+            return;
+        }
 
         if (hasAnyDir && hasAllDirs) {
             // All three directories have values - add usermode_install and directories
@@ -397,13 +475,35 @@ function setupForm(form, script, prefix, defaults) {
             if (unvdatadirValue) command += ` --unvdatadir ${unvdatadirValue}`;
         } else if (hasAnyDir && !hasAllDirs) {
             // Some but not all directories have values - show error
-            alert('If you specify any directory (Install, Config, or Data), all three directories must have values.');
+            showDirectoryValidationErrors('If you specify any directory (Install, Config, or Data), all three directories must have values.');
             return;
+        }
+
+        // Handle oms_port and unvport - always add when "I want to install in a different folder" is selected
+        const omsPortValue = document.getElementById('oms_port')?.value.trim() || '';
+        const unvPortValue = document.getElementById('unvport')?.value.trim() || '';
+        const isUsermodeInstall = hasAnyDir && hasAllDirs;
+        
+        if (omsPortValue && (omsPortValue !== '7878' || toggleUserModeChecked)) {
+            const portValue = omsPortValue || '7878';
+            command += ` --oms_port ${portValue}`;
+        } else if (toggleUserModeChecked) {
+            // Always add default port when "different folder" is selected
+            command += ` --oms_port 7878`;
+        }
+        
+        if (unvPortValue && (unvPortValue !== '7887' || toggleUserModeChecked)) {
+            const portValue = unvPortValue || '7887';
+            command += ` --unvport ${portValue}`;
+        } else if (toggleUserModeChecked) {
+            // Always add default port when "different folder" is selected
+            command += ` --unvport 7887`;
         }
 
         // Check if we need additional commands
         const securityValue = document.getElementById('security')?.value || 'appdef';
         const registerUbrokerd = document.getElementById('register_ubrokerd')?.checked || false;
+        const noRootPostinstall = document.getElementById('no-root-postinstall')?.checked || false;
         
         // Check if this is Windows form
         const isWindows = window.location.pathname.includes('windows') || 
@@ -412,11 +512,19 @@ function setupForm(form, script, prefix, defaults) {
         // Build additional commands
         let additionalCommands = [];
         
-        // PAM commands only for Linux (not Windows)
-        if (!isWindows) {
+        // Add unvperms script if no-root-install is checked but no-root-postinstall is not checked
+        if (noRootInstall && !noRootPostinstall) {
+            const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
+            if (unvdirValue) {
+                additionalCommands.push(`sudo ${unvdirValue}/unvperms-3156.sh`);
+            }
+        }
+        
+        // PAM commands only for Linux (not Windows) and only if post-install can use root
+        if (!isWindows && !noRootPostinstall) {
             const needsPamCommand = ['appdef', 'pam', 'pam_sessions'].includes(securityValue);
             if (needsPamCommand) {
-                additionalCommands.push('cp /etc/pam.d/login /etc/pam.d/ucmd');
+                additionalCommands.push('sudo cp /etc/pam.d/login /etc/pam.d/ucmd');
             }
         }
         
@@ -426,6 +534,14 @@ function setupForm(form, script, prefix, defaults) {
                 additionalCommands.push('sc config ubrokerd start= auto');
             } else {
                 additionalCommands.push('sudo systemctl enable ubrokerd');
+            }
+        }
+        
+        // Add broker start command LAST if "I want to install in a different folder" is selected
+        if (toggleUserModeChecked) {
+            const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
+            if (unvdirValue) {
+                additionalCommands.push(`${unvdirValue}/ubroker/ubrokerd start`);
             }
         }
         
@@ -445,6 +561,11 @@ function setupForm(form, script, prefix, defaults) {
         } else {
             additionalCommandOutput.style.display = 'none';
         }
+
+        // Scroll to the generated command
+        setTimeout(() => {
+            commandOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
     });
 }
 
@@ -507,6 +628,11 @@ function handleWindowsForm(form, script, prefix, defaults) {
     // Windows doesn't have additional commands in the same way
     const additionalCommandOutput = document.getElementById('additional-command-output');
     additionalCommandOutput.style.display = 'none';
+
+    // Scroll to the generated command
+    setTimeout(() => {
+        commandOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 }
 
 // --- Controller Form Handler ---
@@ -591,6 +717,11 @@ function handleControllerForm(form, script, prefix, defaults) {
     // Controller doesn't have additional commands
     const additionalCommandOutput = document.getElementById('additional-command-output');
     additionalCommandOutput.style.display = 'none';
+
+    // Scroll to the generated command
+    setTimeout(() => {
+        commandOutput.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
 }
 
 // --- Sizing Calculator Functions ---
@@ -1289,4 +1420,58 @@ function exportAsPDF() {
     
     // Save the PDF
     pdf.save('uac_hardware_sizing_report.pdf');
+}
+
+// --- Directory Validation Helper Functions ---
+function clearDirectoryValidationErrors() {
+    const directoryFields = ['unvdir', 'unvcfgdir', 'unvdatadir'];
+    
+    directoryFields.forEach(fieldId => {
+        const fieldInput = document.getElementById(fieldId);
+        const fieldGroup = document.getElementById(`${fieldId}-group`);
+        const errorElement = document.getElementById(`${fieldId}-error`);
+        
+        if (fieldInput) {
+            fieldInput.classList.remove('error');
+        }
+        if (fieldGroup) {
+            fieldGroup.classList.remove('error');
+        }
+        if (errorElement) {
+            errorElement.classList.remove('show');
+            errorElement.textContent = '';
+        }
+    });
+}
+
+function showDirectoryValidationErrors(message) {
+    const directoryFields = ['unvdir', 'unvcfgdir', 'unvdatadir'];
+    
+    directoryFields.forEach(fieldId => {
+        const fieldInput = document.getElementById(fieldId);
+        const fieldValue = fieldInput?.value.trim() || '';
+        const fieldGroup = document.getElementById(`${fieldId}-group`);
+        const errorElement = document.getElementById(`${fieldId}-error`);
+        
+        // Only highlight empty fields
+        if (!fieldValue) {
+            if (fieldInput) {
+                fieldInput.classList.add('error');
+            }
+            if (fieldGroup) {
+                fieldGroup.classList.add('error');
+            }
+            if (errorElement) {
+                errorElement.textContent = 'This field is required';
+                errorElement.classList.add('show');
+            }
+        }
+    });
+    
+    // Scroll to the first error field
+    const firstErrorField = document.querySelector('input.error, .form-group.error input');
+    if (firstErrorField) {
+        firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        firstErrorField.focus();
+    }
 }

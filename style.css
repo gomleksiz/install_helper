@@ -16,6 +16,27 @@
     --stonebranch-error: #FF7154;       /* Using brand orange for error */
 }
 
+/* Validation Error Styles */
+.form-group.error input,
+.form-group.error select,
+.form-input-wrapper input.error,
+input.error,
+select.error {
+    border: 2px solid var(--stonebranch-error) !important;
+    background-color: #fff5f5 !important;
+}
+
+.error-message {
+    color: var(--stonebranch-error);
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.error-message.show {
+    display: block;
+}
+
 body {
     font-family: sans-serif;
     line-height: 1.6;
@@ -84,6 +105,24 @@ footer {
     flex-direction: row;
     align-items: center;
     margin-bottom: 15px;
+}
+
+.form-input-wrapper {
+    flex: 1.5;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+}
+
+.form-input-wrapper input {
+    flex: none;
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    box-sizing: border-box;
 }
 
 .form-group label {

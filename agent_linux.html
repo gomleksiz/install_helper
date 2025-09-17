@@ -48,6 +48,15 @@
                 </fieldset>
 
             <div class="form-group-checkbox">
+                <input type="checkbox" id="no-root-install" name="no-root-install">
+                <label for="no-root-install">Install as regular user (no root/sudo)</label>
+            </div>
+            <div class="form-group-checkbox" id="no-root-postinstall-group" style="display: none;">
+                <input type="checkbox" id="no-root-postinstall" name="no-root-postinstall">
+                <label for="no-root-postinstall">Skip post-install root tasks</label>
+            </div>
+
+            <div class="form-group-checkbox">
                 <input type="checkbox" id="toggle-user-options">
                 <label for="toggle-user-options">I want to install with a different user</label>
             </div>
@@ -85,17 +94,26 @@
                     <label for="basedir">Base Directory:</label>
                     <input type="text" id="basedir" name="basedir" placeholder="/usr/local">
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="unvdir-group">
                     <label for="unvdir">Install Directory:</label>
-                    <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
+                    <div class="form-input-wrapper">
+                        <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
+                        <div class="error-message" id="unvdir-error"></div>
+                    </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="unvcfgdir-group">
                     <label for="unvcfgdir">Config Directory:</label>
-                    <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
+                    <div class="form-input-wrapper">
+                        <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
+                        <div class="error-message" id="unvcfgdir-error"></div>
+                    </div>
                 </div>
-                <div class="form-group">
+                <div class="form-group" id="unvdatadir-group">
                     <label for="unvdatadir">Data Directory:</label>
-                    <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
+                    <div class="form-input-wrapper">
+                        <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
+                        <div class="error-message" id="unvdatadir-error"></div>
+                    </div>
                 </div>
             </fieldset>
 
@@ -193,8 +211,8 @@
                 
                 <div class="help-item">
                     <h4>User Installation</h4>
-                    <p>By default, the agent installs as root. You can specify a different user for security or organizational requirements.</p>
-                    <p class="help-example">Common user: <code>ubroker</code></p>
+                    <p>By default, the agent installs and runs as the ubroker user. You can specify a different user for specific security or organizational requirements.</p>
+                    <p class="help-example">Default user: <code>ubroker</code></p>
                 </div>
             </div>
         </div>
