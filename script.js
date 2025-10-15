@@ -299,7 +299,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 defaultUrl = 'jdbc:oracle:thin:@//localhost:1521/ServiceName';
                 break;
             case 'sqlserver':
-                defaultUrl = `jdbc:sqlserver://localhost:1433;DatabaseName=${dbname}`;
+                defaultUrl = `jdbc:sqlserver://localhost:1433;DatabaseName=${dbname};trustServerCertificate=true`;
                 break;
             case 'sqlserver-jtds':
                 defaultUrl = `jdbc:jtds:sqlserver://localhost:1433/${dbname}`;
@@ -683,8 +683,27 @@ function handleControllerForm(form, script, prefix, defaults) {
         } else if (name === 'controllerfile' && value && value !== defaultValue) {
             command += ` --controller-file ${value}`;
         } else if (name === 'dburl' && value) {
-            // Always quote database URLs
-            command += ` --dburl '${value}'`;
+            // Get RDBMS type to check if we need to add trustServerCertificate
+            const rdbmsElement = document.getElementById('rdbms');
+            const rdbmsValue = rdbmsElement ? rdbmsElement.value.trim() : '';
+            
+            let dbUrlValue = value;
+            // Add trustServerCertificate=true for SQL Server if not already present
+            if ((rdbmsValue === 'sqlserver' || rdbmsValue === 'sqlserver-jtds') && 
+                !dbUrlValue.includes('trustServerCertificate')) {
+                // Add the parameter with appropriate separator
+                if (dbUrlValue.includes('?')) {
+                    dbUrlValue += '&trustServerCertificate=true';
+                } else if (rdbmsValue === 'sqlserver-jtds') {
+                    // For JTDS, parameters are separated by semicolons
+                    dbUrlValue += ';trustServerCertificate=true';
+                } else {
+                    // For standard SQL Server JDBC, parameters are separated by semicolons
+                    dbUrlValue += ';trustServerCertificate=true';
+                }
+            }
+            
+            command += ` --dburl ${dbUrlValue}`;
         } else if (name === 'dbuser' && value) {
             command += ` --dbuser ${value}`;
         } else if (name === 'port' && value && value !== '8080') {
