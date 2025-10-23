@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 dbuser: '',
                 dbpass: '<dbpass>',
                 port: '8080',
+                reportingserver: false,
                 additional_params: ''
             }
         }
@@ -682,6 +683,10 @@ function handleControllerForm(form, script, prefix, defaults) {
             command += ` --tomcat-dir ${quotedValue}`;
         } else if (name === 'controllerfile' && value && value !== defaultValue) {
             command += ` --controller-file ${value}`;
+        } else if (name === 'reportingserver' && element.type === 'checkbox') {
+            if (value) {
+                command += ` --reportingserver true`;
+            }
         } else if (name === 'dburl' && value) {
             // Get RDBMS type to check if we need to add trustServerCertificate
             const rdbmsElement = document.getElementById('rdbms');
