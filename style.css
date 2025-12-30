@@ -186,7 +186,8 @@ button:active {
     padding: 20px;
     border-radius: 8px;
     border: 1px solid #e2e8f0;
-    margin-top: 25px;
+    margin-top: 15px;
+    width: 100%;
 }
 #command-output pre {
     background: #1e293b;
@@ -231,7 +232,7 @@ legend {
 }
 
 .command-section {
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .command-section:last-child {
@@ -240,7 +241,7 @@ legend {
 
 .command-section h3 {
     margin-top: 0;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
     color: var(--stonebranch-primary);
     font-size: 16px;
 }
@@ -1022,6 +1023,28 @@ legend {
     color: var(--stonebranch-secondary);
     font-weight: 600;
     text-align: center;
+}
+
+/* Download Link Styles */
+.download-link {
+    display: inline-block;
+    padding: 10px 20px;
+    background: var(--stonebranch-primary);
+    color: var(--stonebranch-white);
+    text-decoration: none;
+    border-radius: 6px;
+    font-weight: 500;
+    transition: background-color 0.3s, transform 0.2s;
+    margin: 5px 0;
+}
+
+.download-link:hover {
+    background: var(--stonebranch-secondary);
+    transform: translateY(-1px);
+}
+
+.download-link:active {
+    transform: translateY(0);
 }
 
 /* Responsive Design */

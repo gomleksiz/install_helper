@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Environment Setup - Command Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="environment.html">Environment</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+                <li><a href="sizing.html">Sizing Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <h2>Environment Prerequisite Generator</h2>
+        <div class="controller-container">
+            <form id="environment-form" class="controller-form">
+                <!-- Environment Selector -->
+                <fieldset class="base-parameters">
+                    <legend>Operating System Environment</legend>
+                    <div class="form-group">
+                        <label for="os_environment">Select OS:</label>
+                        <select id="os_environment" name="os_environment">
+                            <option value="aws">AWS (Amazon Linux 2023)</option>
+                            <option value="rhel">On-Prem (RHEL/CentOS)</option>
+                            <option value="ubuntu">Ubuntu/Debian</option>
+                            <option value="windows">Windows</option>
+                        </select>
+                    </div>
+                </fieldset>
+
+                <!-- Component Selection -->
+                <fieldset class="base-parameters">
+                    <legend>Components to Install</legend>
+
+                    <!-- Java Section -->
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="install_java" name="install_java">
+                        <label for="install_java">Install Java</label>
+                    </div>
+                    <div id="java-options" style="display: none; margin-left: 30px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="java_version">Java Version:</label>
+                            <select id="java_version" name="java_version">
+                                <option value="17" selected>Java 17</option>
+                                <option value="21">Java 21</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Tomcat Section -->
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="install_tomcat" name="install_tomcat">
+                        <label for="install_tomcat">Install Tomcat 10</label>
+                    </div>
+                    <div id="tomcat-options" style="display: none; margin-left: 30px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="tomcat_method">Installation Method:</label>
+                            <select id="tomcat_method" name="tomcat_method">
+                                <option value="package" selected>Package Manager (yum/apt)</option>
+                                <option value="manual">Manual Download (tar.gz)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Database Section -->
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="install_database" name="install_database">
+                        <label for="install_database">Install Database</label>
+                    </div>
+                    <div id="database-options" style="display: none; margin-left: 30px; margin-bottom: 15px;">
+                        <div class="form-group">
+                            <label for="database_type">Database Type:</label>
+                            <select id="database_type" name="database_type">
+                                <option value="mysql">MySQL</option>
+                                <option value="mariadb" selected>MariaDB</option>
+                                <option value="postgres">PostgreSQL</option>
+                            </select>
+                        </div>
+                        <p style="margin-top: 10px; font-size: 13px; color: #666;">
+                            <strong>Note:</strong> For detailed database installation instructions, see
+                            <a href="https://stonebranchdocs.atlassian.net/wiki/spaces/UC79/pages/1614463314/Installing+a+Database" target="_blank" style="color: #186CDA;">Stonebranch Database Installation Guide</a>
+                        </p>
+                    </div>
+
+                    <!-- Agent Prerequisites Section -->
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="install_agent_prereqs" name="install_agent_prereqs">
+                        <label for="install_agent_prereqs">Install Agent Prerequisites</label>
+                    </div>
+                    <div id="agent-prereqs-info" style="display: none; margin-left: 30px; margin-bottom: 15px;">
+                        <p style="font-size: 13px; color: #666;">
+                            <strong>Note:</strong> This installs additional libraries required for Universal Agent installation.
+                            For AWS/Amazon Linux, this includes libxcrypt-compat.
+                        </p>
+                    </div>
+                </fieldset>
+
+                <button type="submit">Generate Setup Script</button>
+
+                <div id="command-output" style="display:none; margin-top: 20px;">
+                    <div class="command-section">
+                        <h3>Generated Setup Script:</h3>
+                        <div class="command-line">
+                            <pre><code id="generated-command"></code></pre>
+                            <button id="copy-button" class="copy-icon" title="Copy to clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                    <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Manual Download Links Section -->
+                    <div id="manual-download-section" style="display:none;" class="command-section">
+                        <h3>Manual Download Links:</h3>
+                        <div id="download-links"></div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="help-section">
+                <h3>Installation Guidelines</h3>
+
+                <div class="help-item">
+                    <h4>Supported Versions</h4>
+                    <p>Universal Controller requires specific versions of Java and Tomcat:</p>
+                    <p><strong>Java:</strong> Java 17 or Java 21 (headless recommended)</p>
+                    <p><strong>Tomcat:</strong> Tomcat 10.x</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Operating System</h4>
+                    <p>Select your target operating system to generate appropriate installation commands.</p>
+                    <p><strong>AWS:</strong> Amazon Linux 2023 with yum package manager</p>
+                    <p><strong>RHEL/CentOS:</strong> Red Hat Enterprise Linux or CentOS with yum</p>
+                    <p><strong>Ubuntu/Debian:</strong> Ubuntu or Debian-based systems with apt-get</p>
+                    <p><strong>Windows:</strong> Displays download links for manual installation</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Java Installation</h4>
+                    <p>Java Runtime Environment (JRE) is required for Universal Controller.</p>
+                    <p><strong>Linux:</strong> Commands will use package managers to install OpenJDK or Amazon Corretto</p>
+                    <p><strong>Windows:</strong> Download links provided for both Oracle JRE and OpenJDK</p>
+                    <p class="help-example">Oracle JRE: <a href="http://www.oracle.com/technetwork/java/javase/downloads/index.html" target="_blank">Oracle Downloads</a></p>
+                    <p class="help-example">OpenJDK: <a href="https://developers.redhat.com/products/openjdk/download/" target="_blank">Red Hat OpenJDK</a></p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Tomcat Installation</h4>
+                    <p>Apache Tomcat 10 is required as the application server.</p>
+                    <p><strong>Package Manager:</strong> Installs via yum/apt (recommended for Linux)</p>
+                    <p><strong>Manual Download:</strong> Downloads tar.gz from Apache archive and extracts to /opt/tomcat</p>
+                    <p><strong>Note:</strong> Manual installation provides more control over the installation directory and version.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Database</h4>
+                    <p>Universal Controller requires a database backend. Supported databases include:</p>
+                    <p>• MySQL<br>• MariaDB<br>• PostgreSQL<br>• Oracle<br>• SQL Server</p>
+                    <p><strong>Important:</strong> Refer to the <a href="https://stonebranchdocs.atlassian.net/wiki/spaces/UC79/pages/1614463314/Installing+a+Database" target="_blank">Stonebranch Database Installation Guide</a> for detailed setup instructions and configuration requirements.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Agent Prerequisites</h4>
+                    <p>Additional system libraries required for Universal Agent installation.</p>
+                    <p><strong>AWS/Amazon Linux:</strong> Installs libxcrypt-compat library</p>
+                    <p><strong>Note:</strong> These prerequisites must be installed before installing the Universal Agent.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Installation Method</h4>
+                    <p>The generated script includes:</p>
+                    <p>• Installation commands for selected components</p>
+                    <p>• Service start and enable commands (Linux)</p>
+                    <p>• Verification commands to check installations</p>
+                    <p><strong>Note:</strong> Review the generated script before execution and ensure you have appropriate permissions.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    <script src="version.js"></script>
+    <script src="script.js"></script>
+    <script src="environment.js"></script>
+</body>
+</html>
