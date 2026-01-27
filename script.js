@@ -348,7 +348,13 @@ function setupForm(form, script, prefix, defaults) {
         // Check if no-root installation is selected
         const noRootInstall = document.getElementById('no-root-install')?.checked || false;
         const actualPrefix = noRootInstall ? '' : prefix;
-        
+
+        // Check directory values early to determine usermode (needed for python and user/group logic)
+        const unvdirEarly = document.getElementById('unvdir')?.value.trim() || '';
+        const unvcfgdirEarly = document.getElementById('unvcfgdir')?.value.trim() || '';
+        const unvdatadirEarly = document.getElementById('unvdatadir')?.value.trim() || '';
+        const isUsermodeEarly = unvdirEarly !== '' && unvcfgdirEarly !== '' && unvdatadirEarly !== '';
+
         let command = actualPrefix + script;
         const elements = form.elements;
 
@@ -375,9 +381,18 @@ function setupForm(form, script, prefix, defaults) {
             // Special handling for user and group fields
             if (name === 'user' || name === 'group') {
                 const trimmedValue = element.value.trim();
-                if (trimmedValue && trimmedValue !== 'ubroker') {
+                if (isUsermodeEarly) {
+                    // In usermode, always add user and group (default to 'ubroker' if empty)
+                    const valueToUse = trimmedValue || 'ubroker';
+                    command += ` --${name} ${valueToUse}`;
+                } else if (trimmedValue && trimmedValue !== 'ubroker') {
                     command += ` --${name} ${trimmedValue}`;
                 }
+                continue;
+            }
+
+            // Skip python in usermode
+            if (name === 'python' && isUsermodeEarly) {
                 continue;
             }
 
@@ -474,6 +489,12 @@ function setupForm(form, script, prefix, defaults) {
             if (unvdirValue) command += ` --unvdir ${unvdirValue}`;
             if (unvcfgdirValue) command += ` --unvcfgdir ${unvcfgdirValue}`;
             if (unvdatadirValue) command += ` --unvdatadir ${unvdatadirValue}`;
+
+            // Add python path parameter if python is selected in usermode
+            const pythonSelectedForCmd = document.getElementById('python')?.checked || false;
+            if (pythonSelectedForCmd && unvdirValue) {
+                command += ` --ac_extension_python_list '${unvdirValue}/python/bin/python,/opt/universal/python/bin/python,/usr/bin/python3,/usr/bin/python,/usr/libexec/platform-python'`;
+            }
         } else if (hasAnyDir && !hasAllDirs) {
             // Some but not all directories have values - show error
             showDirectoryValidationErrors('If you specify any directory (Install, Config, or Data), all three directories must have values.');
@@ -528,13 +549,32 @@ function setupForm(form, script, prefix, defaults) {
                 additionalCommands.push('sudo cp /etc/pam.d/login /etc/pam.d/ucmd');
             }
         }
-        
+
+        // Python installation commands for usermode
+        const pythonSelected = document.getElementById('python')?.checked || false;
+        if (isUsermodeEarly && pythonSelected) {
+            const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
+            const userValue = document.getElementById('user')?.value.trim() || 'ubroker';
+            const groupValue = document.getElementById('group')?.value.trim() || 'ubroker';
+            if (unvdirValue) {
+                additionalCommands.push(`cp unv-python*.tar ${unvdirValue}/`);
+                additionalCommands.push(`cd ${unvdirValue} && tar -xvf unv-python*.tar`);
+                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python`);
+                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python3.6`);
+            }
+        }
+
         // Service registration commands
         if (registerUbrokerd) {
             if (isWindows) {
                 additionalCommands.push('sc config ubrokerd start= auto');
             } else {
-                additionalCommands.push('sudo systemctl enable ubrokerd');
+                const ubrokerdIdValue = document.getElementById('ubrokerd_id')?.value.trim() || '';
+                if (ubrokerdIdValue) {
+                    additionalCommands.push(`sudo systemctl enable ubrokerd@${ubrokerdIdValue}`);
+                } else {
+                    additionalCommands.push('sudo systemctl enable ubrokerd');
+                }
             }
         }
         
