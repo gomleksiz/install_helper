@@ -550,20 +550,6 @@ function setupForm(form, script, prefix, defaults) {
             }
         }
 
-        // Python installation commands for usermode
-        const pythonSelected = document.getElementById('python')?.checked || false;
-        if (isUsermodeEarly && pythonSelected) {
-            const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
-            const userValue = document.getElementById('user')?.value.trim() || 'ubroker';
-            const groupValue = document.getElementById('group')?.value.trim() || 'ubroker';
-            if (unvdirValue) {
-                additionalCommands.push(`cp unv-python*.tar ${unvdirValue}/`);
-                additionalCommands.push(`cd ${unvdirValue} && tar -xvf unv-python*.tar`);
-                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python`);
-                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python3.6`);
-            }
-        }
-
         // Service registration commands
         if (registerUbrokerd) {
             if (isWindows) {
@@ -578,14 +564,31 @@ function setupForm(form, script, prefix, defaults) {
             }
         }
         
-        // Add broker start command LAST if "I want to install in a different folder" is selected
+        // Add broker start command if "I want to install in a different folder" is selected
         if (toggleUserModeChecked) {
             const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
             if (unvdirValue) {
                 additionalCommands.push(`${unvdirValue}/ubroker/ubrokerd start`);
             }
         }
-        
+
+        // Python manual installation commands for usermode (added last)
+        const pythonSelected = document.getElementById('python')?.checked || false;
+        if (isUsermodeEarly && pythonSelected) {
+            const unvdirValue = document.getElementById('unvdir')?.value.trim() || '';
+            const userValue = document.getElementById('user')?.value.trim() || 'ubroker';
+            const groupValue = document.getElementById('group')?.value.trim() || 'ubroker';
+            if (unvdirValue) {
+                additionalCommands.push('');
+                additionalCommands.push('# Manual steps: usermode agent does not include python.');
+                additionalCommands.push('# Run the following commands to install python manually:');
+                additionalCommands.push(`cp unv-python*.tar ${unvdirValue}/`);
+                additionalCommands.push(`cd ${unvdirValue} && tar -xvf unv-python*.tar`);
+                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python`);
+                additionalCommands.push(`chown -R ${userValue}:${groupValue} ${unvdirValue}/python3.6`);
+            }
+        }
+
         // Display main command
         const commandOutput = document.getElementById('command-output');
         const generatedCommand = document.getElementById('generated-command');
