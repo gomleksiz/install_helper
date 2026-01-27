@@ -708,7 +708,12 @@ function handleControllerForm(form, script, prefix, defaults) {
                 }
             }
             
-            command += ` --dburl ${dbUrlValue}`;
+            // Wrap in single quotes for Linux to handle special characters
+            if (isWindowsPath) {
+                command += ` --dburl ${dbUrlValue}`;
+            } else {
+                command += ` --dburl '${dbUrlValue}'`;
+            }
         } else if (name === 'dbuser' && value) {
             command += ` --dbuser ${value}`;
         } else if (name === 'port' && value && value !== '8080') {
@@ -730,7 +735,12 @@ function handleControllerForm(form, script, prefix, defaults) {
         command += ` --rdbms ${rdbmsValue}`;
     }
     command += ` --dbname ${dbnameValue}`;
-    command += ` --dbpass ${dbpassValue}`;
+    // Wrap dbpass in single quotes for Linux to handle special characters
+    if (isWindowsPath) {
+        command += ` --dbpass ${dbpassValue}`;
+    } else {
+        command += ` --dbpass '${dbpassValue}'`;
+    }
 
     // Display main command
     const commandOutput = document.getElementById('command-output');
