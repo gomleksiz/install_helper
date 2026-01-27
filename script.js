@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleUBrokerdId() {
         if (registerUBrokerdCheckbox && uBrokerDIdGroup) {
-            uBrokerDIdGroup.style.display = registerUBrokerdCheckbox.checked ? 'block' : 'none';
+            uBrokerDIdGroup.style.display = registerUBrokerdCheckbox.checked ? 'flex' : 'none';
         }
     }
 
