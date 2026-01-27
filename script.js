@@ -206,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function toggleUBrokerdId() {
         if (registerUBrokerdCheckbox && uBrokerDIdGroup) {
-            uBrokerDIdGroup.style.display = registerUBrokerdCheckbox.checked ? 'flex' : 'none';
+            uBrokerDIdGroup.style.display = registerUBrokerdCheckbox.checked ? '' : 'none';
         }
     }
 
@@ -345,6 +345,14 @@ function setupForm(form, script, prefix, defaults) {
             return;
         }
         
+        // Validate OMS Servers (always required)
+        clearOmsValidationError();
+        const omsServersValue = document.getElementById('oms_servers')?.value.trim() || '';
+        if (!omsServersValue) {
+            showOmsValidationError();
+            return;
+        }
+
         // Check if no-root installation is selected
         const noRootInstall = document.getElementById('no-root-install')?.checked || false;
         const actualPrefix = noRootInstall ? '' : prefix;
@@ -1550,5 +1558,36 @@ function showDirectoryValidationErrors(message) {
     if (firstErrorField) {
         firstErrorField.scrollIntoView({ behavior: 'smooth', block: 'center' });
         firstErrorField.focus();
+    }
+}
+
+// --- OMS Servers Validation Helper Functions ---
+function clearOmsValidationError() {
+    const input = document.getElementById('oms_servers');
+    const group = document.getElementById('oms-servers-group');
+    const error = document.getElementById('oms-servers-error');
+
+    if (input) input.classList.remove('error');
+    if (group) group.classList.remove('error');
+    if (error) {
+        error.classList.remove('show');
+        error.textContent = '';
+    }
+}
+
+function showOmsValidationError() {
+    const input = document.getElementById('oms_servers');
+    const group = document.getElementById('oms-servers-group');
+    const error = document.getElementById('oms-servers-error');
+
+    if (input) input.classList.add('error');
+    if (group) group.classList.add('error');
+    if (error) {
+        error.textContent = 'This field is required';
+        error.classList.add('show');
+    }
+    if (input) {
+        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        input.focus();
     }
 }
