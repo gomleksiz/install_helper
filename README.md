@@ -8,6 +8,15 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 
 ## 📋 Features
 
+### Environment Prerequisite Generator
+- OS-specific setup scripts for Java, Tomcat, and database prerequisites
+- Tomcat installation via package manager or manual download (tar.gz)
+- Configurable Tomcat system user creation for manual installs
+- JVM memory configuration (setenv.sh) with customizable heap sizes
+- Downloadable init.d service script for manual Tomcat installs with auto-populated JAVA_HOME
+- Database installation commands for MySQL, MariaDB, and PostgreSQL
+- Agent prerequisite library installation (e.g., libxcrypt-compat for Amazon Linux)
+
 ### Universal Controller
 - Database configuration with support for MySQL, PostgreSQL, Oracle, and SQL Server
 - Automatic detection of Linux vs Windows environments based on Tomcat directory path
@@ -64,10 +73,13 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 ```
 install_helper/
 ├── index.html              # Homepage with navigation and documentation links
+├── environment.html        # Environment prerequisite setup form
+├── environment.js          # Environment page logic and command generation
 ├── controller.html         # Controller installation form
 ├── agent_linux.html        # Linux Agent installation form
 ├── agent_windows.html      # Windows Agent installation form
 ├── script.js              # JavaScript for form handling and command generation
+├── version.js             # Centralized version configuration
 ├── style.css              # Styling with Stonebranch branding
 ├── CLAUDE.md              # Development documentation
 └── README.md              # This file
