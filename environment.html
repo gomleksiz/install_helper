@@ -70,6 +70,52 @@
                                 <option value="manual">Manual Download (tar.gz)</option>
                             </select>
                         </div>
+                        <div id="manual-options-wrapper" style="display: none;">
+                            <div class="form-group" style="margin-top: 10px;">
+                                <label for="tomcat_user">Tomcat User:</label>
+                                <input type="text" id="tomcat_user" name="tomcat_user" value="tomcat" placeholder="tomcat">
+                            </div>
+                            <div class="form-group-checkbox" style="margin-top: 5px;">
+                                <input type="checkbox" id="create_tomcat_user" name="create_tomcat_user" checked>
+                                <label for="create_tomcat_user">Create system user for Tomcat</label>
+                            </div>
+                        </div>
+                        <div class="form-group-checkbox" style="margin-top: 10px;">
+                            <input type="checkbox" id="configure_setenv" name="configure_setenv">
+                            <label for="configure_setenv">Configure JVM Memory (setenv)</label>
+                        </div>
+                        <div id="setenv-options" style="display: none; margin-left: 30px; margin-top: 5px;">
+                            <div class="form-group">
+                                <label for="env_xms">Initial Heap Size (Xms):</label>
+                                <input type="text" id="env_xms" name="env_xms" value="512m" placeholder="e.g., 512m">
+                            </div>
+                            <div class="form-group">
+                                <label for="env_xmx">Maximum Heap Size (Xmx):</label>
+                                <input type="text" id="env_xmx" name="env_xmx" value="2048m" placeholder="e.g., 2048m">
+                            </div>
+                        </div>
+                        <div class="form-group-checkbox" id="initd-checkbox-wrapper" style="margin-top: 10px; display: none;">
+                            <input type="checkbox" id="configure_initd" name="configure_initd">
+                            <label for="configure_initd">Create init.d Service Script</label>
+                        </div>
+                        <div id="initd-options" style="display: none; margin-left: 30px; margin-top: 5px;">
+                            <div class="form-group">
+                                <label for="initd_java_home">JAVA_HOME:</label>
+                                <input type="text" id="initd_java_home" name="initd_java_home" value="/usr/lib/jvm/jre" placeholder="/usr/lib/jvm/jre">
+                            </div>
+                            <div class="form-group">
+                                <label for="initd_catalina_home">CATALINA_HOME:</label>
+                                <input type="text" id="initd_catalina_home" name="initd_catalina_home" value="/opt/tomcat" placeholder="/opt/tomcat">
+                            </div>
+                            <div class="form-group">
+                                <label for="initd_catalina_base">CATALINA_BASE:</label>
+                                <input type="text" id="initd_catalina_base" name="initd_catalina_base" value="/opt/tomcat" placeholder="/opt/tomcat">
+                            </div>
+                            <div class="form-group">
+                                <label for="initd_shutdown_wait">SHUTDOWN_WAIT (seconds):</label>
+                                <input type="text" id="initd_shutdown_wait" name="initd_shutdown_wait" value="20" placeholder="20">
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Database Section -->
@@ -120,6 +166,22 @@
                         </div>
                     </div>
 
+                    <!-- init.d Script Download Section -->
+                    <div id="initd-download-section" style="display:none;" class="command-section">
+                        <h3>Download init.d Service Script:</h3>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 10px;">
+                            Download the script, then copy it to <code>/etc/init.d/tomcat</code> on the target server.
+                        </p>
+                        <button id="initd-download-button" type="button" class="copy-icon" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 14px; cursor: pointer; background: #186CDA; color: white; border: none; border-radius: 4px;">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                            </svg>
+                            Download tomcat (init.d script)
+                        </button>
+                    </div>
+
                     <!-- Manual Download Links Section -->
                     <div id="manual-download-section" style="display:none;" class="command-section">
                         <h3>Manual Download Links:</h3>
@@ -162,6 +224,20 @@
                     <p><strong>Package Manager:</strong> Installs via yum/apt (recommended for Linux)</p>
                     <p><strong>Manual Download:</strong> Downloads tar.gz from Apache archive and extracts to /opt/tomcat</p>
                     <p><strong>Note:</strong> Manual installation provides more control over the installation directory and version.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>JVM Memory (setenv)</h4>
+                    <p>Creates a <code>setenv.sh</code> (Linux) or <code>setenv.bat</code> (Windows) file in the Tomcat <code>bin/</code> directory to configure JVM memory settings via <code>CATALINA_OPTS</code>.</p>
+                    <p class="help-example">Default: <code>-Xms512m -Xmx2048m</code></p>
+                    <p><strong>Note:</strong> Adjust these values based on your environment. For production, refer to the Sizing Calculator for recommended JVM heap sizes.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>init.d Service Script</h4>
+                    <p>Creates an init.d service script at <code>/etc/init.d/tomcat</code> to manage Tomcat as a system service (start, stop, restart).</p>
+                    <p><strong>When to use:</strong> Only needed for manual (tar.gz) Tomcat installations. Package manager installs already include systemd service files.</p>
+                    <p><strong>Note:</strong> The script will also be registered with the system's service manager (chkconfig or update-rc.d) for automatic startup on boot.</p>
                 </div>
 
                 <div class="help-item">
