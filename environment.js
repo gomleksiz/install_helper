@@ -478,6 +478,7 @@ function generateInitdScript(javaHome, catalinaHome, catalinaBase, tomcatUser, s
         '#',
         '# chkconfig: - 80 20',
         '# description: Apache Tomcat init.d service script',
+        '# Based on: https://gist.github.com/miglen/5590986',
         '#',
         '',
         '### BEGIN INIT INFO',
