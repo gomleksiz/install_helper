@@ -12,7 +12,7 @@
         <nav>
             <ul>
                 <li><a href="index.html">Home</a></li>
-                <li><a href="environment.html">Environment</a></li>
+                <li><a href="environment.html">Prerequisite</a></li>
                 <li><a href="controller.html">Controller</a></li>
                 <li><a href="agent_linux.html">Agent (Linux)</a></li>
                 <li><a href="agent_windows.html">Agent (Windows)</a></li>
@@ -77,6 +77,22 @@
                     <div class="form-group">
                         <label for="port">Port:</label>
                         <input type="text" id="port" name="port" placeholder="8080">
+                    </div>
+                </fieldset>
+
+                <div class="form-group-checkbox">
+                    <input type="checkbox" id="toggle-setenv">
+                    <label for="toggle-setenv">Configure JVM Memory (setenv)</label>
+                </div>
+                <fieldset id="setenv-section" style="display: none;">
+                    <legend>JVM Memory Configuration</legend>
+                    <div class="form-group">
+                        <label for="xms">Initial Heap Size (Xms):</label>
+                        <input type="text" id="xms" name="xms" value="512m" placeholder="e.g., 512m">
+                    </div>
+                    <div class="form-group">
+                        <label for="xmx">Maximum Heap Size (Xmx):</label>
+                        <input type="text" id="xmx" name="xmx" value="2048m" placeholder="e.g., 2048m">
                     </div>
                 </fieldset>
 
@@ -150,6 +166,14 @@
                     <h4>Database Password</h4>
                     <p>For security, enter <code>&lt;dbpass&gt;</code> in the command. You'll be prompted to enter the actual password during installation.</p>
                     <p><strong>Security Best Practice:</strong> Never include actual passwords in command-line arguments or scripts.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>JVM Memory (setenv)</h4>
+                    <p>Creates a <code>setenv.sh</code> (Linux) or <code>setenv.bat</code> (Windows) file in the Tomcat <code>bin/</code> directory to configure JVM memory settings.</p>
+                    <p>The file sets <code>CATALINA_OPTS</code> with <code>-Xms</code> (initial heap) and <code>-Xmx</code> (maximum heap) values.</p>
+                    <p class="help-example">Default: <code>-Xms512m -Xmx2048m</code></p>
+                    <p><strong>Note:</strong> Adjust these values based on your environment. For production, refer to the Sizing Calculator for recommended JVM heap sizes.</p>
                 </div>
 
                 <div class="help-item">

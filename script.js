@@ -137,6 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupVisibilityToggle('toggle-user-options', 'user-options');
     setupVisibilityToggle('toggle-user-mode', 'user-mode-parameters');
     setupVisibilityToggle('toggle-advanced-options', 'advanced-options');
+    setupVisibilityToggle('toggle-setenv', 'setenv-section');
     setupVisibilityToggle('toggle-additional-params', 'additional-params-section');
     
     // --- Root Privilege Options Logic ---
@@ -713,8 +714,8 @@ function handleControllerForm(form, script, prefix, defaults) {
             continue;
         }
 
-        // Skip toggle fields and RDBMS selector (not a command parameter)
-        if (name.startsWith('toggle-') || name === 'rdbms') {
+        // Skip toggle fields, RDBMS selector, and setenv fields (not command parameters)
+        if (name.startsWith('toggle-') || name === 'rdbms' || name === 'xms' || name === 'xmx') {
             continue;
         }
 
@@ -799,9 +800,30 @@ function handleControllerForm(form, script, prefix, defaults) {
     generatedCommand.textContent = command;
     commandOutput.style.display = 'block';
 
-    // Controller doesn't have additional commands
+    // Generate setenv command if enabled
     const additionalCommandOutput = document.getElementById('additional-command-output');
-    additionalCommandOutput.style.display = 'none';
+    const toggleSetenv = document.getElementById('toggle-setenv');
+    if (toggleSetenv && toggleSetenv.checked && tomcatDir) {
+        const xmsElement = document.getElementById('xms');
+        const xmxElement = document.getElementById('xmx');
+        const xms = xmsElement ? xmsElement.value.trim() || '512m' : '512m';
+        const xmx = xmxElement ? xmxElement.value.trim() || '2048m' : '2048m';
+
+        let setenvCommand;
+        if (isWindowsPath) {
+            const binDir = tomcatDir.replace(/\\$/, '') + '\\bin';
+            setenvCommand = `echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "${binDir}\\setenv.bat"`;
+        } else {
+            const binDir = tomcatDir.replace(/\/$/, '') + '/bin';
+            setenvCommand = `cat > ${binDir}/setenv.sh << 'EOF'\nCATALINA_OPTS="-Xms${xms} -Xmx${xmx}"\nEOF\nchmod +x ${binDir}/setenv.sh`;
+        }
+
+        const additionalCommand = document.getElementById('additional-command');
+        additionalCommand.textContent = setenvCommand;
+        additionalCommandOutput.style.display = 'block';
+    } else {
+        additionalCommandOutput.style.display = 'none';
+    }
 
     // Scroll to the generated command
     setTimeout(() => {
