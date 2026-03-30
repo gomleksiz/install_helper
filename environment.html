@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Environment Setup - Command Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=20260330">
 </head>
 <body>
     <header>
@@ -63,7 +63,7 @@
                         <label for="install_tomcat">Install Tomcat 10</label>
                     </div>
                     <div id="tomcat-options" style="display: none; margin-left: 30px; margin-bottom: 15px;">
-                        <div class="form-group">
+                        <div class="form-group" id="tomcat-method-wrapper">
                             <label for="tomcat_method">Installation Method:</label>
                             <select id="tomcat_method" name="tomcat_method">
                                 <option value="package" selected>Package Manager (yum/apt)</option>
@@ -78,6 +78,10 @@
                             <div class="form-group-checkbox" style="margin-top: 5px;">
                                 <input type="checkbox" id="create_tomcat_user" name="create_tomcat_user" checked>
                                 <label for="create_tomcat_user">Create system user for Tomcat</label>
+                            </div>
+                            <div class="form-group" style="margin-top: 10px;">
+                                <label for="tomcat_folder">Tomcat Folder:</label>
+                                <input type="text" id="tomcat_folder" name="tomcat_folder" value="/opt/tomcat" placeholder="/opt/tomcat">
                             </div>
                         </div>
                         <div class="form-group-checkbox" style="margin-top: 10px;">
@@ -94,26 +98,14 @@
                                 <input type="text" id="env_xmx" name="env_xmx" value="2048m" placeholder="e.g., 2048m">
                             </div>
                         </div>
-                        <div class="form-group-checkbox" id="initd-checkbox-wrapper" style="margin-top: 10px; display: none;">
-                            <input type="checkbox" id="configure_initd" name="configure_initd">
-                            <label for="configure_initd">Create init.d Service Script</label>
+                        <div class="form-group-checkbox" id="systemd-checkbox-wrapper" style="margin-top: 10px; display: none;">
+                            <input type="checkbox" id="configure_systemd" name="configure_systemd">
+                            <label for="configure_systemd">Create systemd Service File</label>
                         </div>
-                        <div id="initd-options" style="display: none; margin-left: 30px; margin-top: 5px;">
+                        <div id="systemd-options" style="display: none; margin-left: 30px; margin-top: 5px;">
                             <div class="form-group">
-                                <label for="initd_java_home">JAVA_HOME:</label>
-                                <input type="text" id="initd_java_home" name="initd_java_home" value="/usr/lib/jvm/jre" placeholder="/usr/lib/jvm/jre">
-                            </div>
-                            <div class="form-group">
-                                <label for="initd_catalina_home">CATALINA_HOME:</label>
-                                <input type="text" id="initd_catalina_home" name="initd_catalina_home" value="/opt/tomcat" placeholder="/opt/tomcat">
-                            </div>
-                            <div class="form-group">
-                                <label for="initd_catalina_base">CATALINA_BASE:</label>
-                                <input type="text" id="initd_catalina_base" name="initd_catalina_base" value="/opt/tomcat" placeholder="/opt/tomcat">
-                            </div>
-                            <div class="form-group">
-                                <label for="initd_shutdown_wait">SHUTDOWN_WAIT (seconds):</label>
-                                <input type="text" id="initd_shutdown_wait" name="initd_shutdown_wait" value="20" placeholder="20">
+                                <label for="systemd_java_home">JAVA_HOME: <span style="font-weight: normal; color: #888;">(optional)</span></label>
+                                <input type="text" id="systemd_java_home" name="systemd_java_home" value="" placeholder="e.g. /usr/lib/jvm/jre-17-openjdk">
                             </div>
                         </div>
                     </div>
@@ -166,19 +158,30 @@
                         </div>
                     </div>
 
-                    <!-- init.d Script Download Section -->
-                    <div id="initd-download-section" style="display:none;" class="command-section">
-                        <h3>Download init.d Service Script:</h3>
+                    <!-- systemd Service File Download Section -->
+                    <div id="systemd-download-section" style="display:none;" class="command-section">
+                        <h3>systemd Service File (tomcat.service):</h3>
                         <p style="font-size: 13px; color: #666; margin-bottom: 10px;">
-                            Download the script, then copy it to <code>/etc/init.d/tomcat</code> on the target server.
+                            Copy to <code>/etc/systemd/system/tomcat.service</code> on the target server.
                         </p>
-                        <button id="initd-download-button" type="button" class="copy-icon" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 14px; cursor: pointer; background: #186CDA; color: white; border: none; border-radius: 4px;">
+                        <details id="systemd-unit-details" style="margin-bottom: 12px;">
+                            <summary style="cursor: pointer; font-size: 13px; color: #186CDA; user-select: none;">Show file content</summary>
+                            <div class="command-line" style="margin-top: 8px;">
+                                <pre><code id="systemd-unit-content"></code></pre>
+                                <button id="systemd-copy-button" class="copy-icon" title="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
+                                        <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                        </details>
+                        <button id="systemd-download-button" type="button" class="copy-icon" style="display: inline-flex; align-items: center; gap: 6px; padding: 8px 16px; font-size: 14px; cursor: pointer; background: #186CDA; color: white; border: none; border-radius: 4px;">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                                 <polyline points="7 10 12 15 17 10"></polyline>
                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                             </svg>
-                            Download tomcat (init.d script)
+                            Download tomcat.service
                         </button>
                     </div>
 
@@ -234,10 +237,11 @@
                 </div>
 
                 <div class="help-item">
-                    <h4>init.d Service Script</h4>
-                    <p>Creates an init.d service script at <code>/etc/init.d/tomcat</code> to manage Tomcat as a system service (start, stop, restart).</p>
+                    <h4>systemd Service File</h4>
+                    <p>Creates a systemd unit file at <code>/etc/systemd/system/tomcat.service</code> to manage Tomcat as a system service (start, stop, restart, enable on boot).</p>
                     <p><strong>When to use:</strong> Only needed for manual (tar.gz) Tomcat installations. Package manager installs already include systemd service files.</p>
-                    <p><strong>Note:</strong> The script will also be registered with the system's service manager (chkconfig or update-rc.d) for automatic startup on boot.</p>
+                    <p><strong>JAVA_HOME:</strong> Optional. Leave blank to get a commented-out placeholder in the unit file; fill in the path to activate it.</p>
+                    <p><strong>Note:</strong> After copying the unit file, run <code>systemctl daemon-reload</code> to register it, then <code>systemctl enable tomcat</code> to enable automatic startup on boot.</p>
                 </div>
 
                 <div class="help-item">

@@ -11,9 +11,11 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 ### Environment Prerequisite Generator
 - OS-specific setup scripts for Java, Tomcat, and database prerequisites
 - Tomcat installation via package manager or manual download (tar.gz)
-- Configurable Tomcat system user creation for manual installs
-- JVM memory configuration (setenv.sh) with customizable heap sizes
-- Downloadable init.d service script for manual Tomcat installs with auto-populated JAVA_HOME
+- Configurable Tomcat user and install folder for manual installs
+- JVM memory configuration (setenv.sh/setenv.bat/tomcatw.exe) with customizable heap sizes
+- Downloadable systemd service file for manual Tomcat installs with optional JAVA_HOME
+- Windows support with installer (.exe) and ZIP download options
+- Syntax-highlighted script output (comments vs commands)
 - Database installation commands for MySQL, MariaDB, and PostgreSQL
 - Agent prerequisite library installation (e.g., libxcrypt-compat for Amazon Linux)
 

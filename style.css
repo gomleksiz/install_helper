@@ -262,6 +262,14 @@ legend {
     margin: 0;
 }
 
+#command-output pre .script-comment {
+    color: #6a9955;
+}
+
+#command-output pre .script-command {
+    color: #dcdcaa;
+}
+
 .copy-icon {
     background: #000;
     color: #fff;

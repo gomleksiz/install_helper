@@ -10,39 +10,43 @@ document.addEventListener('DOMContentLoaded', () => {
     setupCheckboxToggle('install_database', 'database-options');
     setupCheckboxToggle('install_agent_prereqs', 'agent-prereqs-info');
     setupCheckboxToggle('configure_setenv', 'setenv-options');
-    setupCheckboxToggle('configure_initd', 'initd-options');
+    setupCheckboxToggle('configure_systemd', 'systemd-options');
 
-    // Show/hide init.d option based on tomcat install method
+    // Show/hide manual options based on install method and OS
     const tomcatMethodSelect = document.getElementById('tomcat_method');
-    const initdWrapper = document.getElementById('initd-checkbox-wrapper');
-    const configureInitd = document.getElementById('configure_initd');
-    const initdOptions = document.getElementById('initd-options');
-
+    const systemdWrapper = document.getElementById('systemd-checkbox-wrapper');
+    const configureSystemd = document.getElementById('configure_systemd');
+    const systemdOptions = document.getElementById('systemd-options');
     const manualOptionsWrapper = document.getElementById('manual-options-wrapper');
-
-    if (tomcatMethodSelect && initdWrapper) {
-        tomcatMethodSelect.addEventListener('change', () => {
-            const isManual = tomcatMethodSelect.value === 'manual';
-            if (manualOptionsWrapper) manualOptionsWrapper.style.display = isManual ? 'block' : 'none';
-            initdWrapper.style.display = isManual ? 'block' : 'none';
-            if (!isManual) {
-                if (configureInitd) configureInitd.checked = false;
-                if (initdOptions) initdOptions.style.display = 'none';
-            }
-        });
-    }
-
-    // Auto-populate JAVA_HOME and CATALINA_HOME when OS/Java version changes
+    const tomcatMethodWrapper = document.getElementById('tomcat-method-wrapper');
     const osSelect = document.getElementById('os_environment');
-    const javaVersionSelect = document.getElementById('java_version');
-    function updateInitdDefaults() {
-        const initdJavaHome = document.getElementById('initd_java_home');
-        if (initdJavaHome) {
-            initdJavaHome.value = getJavaHome(osSelect.value, javaVersionSelect.value);
+
+    function updateManualOptionsVisibility() {
+        const isWindows = osSelect.value === 'windows';
+        const isManual = tomcatMethodSelect.value === 'manual';
+        if (tomcatMethodWrapper) tomcatMethodWrapper.style.display = 'block';
+        const showManualOpts = isManual && !isWindows;
+        if (manualOptionsWrapper) manualOptionsWrapper.style.display = showManualOpts ? 'block' : 'none';
+        systemdWrapper.style.display = showManualOpts ? 'block' : 'none';
+        if (!showManualOpts) {
+            if (configureSystemd) configureSystemd.checked = false;
+            if (systemdOptions) systemdOptions.style.display = 'none';
         }
     }
-    if (osSelect) osSelect.addEventListener('change', updateInitdDefaults);
-    if (javaVersionSelect) javaVersionSelect.addEventListener('change', updateInitdDefaults);
+
+    if (tomcatMethodSelect) tomcatMethodSelect.addEventListener('change', updateManualOptionsVisibility);
+    if (osSelect) osSelect.addEventListener('change', updateManualOptionsVisibility);
+
+    // Auto-populate JAVA_HOME when OS/Java version changes
+    const javaVersionSelect = document.getElementById('java_version');
+    function updateSystemdDefaults() {
+        const systemdJavaHome = document.getElementById('systemd_java_home');
+        if (systemdJavaHome) {
+            systemdJavaHome.value = getJavaHome(osSelect.value, javaVersionSelect.value);
+        }
+    }
+    if (osSelect) osSelect.addEventListener('change', updateSystemdDefaults);
+    if (javaVersionSelect) javaVersionSelect.addEventListener('change', updateSystemdDefaults);
 
     // No version selector needed since we only support Tomcat 10
 
@@ -104,11 +108,20 @@ function generateEnvironmentScript() {
         }
 
         if (installTomcat) {
-            downloadLinks.push({
-                title: 'Download Apache Tomcat 10 for Windows',
-                url: 'https://tomcat.apache.org/download-10.cgi',
-                description: 'Apache Tomcat 10 Windows Service Installer or ZIP archive'
-            });
+            const tomcatMethod = document.getElementById('tomcat_method').value;
+            if (tomcatMethod === 'package') {
+                downloadLinks.push({
+                    title: 'Download Apache Tomcat 10.1.53 for Windows (Installer)',
+                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.exe',
+                    description: 'Windows Service Installer (.exe)'
+                });
+            } else {
+                downloadLinks.push({
+                    title: 'Download Apache Tomcat 10.1.53 for Windows (ZIP)',
+                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.zip',
+                    description: 'ZIP archive — for manual installation'
+                });
+            }
         }
 
         if (installDatabase) {
@@ -127,9 +140,20 @@ function generateEnvironmentScript() {
         if (installTomcat && document.getElementById('configure_setenv').checked) {
             const xms = (document.getElementById('env_xms').value.trim()) || '512m';
             const xmx = (document.getElementById('env_xmx').value.trim()) || '2048m';
+            const tomcatMethod = document.getElementById('tomcat_method').value;
             commands.push('');
-            commands.push('# Create setenv.bat in Tomcat bin directory to configure JVM memory:');
-            commands.push(`# echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "<TOMCAT_DIR>\\bin\\setenv.bat"`);
+            if (tomcatMethod === 'package') {
+                commands.push('# Configure JVM Memory via Tomcat Service Manager (tomcatw.exe):');
+                commands.push('# Default path: C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1\\bin\\tomcatw.exe');
+                commands.push('# 1. Open tomcatw.exe from the Tomcat bin directory (or "Configure Tomcat" from Start Menu)');
+                commands.push('# 2. Go to the "Java" tab');
+                commands.push(`# 3. Set "Initial memory pool" to: ${xms}`);
+                commands.push(`# 4. Set "Maximum memory pool" to: ${xmx}`);
+                commands.push('# 5. Click "Apply" and restart the Tomcat service');
+            } else {
+                commands.push('# Create setenv.bat in Tomcat bin directory to configure JVM memory:');
+                commands.push(`# echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "<TOMCAT_DIR>\\bin\\setenv.bat"`);
+            }
         }
     } else {
         // Linux - generate bash script
@@ -175,7 +199,8 @@ function generateEnvironmentScript() {
                 // Manual installation
                 const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
                 const createUser = document.getElementById('create_tomcat_user').checked;
-                const tomcatCommands = generateTomcatManualCommand(tomcatUser, createUser);
+                const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
+                const tomcatCommands = generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder);
                 commands.push('# Install Tomcat 10 Manually');
                 commands.push(...tomcatCommands);
                 commands.push('');
@@ -197,7 +222,8 @@ function generateEnvironmentScript() {
             const tomcatMethod = document.getElementById('tomcat_method').value;
             let binDir;
             if (tomcatMethod === 'manual') {
-                binDir = '/opt/tomcat/bin';
+                const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
+                binDir = `${tomcatFolder}/bin`;
             } else if (osEnvironment === 'ubuntu') {
                 binDir = '/usr/share/tomcat10/bin';
             } else {
@@ -211,18 +237,14 @@ function generateEnvironmentScript() {
             commands.push('');
         }
 
-        // init.d Service Script (manual install only)
-        if (installTomcat && document.getElementById('tomcat_method').value === 'manual' && document.getElementById('configure_initd').checked) {
-            commands.push('# Install init.d service script for Tomcat');
-            commands.push('# (Use the downloaded "tomcat" script from above)');
-            commands.push('sudo cp tomcat /etc/init.d/tomcat');
-            commands.push('sudo chmod +x /etc/init.d/tomcat');
-
-            if (osEnvironment === 'ubuntu') {
-                commands.push('sudo update-rc.d tomcat defaults');
-            } else {
-                commands.push('sudo chkconfig --add tomcat');
-            }
+        // systemd Service File (manual install only)
+        if (installTomcat && document.getElementById('tomcat_method').value === 'manual' && document.getElementById('configure_systemd').checked) {
+            commands.push('# Install systemd service file for Tomcat');
+            commands.push('# (Use the downloaded "tomcat.service" file from above)');
+            commands.push('sudo cp tomcat.service /etc/systemd/system/tomcat.service');
+            commands.push('sudo systemctl daemon-reload');
+            commands.push('sudo systemctl enable tomcat');
+            commands.push('sudo systemctl start tomcat');
             commands.push('');
         }
 
@@ -272,43 +294,58 @@ function generateEnvironmentScript() {
     // Display generated commands
     const commandOutput = document.getElementById('command-output');
     const generatedCommand = document.getElementById('generated-command');
-    generatedCommand.textContent = commands.join('\n');
+    generatedCommand.innerHTML = highlightScript(commands);
     commandOutput.style.display = 'block';
 
-    // Display init.d script download if applicable
-    const initdDownloadSection = document.getElementById('initd-download-section');
-    const initdDownloadButton = document.getElementById('initd-download-button');
-    const showInitd = osEnvironment !== 'windows'
+    // Display systemd unit file download if applicable
+    const systemdDownloadSection = document.getElementById('systemd-download-section');
+    const systemdDownloadButton = document.getElementById('systemd-download-button');
+    const showSystemd = osEnvironment !== 'windows'
         && installTomcat
         && document.getElementById('tomcat_method').value === 'manual'
-        && document.getElementById('configure_initd').checked;
+        && document.getElementById('configure_systemd').checked;
 
-    if (showInitd) {
-        const javaHome = document.getElementById('initd_java_home').value.trim() || '/usr/lib/jvm/jre';
-        const catalinaHome = document.getElementById('initd_catalina_home').value.trim() || '/opt/tomcat';
-        const catalinaBase = document.getElementById('initd_catalina_base').value.trim() || catalinaHome;
+    if (showSystemd) {
+        const javaHome = document.getElementById('systemd_java_home').value.trim();
+        const catalinaHome = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
+        const catalinaBase = catalinaHome;
+
         const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
-        const shutdownWait = document.getElementById('initd_shutdown_wait').value.trim() || '20';
+        const unitFileContent = generateSystemdUnitFile(javaHome, catalinaHome, catalinaBase, tomcatUser).join('\n') + '\n';
 
-        const scriptContent = generateInitdScript(javaHome, catalinaHome, catalinaBase, tomcatUser, shutdownWait).join('\n') + '\n';
+        // Populate the collapsible content panel
+        document.getElementById('systemd-unit-content').textContent = unitFileContent;
+        document.getElementById('systemd-unit-details').removeAttribute('open');
 
-        // Replace click handler each time to capture current script content
-        const newButton = initdDownloadButton.cloneNode(true);
-        initdDownloadButton.parentNode.replaceChild(newButton, initdDownloadButton);
+        // Wire up copy button for unit file content
+        const copyBtn = document.getElementById('systemd-copy-button');
+        const newCopyBtn = copyBtn.cloneNode(true);
+        copyBtn.parentNode.replaceChild(newCopyBtn, copyBtn);
+        newCopyBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(unitFileContent).then(() => {
+                alert('Copied!');
+            }, () => {
+                alert('Copy failed.');
+            });
+        });
+
+        // Replace download click handler each time to capture current unit file content
+        const newButton = systemdDownloadButton.cloneNode(true);
+        systemdDownloadButton.parentNode.replaceChild(newButton, systemdDownloadButton);
         newButton.addEventListener('click', () => {
-            const blob = new Blob([scriptContent], { type: 'text/x-shellscript' });
+            const blob = new Blob([unitFileContent], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'tomcat';
+            a.download = 'tomcat.service';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         });
-        initdDownloadSection.style.display = 'block';
+        systemdDownloadSection.style.display = 'block';
     } else {
-        initdDownloadSection.style.display = 'none';
+        systemdDownloadSection.style.display = 'none';
     }
 
     // Display manual download links if needed
@@ -366,17 +403,12 @@ function generateTomcatPackageCommand(osEnvironment) {
     return commands;
 }
 
-function generateTomcatManualCommand(tomcatUser, createUser) {
+function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder) {
     const commands = [];
     const downloadUrl = getTomcatDownloadUrl();
     const filename = downloadUrl.split('/').pop();
     const dirname = filename.replace('.tar.gz', '');
-
-    if (createUser) {
-        commands.push('# Create Tomcat system user');
-        commands.push(`sudo useradd -r -m -U -d /opt/tomcat -s /bin/false ${tomcatUser}`);
-        commands.push('');
-    }
+    const parentDir = tomcatFolder.substring(0, tomcatFolder.lastIndexOf('/')) || '/opt';
 
     commands.push('# Download Tomcat 10');
     commands.push(`wget ${downloadUrl}`);
@@ -384,19 +416,30 @@ function generateTomcatManualCommand(tomcatUser, createUser) {
     commands.push('# Extract Tomcat');
     commands.push(`tar -xvzf ${filename}`);
     commands.push('');
-    commands.push('# Move to /opt and create symlink');
-    commands.push(`sudo mv ${dirname} /opt/`);
-    commands.push(`sudo ln -s /opt/${dirname} /opt/tomcat`);
+    commands.push('# Move to install directory and create symlink');
+    commands.push(`sudo mv ${dirname} ${parentDir}/`);
+    commands.push(`sudo ln -s ${parentDir}/${dirname} ${tomcatFolder}`);
     commands.push('');
+
+    if (tomcatUser === 'root') {
+        commands.push('# WARNING: Running Tomcat as root is not recommended.');
+        commands.push('# Consider using a dedicated system user for improved security.');
+        commands.push('');
+    } else if (createUser) {
+        commands.push('# Create Tomcat system user');
+        commands.push(`sudo useradd -r -m -U -d ${tomcatFolder} -s /bin/false ${tomcatUser}`);
+        commands.push('');
+    }
+
     commands.push('# Set permissions');
-    commands.push(`sudo chown -R ${tomcatUser}:${tomcatUser} /opt/tomcat`);
-    commands.push('sudo chmod +x /opt/tomcat/bin/*.sh');
+    commands.push(`sudo chown -R ${tomcatUser}:${tomcatUser} ${tomcatFolder}`);
+    commands.push(`sudo chmod +x ${tomcatFolder}/bin/*.sh`);
 
     return commands;
 }
 
 function getTomcatDownloadUrl() {
-    return 'https://archive.apache.org/dist/tomcat/tomcat-10/v10.1.30/bin/apache-tomcat-10.1.30.tar.gz';
+    return 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.tar.gz';
 }
 
 function generateAgentPrereqsCommand(osEnvironment) {
@@ -470,115 +513,54 @@ function getJavaHome(osEnvironment, javaVersion) {
     }
 }
 
-function generateInitdScript(javaHome, catalinaHome, catalinaBase, tomcatUser, shutdownWait) {
-    return [
-        '#!/bin/bash',
-        '#',
-        '# tomcat',
-        '#',
-        '# chkconfig: - 80 20',
-        '# description: Apache Tomcat init.d service script',
-        '# Based on: https://gist.github.com/miglen/5590986',
-        '#',
+function generateSystemdUnitFile(javaHome, catalinaHome, catalinaBase, tomcatUser) {
+    const lines = [
+        '[Unit]',
+        'Description=Apache Tomcat',
+        'After=network.target',
         '',
-        '### BEGIN INIT INFO',
-        '# Provides: tomcat',
-        '# Required-Start: $network $syslog',
-        '# Required-Stop: $network $syslog',
-        '# Default-Start: 2 3 4 5',
-        '# Default-Stop: 0 1 6',
-        '# Description: Apache Tomcat Service',
-        '### END INIT INFO',
-        '',
-        `JAVA_HOME=${javaHome}`,
-        `CATALINA_HOME=${catalinaHome}`,
-        `CATALINA_BASE=${catalinaBase}`,
-        `CATALINA_PID="${catalinaHome}/temp/tomcat.pid"`,
-        `TOMCAT_USER=${tomcatUser}`,
-        `SHUTDOWN_WAIT=${shutdownWait}`,
-        '',
-        'tomcat_pid() {',
-        '  echo $(ps aux | grep "[o]rg.apache.catalina.startup.Bootstrap" | grep -v grep | awk \'{ print $2 }\')',
-        '}',
-        '',
-        'start() {',
-        '  pid=$(tomcat_pid)',
-        '  if [ -n "$pid" ]; then',
-        '    echo "Tomcat is already running (pid: $pid)"',
-        '  else',
-        '    echo "Starting Tomcat..."',
-        '    if [ "$(id -u)" = "0" ]; then',
-        '      su - $TOMCAT_USER -c "export JAVA_HOME=$JAVA_HOME; export CATALINA_HOME=$CATALINA_HOME; export CATALINA_BASE=$CATALINA_BASE; export CATALINA_PID=$CATALINA_PID; $CATALINA_HOME/bin/startup.sh"',
-        '    else',
-        '      export JAVA_HOME=$JAVA_HOME',
-        '      export CATALINA_HOME=$CATALINA_HOME',
-        '      export CATALINA_BASE=$CATALINA_BASE',
-        '      export CATALINA_PID=$CATALINA_PID',
-        '      $CATALINA_HOME/bin/startup.sh',
-        '    fi',
-        '  fi',
-        '}',
-        '',
-        'stop() {',
-        '  pid=$(tomcat_pid)',
-        '  if [ -n "$pid" ]; then',
-        '    echo "Stopping Tomcat..."',
-        '    if [ "$(id -u)" = "0" ]; then',
-        '      su - $TOMCAT_USER -c "export JAVA_HOME=$JAVA_HOME; export CATALINA_HOME=$CATALINA_HOME; export CATALINA_BASE=$CATALINA_BASE; export CATALINA_PID=$CATALINA_PID; $CATALINA_HOME/bin/shutdown.sh"',
-        '    else',
-        '      export JAVA_HOME=$JAVA_HOME',
-        '      export CATALINA_HOME=$CATALINA_HOME',
-        '      export CATALINA_BASE=$CATALINA_BASE',
-        '      export CATALINA_PID=$CATALINA_PID',
-        '      $CATALINA_HOME/bin/shutdown.sh',
-        '    fi',
-        '',
-        '    let kwait=$SHUTDOWN_WAIT',
-        '    count=0',
-        '    until [ $(ps -p $pid | grep -c $pid) = "0" ] || [ $count -gt $kwait ]; do',
-        '      echo "Waiting for process to exit. Timeout in $(($kwait - $count)) seconds..."',
-        '      sleep 1',
-        '      let count=$count+1',
-        '    done',
-        '',
-        '    if [ $count -gt $kwait ]; then',
-        '      echo "Killing process ($pid) which did not stop after $SHUTDOWN_WAIT seconds"',
-        '      kill -9 $pid',
-        '    fi',
-        '  else',
-        '    echo "Tomcat is not running"',
-        '  fi',
-        '}',
-        '',
-        'status() {',
-        '  pid=$(tomcat_pid)',
-        '  if [ -n "$pid" ]; then',
-        '    echo "Tomcat is running with pid: $pid"',
-        '  else',
-        '    echo "Tomcat is not running"',
-        '  fi',
-        '}',
-        '',
-        'case $1 in',
-        '  start)',
-        '    start',
-        '    ;;',
-        '  stop)',
-        '    stop',
-        '    ;;',
-        '  restart)',
-        '    stop',
-        '    start',
-        '    ;;',
-        '  status)',
-        '    status',
-        '    ;;',
-        '  *)',
-        '    echo "Usage: $0 {start|stop|restart|status}"',
-        '    exit 1',
-        'esac',
-        'exit $?',
+        '[Service]',
+        'Type=forking',
+        `User=${tomcatUser}`,
+        `Environment="CATALINA_HOME=${catalinaHome}"`,
+        `Environment="CATALINA_BASE=${catalinaBase}"`,
+        `Environment="CATALINA_PID=${catalinaHome}/temp/tomcat.pid"`,
     ];
+
+    if (javaHome) {
+        lines.push(`Environment="JAVA_HOME=${javaHome}"`);
+    } else {
+        lines.push('# Uncomment and adjust if needed:');
+        lines.push('# Environment="JAVA_HOME=/usr/lib/jvm/jre-17-openjdk"');
+    }
+
+    lines.push(
+        '',
+        `PIDFile=${catalinaHome}/temp/tomcat.pid`,
+        `ExecStart=${catalinaHome}/bin/startup.sh`,
+        `ExecStop=${catalinaHome}/bin/shutdown.sh`,
+        '',
+        'TimeoutStopSec=20',
+        'KillMode=mixed',
+        '',
+        '[Install]',
+        'WantedBy=multi-user.target',
+    );
+
+    return lines;
+}
+
+function highlightScript(commands) {
+    return commands.map(line => {
+        const escaped = line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        if (/^\s*#/.test(line)) {
+            return `<span class="script-comment">${escaped}</span>`;
+        } else if (escaped.trim() === '') {
+            return escaped;
+        } else {
+            return `<span class="script-command">${escaped}</span>`;
+        }
+    }).join('\n');
 }
 
 // Helper function for copying code (can be called from HTML)

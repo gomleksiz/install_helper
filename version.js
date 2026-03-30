@@ -1,5 +1,5 @@
 // Central version configuration
-const APP_VERSION = "0.7.1";
+const APP_VERSION = "0.8";
 
 // Function to display version in footer
 function displayVersion() {
