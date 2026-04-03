@@ -60,6 +60,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (javaMethodSelect) javaMethodSelect.addEventListener('change', updateJavaManualOptionsVisibility);
     if (osSelect) osSelect.addEventListener('change', updateJavaMethodVisibility);
+    const installJavaCheckbox = document.getElementById('install_java');
+    if (installJavaCheckbox) installJavaCheckbox.addEventListener('change', updateJavaMethodVisibility);
 
     // Auto-populate JAVA_HOME when OS/Java version changes
     const javaVersionSelect = document.getElementById('java_version');
