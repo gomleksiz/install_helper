@@ -37,6 +37,30 @@ document.addEventListener('DOMContentLoaded', () => {
     if (tomcatMethodSelect) tomcatMethodSelect.addEventListener('change', updateManualOptionsVisibility);
     if (osSelect) osSelect.addEventListener('change', updateManualOptionsVisibility);
 
+    // Show/hide Java method selector based on OS
+    const javaMethodSelect = document.getElementById('java_method');
+    const javaMethodWrapper = document.getElementById('java-method-wrapper');
+    const javaManualOptions = document.getElementById('java-manual-options');
+
+    function updateJavaMethodVisibility() {
+        const isAws = osSelect.value === 'aws';
+        if (javaMethodWrapper) javaMethodWrapper.style.display = isAws ? 'block' : 'none';
+        if (!isAws && javaMethodSelect) {
+            javaMethodSelect.value = 'package';
+            if (javaManualOptions) javaManualOptions.style.display = 'none';
+        }
+        updateJavaManualOptionsVisibility();
+    }
+
+    function updateJavaManualOptionsVisibility() {
+        const isManual = javaMethodSelect && javaMethodSelect.value === 'manual';
+        const isAws = osSelect.value === 'aws';
+        if (javaManualOptions) javaManualOptions.style.display = (isManual && isAws) ? 'block' : 'none';
+    }
+
+    if (javaMethodSelect) javaMethodSelect.addEventListener('change', updateJavaManualOptionsVisibility);
+    if (osSelect) osSelect.addEventListener('change', updateJavaMethodVisibility);
+
     // Auto-populate JAVA_HOME when OS/Java version changes
     const javaVersionSelect = document.getElementById('java_version');
     function updateSystemdDefaults() {
@@ -176,11 +200,30 @@ function generateEnvironmentScript() {
         // Java Installation
         if (installJava) {
             const javaVersion = document.getElementById('java_version').value;
-            const javaCommand = generateJavaCommand(osEnvironment, javaVersion);
-            if (javaCommand) {
-                commands.push('# Install Java ' + javaVersion);
-                commands.push(javaCommand);
+            const javaMethod = document.getElementById('java_method') ? document.getElementById('java_method').value : 'package';
+
+            if (osEnvironment === 'aws' && javaMethod === 'manual') {
+                const isHeadless = document.getElementById('java_headless').checked;
+                const javaManualCommands = generateJavaManualCommand(javaVersion, isHeadless);
+                commands.push('# Install Amazon Corretto Java ' + javaVersion + ' (Manual RPM)');
+                commands.push(...javaManualCommands);
                 commands.push('');
+
+                // Add download link
+                const rpmUrl = getCorrettoRpmUrl(javaVersion, isHeadless);
+                downloadLinks.push({
+                    title: `Download Amazon Corretto ${javaVersion} RPM` + (isHeadless ? ' (Headless)' : ''),
+                    url: rpmUrl,
+                    description: 'Amazon Corretto ' + javaVersion + ' JDK for Linux x64' + (isHeadless ? ' — headless (no GUI/audio deps)' : '')
+                });
+                showManualDownloads = true;
+            } else {
+                const javaCommand = generateJavaCommand(osEnvironment, javaVersion);
+                if (javaCommand) {
+                    commands.push('# Install Java ' + javaVersion);
+                    commands.push(javaCommand);
+                    commands.push('');
+                }
             }
         }
 
@@ -270,7 +313,8 @@ function generateEnvironmentScript() {
         // Add verification section
         if (installJava || installTomcat || installDatabase) {
             commands.push('# Verify Installations');
-            if (installJava) {
+            const javaMethod = document.getElementById('java_method') ? document.getElementById('java_method').value : 'package';
+            if (installJava && !(osEnvironment === 'aws' && javaMethod === 'manual')) {
                 commands.push('java -version');
             }
             if (installTomcat && document.getElementById('tomcat_method').value === 'package') {
@@ -377,6 +421,28 @@ function generateJavaCommand(osEnvironment, javaVersion) {
             return `sudo apt-get update && sudo apt-get install openjdk-${javaVersion}-jdk-headless -y`;
     }
     return '';
+}
+
+function getCorrettoRpmUrl(javaVersion, isHeadless) {
+    const headlessSuffix = isHeadless ? '-headless' : '';
+    return `https://corretto.aws/downloads/latest/amazon-corretto-${javaVersion}-x64-linux${headlessSuffix}-jdk.rpm`;
+}
+
+function generateJavaManualCommand(javaVersion, isHeadless) {
+    const rpmUrl = getCorrettoRpmUrl(javaVersion, isHeadless);
+    const filename = rpmUrl.split('/').pop();
+    const commands = [];
+
+    commands.push('# Step 1: Download the RPM');
+    commands.push(`wget ${rpmUrl}`);
+    commands.push('');
+    commands.push('# Step 2: Install the RPM');
+    commands.push(`sudo yum localinstall -y ${filename}`);
+    commands.push('');
+    commands.push('# Step 3: Verify');
+    commands.push('java -version');
+
+    return commands;
 }
 
 function generateTomcatPackageCommand(osEnvironment) {

@@ -55,6 +55,19 @@
                                 <option value="21">Java 21</option>
                             </select>
                         </div>
+                        <div class="form-group" id="java-method-wrapper" style="display: none;">
+                            <label for="java_method">Installation Method:</label>
+                            <select id="java_method" name="java_method">
+                                <option value="package" selected>Package Manager (yum)</option>
+                                <option value="manual">Manual Download (RPM)</option>
+                            </select>
+                        </div>
+                        <div id="java-manual-options" style="display: none; margin-left: 30px; margin-top: 5px;">
+                            <div class="form-group-checkbox">
+                                <input type="checkbox" id="java_headless" name="java_headless">
+                                <label for="java_headless">Headless version (no GUI/audio dependencies)</label>
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Tomcat Section -->
