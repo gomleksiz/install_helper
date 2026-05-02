@@ -39,7 +39,7 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 
 ### Post Configuration
 - Tabbed reference page for recommended post-install settings
-- **UC Properties** tab with curated list of recommended Universal Controller properties and values
+- **UC Properties** tab with a two-column table of recommended Universal Controller properties and their values
 - **SSL Configuration** tab with an interactive Tomcat SSL generator: pick from four certificate sources (no certificate, CA certificate, `.pem`/`.pkcs12` files, or existing keystore) and the form live-generates the matching `keytool`/`openssl` commands and the `server.xml` `<Connector>` snippet (TLS 1.2/1.3, port 443), plus a one-click `sudo systemctl restart tomcat` command
 
 ### General Features

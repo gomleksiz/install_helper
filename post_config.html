@@ -42,21 +42,68 @@
             <section id="uc-properties" class="tab-panel active" role="tabpanel">
                 <h3>Recommended Universal Controller Properties</h3>
                 <p>Set these properties in the Universal Controller after installation (<em>Services &gt; Administration &gt; Properties</em>). Adjust values to match your environment.</p>
-                <ol class="property-list">
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#administrator-email-address" target="_blank" rel="noopener">Administrator Email Address</a> = <code>admin@email.com,admin2@email.com</code><span class="prop-hint">Recipient(s) for Universal Controller system notifications. Expected: comma-separated list of email addresses.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#banner-background-color" target="_blank" rel="noopener">Banner Background Color</a> = <code>#4DC389</code><span class="prop-hint">Hexadecimal color for the page banner in the UI. Expected: #RRGGBB (six hex characters) or "transparent".</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#bundle-exclude-on-existence-picker-default" target="_blank" rel="noopener">Bundle Exclude On Existence Picker Default</a> = <code>[Calendars, Custom Days, Variables, Credentials, Email Templates, Email Connections, Database Connections, SAP Connections, PeopleSoft Connections]</code><span class="prop-hint">Default record types that will NOT be updated by a bundle promotion if they already exist on the target server. Expected: one or more record type selections.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#change-history-enabled" target="_blank" rel="noopener">Change History Enabled</a> = <code>true</code> <em>(recommended for prod)</em><span class="prop-hint">Controls whether users are prompted with a Change Description field when modifying records. Expected: true or false.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#critical-path-calculations-permitted" target="_blank" rel="noopener">Critical Path Calculations Permitted</a> = <code>true</code><span class="prop-hint">Determines whether users can utilize the Critical Path feature. Expected: true or false.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#exclude-holidays-for-business-days" target="_blank" rel="noopener">Exclude Holidays For Business Days</a> = <code>true</code><span class="prop-hint">Whether holidays falling on business days are treated as non-business days. Expected: true or false.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#resolvable-credentials-permitted" target="_blank" rel="noopener">Resolvable Credentials Permitted</a> = <code>true</code><span class="prop-hint">Enables the use of resolvable credentials (allowing scripts/tasks to retrieve credential values at runtime). Expected: true or false.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#retrieve-output-default-number-of-lines" target="_blank" rel="noopener">Retrieve Output Default Number Of Lines</a> = <code>500</code><span class="prop-hint">Default number of lines retrieved when fetching task output; also acts as the limit for automatic retrieval. Expected: numeric value (default 100).</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier" target="_blank" rel="noopener">System Identifier</a> = <code>Description of the environment (DEV01)</code><span class="prop-hint">User-selected name displayed in the User Task Bar to identify the environment (e.g., DEV01, PROD). Expected: free-form text string.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-background-color" target="_blank" rel="noopener">System Identifier Background Color</a> = <code>Black</code><span class="prop-hint">Background color for the System Identifier field on the User Task Bar. Expected: color name (default: Black) or hex value.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-color" target="_blank" rel="noopener">System Identifier Color</a> = <code>White</code><span class="prop-hint">Text color for the System Identifier field on the User Task Bar. Expected: color name (default: White) or hex value.</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#universal-template-extension-maximum-bytes" target="_blank" rel="noopener">Universal Template Extension Maximum Bytes</a> = <code>900000000</code><span class="prop-hint">Maximum allowed size (in bytes) for a Universal Template extension archive uploaded to the Controller. Expected: numeric byte value (e.g., 900000000 ≈ 900 MB).</span></li>
-                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#web-service-default-response-content" target="_blank" rel="noopener">Web Service Default Response Content</a> = <code>JSON</code><span class="prop-hint">Default response content type returned by Universal Controller Web Services when no format is specified by the client. Expected: JSON or XML.</span></li>
-                </ol>
+                <table class="property-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Property</th>
+                            <th scope="col">Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#administrator-email-address" target="_blank" rel="noopener">Administrator Email Address</a><span class="prop-hint">Recipient(s) for Universal Controller system notifications. Expected: comma-separated list of email addresses.</span></td>
+                            <td><code>admin@email.com,admin2@email.com</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#banner-background-color" target="_blank" rel="noopener">Banner Background Color</a><span class="prop-hint">Hexadecimal color for the page banner in the UI. Expected: #RRGGBB (six hex characters) or "transparent".</span></td>
+                            <td><code>#4DC389</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#bundle-exclude-on-existence-picker-default" target="_blank" rel="noopener">Bundle Exclude On Existence Picker Default</a><span class="prop-hint">Default record types that will NOT be updated by a bundle promotion if they already exist on the target server. Expected: one or more record type selections.</span></td>
+                            <td><code>[Calendars, Custom Days, Variables, Credentials, Email Templates, Email Connections, Database Connections, SAP Connections, PeopleSoft Connections]</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#change-history-enabled" target="_blank" rel="noopener">Change History Enabled</a><span class="prop-hint">Controls whether users are prompted with a Change Description field when modifying records. Expected: true or false.</span></td>
+                            <td><code>true</code> <em>(recommended for prod)</em></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#critical-path-calculations-permitted" target="_blank" rel="noopener">Critical Path Calculations Permitted</a><span class="prop-hint">Determines whether users can utilize the Critical Path feature. Expected: true or false.</span></td>
+                            <td><code>true</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#exclude-holidays-for-business-days" target="_blank" rel="noopener">Exclude Holidays For Business Days</a><span class="prop-hint">Whether holidays falling on business days are treated as non-business days. Expected: true or false.</span></td>
+                            <td><code>true</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#resolvable-credentials-permitted" target="_blank" rel="noopener">Resolvable Credentials Permitted</a><span class="prop-hint">Enables the use of resolvable credentials (allowing scripts/tasks to retrieve credential values at runtime). Expected: true or false.</span></td>
+                            <td><code>true</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#retrieve-output-default-number-of-lines" target="_blank" rel="noopener">Retrieve Output Default Number Of Lines</a><span class="prop-hint">Default number of lines retrieved when fetching task output; also acts as the limit for automatic retrieval. Expected: numeric value (default 100).</span></td>
+                            <td><code>500</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier" target="_blank" rel="noopener">System Identifier</a><span class="prop-hint">User-selected name displayed in the User Task Bar to identify the environment (e.g., DEV01, PROD). Expected: free-form text string.</span></td>
+                            <td><code>Description of the environment (DEV01)</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-background-color" target="_blank" rel="noopener">System Identifier Background Color</a><span class="prop-hint">Background color for the System Identifier field on the User Task Bar. Expected: color name (default: Black) or hex value.</span></td>
+                            <td><code>Black</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-color" target="_blank" rel="noopener">System Identifier Color</a><span class="prop-hint">Text color for the System Identifier field on the User Task Bar. Expected: color name (default: White) or hex value.</span></td>
+                            <td><code>White</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#universal-template-extension-maximum-bytes" target="_blank" rel="noopener">Universal Template Extension Maximum Bytes</a><span class="prop-hint">Maximum allowed size (in bytes) for a Universal Template extension archive uploaded to the Controller. Expected: numeric byte value (e.g., 900000000 ≈ 900 MB).</span></td>
+                            <td><code>900000000</code></td>
+                        </tr>
+                        <tr>
+                            <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#web-service-default-response-content" target="_blank" rel="noopener">Web Service Default Response Content</a><span class="prop-hint">Default response content type returned by Universal Controller Web Services when no format is specified by the client. Expected: JSON or XML.</span></td>
+                            <td><code>JSON</code></td>
+                        </tr>
+                    </tbody>
+                </table>
             </section>
 
             <section id="ssl-config" class="tab-panel" role="tabpanel">

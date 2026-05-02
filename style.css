@@ -1228,22 +1228,26 @@ legend {
     margin-bottom: 6px;
 }
 
-.property-list .prop-name {
+.property-list .prop-name,
+.property-table .prop-name {
     font-weight: 600;
     color: #1e3a8a;
 }
 
-.property-list a.prop-name {
+.property-list a.prop-name,
+.property-table a.prop-name {
     text-decoration: none;
     border-bottom: 1px dotted #1e3a8a;
 }
 
-.property-list a.prop-name:hover {
+.property-list a.prop-name:hover,
+.property-table a.prop-name:hover {
     text-decoration: underline;
     color: #2563eb;
 }
 
-.property-list code {
+.property-list code,
+.property-table code {
     background: #f1f5f9;
     padding: 2px 6px;
     border-radius: 3px;
@@ -1252,10 +1256,45 @@ legend {
     color: #0f172a;
 }
 
-.property-list em {
+.property-list em,
+.property-table em {
     color: #b45309;
     font-style: normal;
     font-size: 0.85em;
+}
+
+.property-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 12px;
+    font-size: 0.95em;
+}
+
+.property-table thead th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #f1f5f9;
+    border-bottom: 2px solid #cbd5e1;
+    color: #1e3a8a;
+    font-weight: 600;
+}
+
+.property-table tbody td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.property-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.property-table td:first-child {
+    width: 45%;
+}
+
+.property-table td code {
+    word-break: break-word;
 }
 
 /* SSL Configuration tab */
