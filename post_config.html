@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Post Configuration - Command Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="environment.html">Prerequisite</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+                <li><a href="post_config.html">Post Configuration</a></li>
+                <li><a href="sizing.html">Sizing Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="disclaimer-alert disclaimer-top" role="note">
+            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
+            <div class="disclaimer-header">
+                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span class="disclaimer-label">INFO</span>
+            </div>
+            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
+        </div>
+        <h2>Post Configuration</h2>
+        <p>Recommended configuration steps to perform after installing Universal Controller and Universal Agent components.</p>
+
+        <div class="tabs">
+            <div class="tab-buttons" role="tablist">
+                <button class="tab-button active" role="tab" data-tab="uc-properties">UC Properties</button>
+                <button class="tab-button" role="tab" data-tab="ssl-config">SSL Configuration</button>
+            </div>
+
+            <section id="uc-properties" class="tab-panel active" role="tabpanel">
+                <h3>Recommended Universal Controller Properties</h3>
+                <p>Set these properties in the Universal Controller after installation (<em>Services &gt; Administration &gt; Properties</em>). Adjust values to match your environment.</p>
+                <ol class="property-list">
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#administrator-email-address" target="_blank" rel="noopener">Administrator Email Address</a> = <code>admin@email.com,admin2@email.com</code><span class="prop-hint">Recipient(s) for Universal Controller system notifications. Expected: comma-separated list of email addresses.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#banner-background-color" target="_blank" rel="noopener">Banner Background Color</a> = <code>#4DC389</code><span class="prop-hint">Hexadecimal color for the page banner in the UI. Expected: #RRGGBB (six hex characters) or "transparent".</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#bundle-exclude-on-existence-picker-default" target="_blank" rel="noopener">Bundle Exclude On Existence Picker Default</a> = <code>[Calendars, Custom Days, Variables, Credentials, Email Templates, Email Connections, Database Connections, SAP Connections, PeopleSoft Connections]</code><span class="prop-hint">Default record types that will NOT be updated by a bundle promotion if they already exist on the target server. Expected: one or more record type selections.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#change-history-enabled" target="_blank" rel="noopener">Change History Enabled</a> = <code>true</code> <em>(recommended for prod)</em><span class="prop-hint">Controls whether users are prompted with a Change Description field when modifying records. Expected: true or false.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#critical-path-calculations-permitted" target="_blank" rel="noopener">Critical Path Calculations Permitted</a> = <code>true</code><span class="prop-hint">Determines whether users can utilize the Critical Path feature. Expected: true or false.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#exclude-holidays-for-business-days" target="_blank" rel="noopener">Exclude Holidays For Business Days</a> = <code>true</code><span class="prop-hint">Whether holidays falling on business days are treated as non-business days. Expected: true or false.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#resolvable-credentials-permitted" target="_blank" rel="noopener">Resolvable Credentials Permitted</a> = <code>true</code><span class="prop-hint">Enables the use of resolvable credentials (allowing scripts/tasks to retrieve credential values at runtime). Expected: true or false.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#retrieve-output-default-number-of-lines" target="_blank" rel="noopener">Retrieve Output Default Number Of Lines</a> = <code>500</code><span class="prop-hint">Default number of lines retrieved when fetching task output; also acts as the limit for automatic retrieval. Expected: numeric value (default 100).</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier" target="_blank" rel="noopener">System Identifier</a> = <code>Description of the environment (DEV01)</code><span class="prop-hint">User-selected name displayed in the User Task Bar to identify the environment (e.g., DEV01, PROD). Expected: free-form text string.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-background-color" target="_blank" rel="noopener">System Identifier Background Color</a> = <code>Black</code><span class="prop-hint">Background color for the System Identifier field on the User Task Bar. Expected: color name (default: Black) or hex value.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#system-identifier-color" target="_blank" rel="noopener">System Identifier Color</a> = <code>White</code><span class="prop-hint">Text color for the System Identifier field on the User Task Bar. Expected: color name (default: White) or hex value.</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#universal-template-extension-maximum-bytes" target="_blank" rel="noopener">Universal Template Extension Maximum Bytes</a> = <code>900000000</code><span class="prop-hint">Maximum allowed size (in bytes) for a Universal Template extension archive uploaded to the Controller. Expected: numeric byte value (e.g., 900000000 ≈ 900 MB).</span></li>
+                    <li><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#web-service-default-response-content" target="_blank" rel="noopener">Web Service Default Response Content</a> = <code>JSON</code><span class="prop-hint">Default response content type returned by Universal Controller Web Services when no format is specified by the client. Expected: JSON or XML.</span></li>
+                </ol>
+            </section>
+
+            <section id="ssl-config" class="tab-panel" role="tabpanel">
+                <h3>Configure SSL/TLS for Tomcat</h3>
+                <p>Pick how you obtained your certificate. The form below generates the matching <code>keytool</code>/<code>openssl</code> commands and the <code>server.xml</code> connector snippet you need.</p>
+
+                <div class="ssl-section">
+                    <div class="ssl-section-title">What kind of certificate do you have?</div>
+                    <div class="cert-cards" id="cert-type-group">
+                        <div class="cert-card active" data-val="A">
+                            <div class="cert-card-icon">🔒</div>
+                            <div class="cert-card-title">I don't have any certificate</div>
+                            <div class="cert-card-desc">Generate a self-signed certificate</div>
+                        </div>
+                        <div class="cert-card" data-val="B">
+                            <div class="cert-card-icon">🏛️</div>
+                            <div class="cert-card-title">I have a CA certificate</div>
+                            <div class="cert-card-desc">Issued by a CA like DigiCert or Let's Encrypt</div>
+                        </div>
+                        <div class="cert-card" data-val="C">
+                            <div class="cert-card-icon">📄</div>
+                            <div class="cert-card-title">I have .pem or .pkcs12 files</div>
+                            <div class="cert-card-desc">Certificate files ready to bundle into a keystore</div>
+                        </div>
+                        <div class="cert-card" data-val="D">
+                            <div class="cert-card-icon">🗄️</div>
+                            <div class="cert-card-title">I have a keystore file</div>
+                            <div class="cert-card-desc">A .jks or .p12 file that already contains the certificate</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ssl-section">
+                    <div class="ssl-section-title">Key folder</div>
+                    <div class="ssl-field">
+                        <label for="key-folder">Base directory for all certificate files</label>
+                        <input id="key-folder" value="/opt/tomcat/certs">
+                        <span class="prop-hint">All file paths below are resolved relative to this folder.</span>
+                    </div>
+                </div>
+
+                <div class="ssl-section" id="section-A">
+                    <div class="ssl-section-title">Self-signed certificate details</div>
+                    <div class="ssl-grid2">
+                        <div class="ssl-field"><label for="a-alias">Key alias</label><input id="a-alias" value="uac"></div>
+                        <div class="ssl-field"><label for="a-ks-file">Keystore filename</label><input id="a-ks-file" value="keystore.jks"></div>
+                        <div class="ssl-field"><label for="a-ks-pass">Keystore password</label><input id="a-ks-pass" type="password" value="changeit"></div>
+                        <div class="ssl-field"><label for="a-key-pass">Key password</label><input id="a-key-pass" type="password" value="changeit"></div>
+                        <div class="ssl-field"><label for="a-validity">Validity (days)</label><input id="a-validity" type="number" value="365"></div>
+                        <div class="ssl-field"><label for="a-alg">Key algorithm</label>
+                            <select id="a-alg"><option value="RSA">RSA</option><option value="EC">EC</option></select>
+                        </div>
+                        <div class="ssl-field"><label for="a-keysize">Key size</label><input id="a-keysize" type="number" value="2048"></div>
+                    </div>
+                    <div class="ssl-section-title" style="margin-top:18px;">Organization info</div>
+                    <div class="ssl-grid3">
+                        <div class="ssl-field"><label for="a-cn">Domain (CN)</label><input id="a-cn" value="*.company.name"></div>
+                        <div class="ssl-field"><label for="a-ou">Department (OU)</label><input id="a-ou" value="IT"></div>
+                        <div class="ssl-field"><label for="a-o">Organization (O)</label><input id="a-o" value="company.name"></div>
+                        <div class="ssl-field"><label for="a-l">City</label><input id="a-l" value="Atlanta"></div>
+                        <div class="ssl-field"><label for="a-st">State</label><input id="a-st" value="GA"></div>
+                        <div class="ssl-field"><label for="a-c">Country</label><input id="a-c" value="US" maxlength="2"></div>
+                    </div>
+                </div>
+
+                <div class="ssl-section" id="section-B" style="display:none">
+                    <div class="ssl-section-title">CA certificate details</div>
+                    <div class="ssl-grid2">
+                        <div class="ssl-field"><label for="b-alias">Key alias</label><input id="b-alias" value="uac"></div>
+                        <div class="ssl-field"><label for="b-ks-file">Keystore filename</label><input id="b-ks-file" value="keystore.jks"></div>
+                        <div class="ssl-field"><label for="b-ks-pass">Keystore password</label><input id="b-ks-pass" type="password" value="changeit"></div>
+                        <div class="ssl-field"><label for="b-ca-root">CA root cert filename</label><input id="b-ca-root" value="root-ca.crt"></div>
+                        <div class="ssl-field"><label for="b-signed">Signed cert filename</label><input id="b-signed" value="signed-cert.crt"></div>
+                    </div>
+                </div>
+
+                <div class="ssl-section" id="section-C" style="display:none">
+                    <div class="ssl-section-title">Certificate file details</div>
+                    <div class="ssl-grid2">
+                        <div class="ssl-field"><label for="c-crt">Certificate filename (.crt / .pem)</label><input id="c-crt" value="cert.crt"></div>
+                        <div class="ssl-field"><label for="c-key">Private key filename (.key)</label><input id="c-key" value="private.key"></div>
+                        <div class="ssl-field"><label for="c-bundle">CA bundle filename (optional)</label><input id="c-bundle" value="ca-bundle.crt"></div>
+                        <div class="ssl-field"><label for="c-out">Output keystore filename (.p12)</label><input id="c-out" value="keystore.p12"></div>
+                        <div class="ssl-field"><label for="c-alias">Key alias</label><input id="c-alias" value="uac"></div>
+                        <div class="ssl-field"><label for="c-pass">Keystore password</label><input id="c-pass" type="password" value="changeit"></div>
+                    </div>
+                </div>
+
+                <div class="ssl-section" id="section-D" style="display:none">
+                    <div class="ssl-section-title">Existing keystore details</div>
+                    <p class="prop-hint" style="margin-bottom:12px;">No extra setup commands needed — just point to your existing keystore file and provide the credentials.</p>
+                    <div class="ssl-grid2">
+                        <div class="ssl-field">
+                            <label for="d-ks-file">Keystore filename</label>
+                            <input id="d-ks-file" value="keystore.jks">
+                            <span class="prop-hint">Use a <code>.p12</code> extension if it's a PKCS12 file.</span>
+                        </div>
+                        <div class="ssl-field"><label for="d-alias">Key alias</label><input id="d-alias" value="uac"></div>
+                        <div class="ssl-field"><label for="d-ks-pass">Keystore password</label><input id="d-ks-pass" type="password" value="changeit"></div>
+                        <div class="ssl-field"><label for="d-ks-type">Keystore type</label>
+                            <select id="d-ks-type">
+                                <option value="JKS">JKS (.jks)</option>
+                                <option value="PKCS12">PKCS12 (.p12)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ssl-section">
+                    <div class="ssl-subtab-bar">
+                        <button type="button" class="ssl-subtab active" id="ssl-tab-xml">server.xml snippet</button>
+                        <button type="button" class="ssl-subtab" id="ssl-tab-cmd">keytool / openssl command</button>
+                    </div>
+                    <pre class="ssl-out"><code id="ssl-out-xml"></code></pre>
+                    <pre class="ssl-out" id="ssl-out-cmd-wrap" style="display:none"><code id="ssl-out-cmd"></code></pre>
+                    <button type="button" class="copy-icon ssl-copy-btn" id="ssl-copy-btn" aria-label="Copy to clipboard">Copy to clipboard</button>
+                </div>
+
+                <div class="ssl-section">
+                    <div class="ssl-section-title">Restart Tomcat</div>
+                    <p>After applying the keystore and updating <code>server.xml</code>, restart Tomcat for the changes to take effect:</p>
+                    <pre><code>sudo systemctl restart tomcat</code></pre>
+                </div>
+
+                <p class="prop-hint" style="margin-top:14px;">Replace the default passwords (<code>changeit</code>) and adjust filenames/paths to match your environment. Keep the keystore password out of version control and restrict file permissions on the keystore file (e.g., <code>chmod 600</code>).</p>
+            </section>
+        </div>
+    </main>
+    <div class="disclaimer-alert disclaimer-bottom" role="note">
+        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
+    </div>
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    <script src="version.js"></script>
+    <script>
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.dataset.tab;
+                document.querySelectorAll('.tab-button').forEach(b => b.classList.toggle('active', b === btn));
+                document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === target));
+            });
+        });
+
+        (function () {
+            let certType = 'A';
+            let activeSubTab = 'xml';
+
+            const $ = (id) => document.getElementById(id);
+            const v = (id) => ($(id) || {}).value || '';
+
+            function folder() { return v('key-folder').replace(/\/+$/, ''); }
+            function path(file) { return folder() + '/' + file; }
+
+            function getKsFile() {
+                if (certType === 'A') return path(v('a-ks-file') || 'keystore.jks');
+                if (certType === 'B') return path(v('b-ks-file') || 'keystore.jks');
+                if (certType === 'C') return path(v('c-out') || 'keystore.p12');
+                return path(v('d-ks-file') || 'keystore.jks');
+            }
+            function getKsPass() {
+                if (certType === 'A') return v('a-ks-pass') || 'changeit';
+                if (certType === 'B') return v('b-ks-pass') || 'changeit';
+                if (certType === 'C') return v('c-pass') || 'changeit';
+                return v('d-ks-pass') || 'changeit';
+            }
+            function getAlias() {
+                if (certType === 'A') return v('a-alias') || 'uac';
+                if (certType === 'B') return v('b-alias') || 'uac';
+                if (certType === 'C') return v('c-alias') || 'uac';
+                return v('d-alias') || 'uac';
+            }
+            function getKsType() {
+                if (certType === 'C') return 'PKCS12';
+                if (certType === 'D') return v('d-ks-type') || 'JKS';
+                return 'JKS';
+            }
+
+            function buildXML() {
+                const ksFile = getKsFile();
+                const ksPass = getKsPass();
+                const ksType = getKsType();
+                const alias = getAlias();
+                let certLines = `certificateKeystoreFile="${ksFile}"\n                 certificateKeystorePassword="${ksPass}"`;
+                if (ksType === 'PKCS12') certLines += `\n                 certificateKeystoreType="PKCS12"`;
+                certLines += `\n                 certificateKeyAlias="${alias}"`;
+                return `<Connector port="443"
+           protocol="org.apache.coyote.http11.Http11NioProtocol"
+           sslImplementationName="org.apache.tomcat.util.net.jsse.JSSEImplementation"
+           maxThreads="150"
+           maxPostSize="-1"
+           SSLEnabled="true"
+           scheme="https"
+           secure="true"
+           useSendfile="false"
+           compression="on">
+
+  <SSLHostConfig protocols="+TLSv1.2,+TLSv1.3">
+    <Certificate ${certLines}
+                 type="RSA" />
+  </SSLHostConfig>
+
+</Connector>`;
+            }
+
+            function buildCmd() {
+                if (certType === 'D') return '— No command needed. Your keystore is ready to use.';
+                if (certType === 'A') {
+                    const alias = v('a-alias') || 'uac';
+                    const ks = path(v('a-ks-file') || 'keystore.jks');
+                    const pass = v('a-ks-pass') || 'changeit';
+                    const keypass = v('a-key-pass') || 'changeit';
+                    const days = v('a-validity') || '365';
+                    const alg = v('a-alg') || 'RSA';
+                    const size = v('a-keysize') || '2048';
+                    const cn = v('a-cn') || '*.company.name';
+                    const ou = v('a-ou') || 'IT';
+                    const o = v('a-o') || 'company.name';
+                    const l = v('a-l') || 'Atlanta';
+                    const st = v('a-st') || 'GA';
+                    const c = v('a-c') || 'US';
+                    return `keytool -genkeypair \\
+  -alias ${alias} \\
+  -keyalg ${alg} \\
+  -keysize ${size} \\
+  -keystore ${ks} \\
+  -validity ${days} \\
+  -storepass ${pass} \\
+  -keypass ${keypass} \\
+  -dname "CN=${cn}, OU=${ou}, O=${o}, L=${l}, ST=${st}, C=${c}"`;
+                }
+                if (certType === 'B') {
+                    const alias = v('b-alias') || 'uac';
+                    const ks = path(v('b-ks-file') || 'keystore.jks');
+                    const pass = v('b-ks-pass') || 'changeit';
+                    const root = path(v('b-ca-root') || 'root-ca.crt');
+                    const signed = path(v('b-signed') || 'signed-cert.crt');
+                    return `# Step 1 — Generate CSR
+keytool -certreq \\
+  -alias ${alias} \\
+  -keystore ${ks} \\
+  -storepass ${pass} \\
+  -file tomcat.csr
+
+# Step 2 — Import CA root cert
+keytool -importcert \\
+  -alias root \\
+  -keystore ${ks} \\
+  -storepass ${pass} \\
+  -file ${root}
+
+# Step 3 — Import signed cert
+keytool -importcert \\
+  -alias ${alias} \\
+  -keystore ${ks} \\
+  -storepass ${pass} \\
+  -file ${signed}`;
+                }
+                const crt = path(v('c-crt') || 'cert.crt');
+                const key = path(v('c-key') || 'private.key');
+                const bundle = v('c-bundle') ? path(v('c-bundle')) : '';
+                const out = path(v('c-out') || 'keystore.p12');
+                const alias = v('c-alias') || 'uac';
+                const pass = v('c-pass') || 'changeit';
+                const bundleFlag = bundle ? ` \\\n  -certfile ${bundle}` : '';
+                return `openssl pkcs12 -export \\
+  -in ${crt} \\
+  -inkey ${key}${bundleFlag} \\
+  -out ${out} \\
+  -name ${alias} \\
+  -passout pass:${pass}`;
+            }
+
+            function regenerate() {
+                $('ssl-out-xml').textContent = buildXML();
+                $('ssl-out-cmd').textContent = buildCmd();
+            }
+
+            function switchSubTab(t) {
+                activeSubTab = t;
+                $('ssl-tab-xml').classList.toggle('active', t === 'xml');
+                $('ssl-tab-cmd').classList.toggle('active', t === 'cmd');
+                document.querySelector('pre.ssl-out:not(#ssl-out-cmd-wrap)').style.display = t === 'xml' ? 'block' : 'none';
+                $('ssl-out-cmd-wrap').style.display = t === 'cmd' ? 'block' : 'none';
+            }
+
+            $('ssl-tab-xml').addEventListener('click', () => switchSubTab('xml'));
+            $('ssl-tab-cmd').addEventListener('click', () => {
+                if ($('ssl-tab-cmd').disabled) return;
+                switchSubTab('cmd');
+            });
+
+            document.querySelectorAll('#cert-type-group .cert-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    certType = card.dataset.val;
+                    document.querySelectorAll('#cert-type-group .cert-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    ['A', 'B', 'C', 'D'].forEach(t => {
+                        $('section-' + t).style.display = t === certType ? 'block' : 'none';
+                    });
+                    const cmdTab = $('ssl-tab-cmd');
+                    if (certType === 'D') {
+                        cmdTab.classList.add('disabled');
+                        cmdTab.disabled = true;
+                        if (activeSubTab === 'cmd') switchSubTab('xml');
+                    } else {
+                        cmdTab.classList.remove('disabled');
+                        cmdTab.disabled = false;
+                    }
+                    regenerate();
+                });
+            });
+
+            document.querySelectorAll('#ssl-config input, #ssl-config select').forEach(el => {
+                el.addEventListener('input', regenerate);
+            });
+
+            $('ssl-copy-btn').addEventListener('click', () => {
+                const txt = activeSubTab === 'xml'
+                    ? $('ssl-out-xml').textContent
+                    : $('ssl-out-cmd').textContent;
+                if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+                const btn = $('ssl-copy-btn');
+                const original = btn.textContent;
+                btn.textContent = 'Copied!';
+                setTimeout(() => { btn.textContent = original; }, 1500);
+            });
+
+            regenerate();
+        })();
+    </script>
+</body>
+</html>
