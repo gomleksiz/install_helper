@@ -63,125 +63,203 @@
                 <h3>Configure SSL/TLS for Tomcat</h3>
                 <p>Pick how you obtained your certificate. The form below generates the matching <code>keytool</code>/<code>openssl</code> commands and the <code>server.xml</code> connector snippet you need.</p>
 
-                <div class="ssl-section">
-                    <div class="ssl-section-title">What kind of certificate do you have?</div>
-                    <div class="cert-cards" id="cert-type-group">
-                        <div class="cert-card active" data-val="A">
-                            <div class="cert-card-icon">🔒</div>
-                            <div class="cert-card-title">I don't have any certificate</div>
-                            <div class="cert-card-desc">Generate a self-signed certificate</div>
+                <form id="ssl-form" class="ssl-form-full" onsubmit="return false;">
+                        <fieldset>
+                            <legend>What kind of certificate do you have?</legend>
+                            <div class="cert-cards" id="cert-type-group">
+                                <div class="cert-card active" data-val="A">
+                                    <div class="cert-card-icon">🔒</div>
+                                    <div class="cert-card-title">I don't have any certificate</div>
+                                    <div class="cert-card-desc">Generate a self-signed certificate</div>
+                                </div>
+                                <div class="cert-card" data-val="B">
+                                    <div class="cert-card-icon">🏛️</div>
+                                    <div class="cert-card-title">I have a CA certificate</div>
+                                    <div class="cert-card-desc">Issued by a CA like DigiCert or Let's Encrypt</div>
+                                </div>
+                                <div class="cert-card" data-val="C">
+                                    <div class="cert-card-icon">📄</div>
+                                    <div class="cert-card-title">I have .pem or .pkcs12 files</div>
+                                    <div class="cert-card-desc">Certificate files ready to bundle into a keystore</div>
+                                </div>
+                                <div class="cert-card" data-val="D">
+                                    <div class="cert-card-icon">🗄️</div>
+                                    <div class="cert-card-title">I have a keystore file</div>
+                                    <div class="cert-card-desc">A .jks or .p12 file that already contains the certificate</div>
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset>
+                            <legend>Key Folder</legend>
+                            <div class="form-group">
+                                <label for="key-folder">Base Directory:</label>
+                                <input type="text" id="key-folder" value="/opt/tomcat/certs">
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="section-A">
+                            <legend>Self-Signed Certificate Details</legend>
+                            <div class="form-group">
+                                <label for="a-alias">Key Alias:</label>
+                                <input type="text" id="a-alias" value="uac">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-ks-file">Keystore Filename:</label>
+                                <input type="text" id="a-ks-file" value="keystore.jks">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-ks-pass">Keystore Password:</label>
+                                <input type="password" id="a-ks-pass" value="changeit">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-key-pass">Key Password:</label>
+                                <input type="password" id="a-key-pass" value="changeit">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-validity">Validity (days):</label>
+                                <input type="number" id="a-validity" value="365">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-alg">Key Algorithm / Size:</label>
+                                <div class="inline-fields">
+                                    <select id="a-alg"><option value="RSA">RSA</option><option value="EC">EC</option></select>
+                                    <input type="number" id="a-keysize" value="2048" aria-label="Key size">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="a-cn">Domain (CN):</label>
+                                <input type="text" id="a-cn" value="*.company.name">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-ou">Department (OU):</label>
+                                <input type="text" id="a-ou" value="IT">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-o">Organization (O):</label>
+                                <input type="text" id="a-o" value="company.name">
+                            </div>
+                            <div class="form-group">
+                                <label for="a-l">City / State / Country:</label>
+                                <div class="inline-fields">
+                                    <input type="text" id="a-l" value="Atlanta" aria-label="City">
+                                    <input type="text" id="a-st" value="GA" aria-label="State">
+                                    <input type="text" id="a-c" value="US" maxlength="2" aria-label="Country">
+                                </div>
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="section-B" style="display:none">
+                            <legend>CA Certificate Details</legend>
+                            <div class="form-group">
+                                <label for="b-alias">Key Alias:</label>
+                                <input type="text" id="b-alias" value="uac">
+                            </div>
+                            <div class="form-group">
+                                <label for="b-ks-file">Keystore Filename:</label>
+                                <input type="text" id="b-ks-file" value="keystore.jks">
+                            </div>
+                            <div class="form-group">
+                                <label for="b-ks-pass">Keystore Password:</label>
+                                <input type="password" id="b-ks-pass" value="changeit">
+                            </div>
+                            <div class="form-group">
+                                <label for="b-ca-root">CA Root Cert Filename:</label>
+                                <input type="text" id="b-ca-root" value="root-ca.crt">
+                            </div>
+                            <div class="form-group">
+                                <label for="b-signed">Signed Cert Filename:</label>
+                                <input type="text" id="b-signed" value="signed-cert.crt">
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="section-C" style="display:none">
+                            <legend>Certificate File Details</legend>
+                            <div class="form-group">
+                                <label for="c-crt">Certificate Filename (.crt / .pem):</label>
+                                <input type="text" id="c-crt" value="cert.crt">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-key">Private Key Filename (.key):</label>
+                                <input type="text" id="c-key" value="private.key">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-bundle">CA Bundle Filename (optional):</label>
+                                <input type="text" id="c-bundle" value="ca-bundle.crt">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-out">Output Keystore Filename (.p12):</label>
+                                <input type="text" id="c-out" value="keystore.p12">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-alias">Key Alias:</label>
+                                <input type="text" id="c-alias" value="uac">
+                            </div>
+                            <div class="form-group">
+                                <label for="c-pass">Keystore Password:</label>
+                                <input type="password" id="c-pass" value="changeit">
+                            </div>
+                        </fieldset>
+
+                        <fieldset id="section-D" style="display:none">
+                            <legend>Existing Keystore Details</legend>
+                            <div class="form-group">
+                                <label for="d-ks-file">Keystore Filename:</label>
+                                <input type="text" id="d-ks-file" value="keystore.jks">
+                            </div>
+                            <div class="form-group">
+                                <label for="d-alias">Key Alias:</label>
+                                <input type="text" id="d-alias" value="uac">
+                            </div>
+                            <div class="form-group">
+                                <label for="d-ks-pass">Keystore Password:</label>
+                                <input type="password" id="d-ks-pass" value="changeit">
+                            </div>
+                            <div class="form-group">
+                                <label for="d-ks-type">Keystore Type:</label>
+                                <select id="d-ks-type">
+                                    <option value="JKS">JKS (.jks)</option>
+                                    <option value="PKCS12">PKCS12 (.p12)</option>
+                                </select>
+                            </div>
+                        </fieldset>
+
+                        <div id="command-output" style="display:block; margin-top: 20px;">
+                            <div class="ssl-subtab-bar">
+                                <button type="button" class="ssl-subtab active" id="ssl-tab-xml">server.xml snippet</button>
+                                <button type="button" class="ssl-subtab" id="ssl-tab-cmd">keytool / openssl command</button>
+                            </div>
+                            <div class="command-section" id="ssl-out-xml-wrap">
+                                <h3>server.xml Connector:</h3>
+                                <div class="command-line">
+                                    <pre><code id="ssl-out-xml"></code></pre>
+                                    <button type="button" class="copy-icon" id="ssl-copy-xml" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="command-section" id="ssl-out-cmd-wrap" style="display:none">
+                                <h3>keytool / openssl Command:</h3>
+                                <div class="command-line">
+                                    <pre><code id="ssl-out-cmd"></code></pre>
+                                    <button type="button" class="copy-icon" id="ssl-copy-cmd" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
-                        <div class="cert-card" data-val="B">
-                            <div class="cert-card-icon">🏛️</div>
-                            <div class="cert-card-title">I have a CA certificate</div>
-                            <div class="cert-card-desc">Issued by a CA like DigiCert or Let's Encrypt</div>
-                        </div>
-                        <div class="cert-card" data-val="C">
-                            <div class="cert-card-icon">📄</div>
-                            <div class="cert-card-title">I have .pem or .pkcs12 files</div>
-                            <div class="cert-card-desc">Certificate files ready to bundle into a keystore</div>
-                        </div>
-                        <div class="cert-card" data-val="D">
-                            <div class="cert-card-icon">🗄️</div>
-                            <div class="cert-card-title">I have a keystore file</div>
-                            <div class="cert-card-desc">A .jks or .p12 file that already contains the certificate</div>
-                        </div>
-                    </div>
-                </div>
 
-                <div class="ssl-section">
-                    <div class="ssl-section-title">Key folder</div>
-                    <div class="ssl-field">
-                        <label for="key-folder">Base directory for all certificate files</label>
-                        <input id="key-folder" value="/opt/tomcat/certs">
-                        <span class="prop-hint">All file paths below are resolved relative to this folder.</span>
-                    </div>
-                </div>
-
-                <div class="ssl-section" id="section-A">
-                    <div class="ssl-section-title">Self-signed certificate details</div>
-                    <div class="ssl-grid2">
-                        <div class="ssl-field"><label for="a-alias">Key alias</label><input id="a-alias" value="uac"></div>
-                        <div class="ssl-field"><label for="a-ks-file">Keystore filename</label><input id="a-ks-file" value="keystore.jks"></div>
-                        <div class="ssl-field"><label for="a-ks-pass">Keystore password</label><input id="a-ks-pass" type="password" value="changeit"></div>
-                        <div class="ssl-field"><label for="a-key-pass">Key password</label><input id="a-key-pass" type="password" value="changeit"></div>
-                        <div class="ssl-field"><label for="a-validity">Validity (days)</label><input id="a-validity" type="number" value="365"></div>
-                        <div class="ssl-field"><label for="a-alg">Key algorithm</label>
-                            <select id="a-alg"><option value="RSA">RSA</option><option value="EC">EC</option></select>
-                        </div>
-                        <div class="ssl-field"><label for="a-keysize">Key size</label><input id="a-keysize" type="number" value="2048"></div>
-                    </div>
-                    <div class="ssl-section-title" style="margin-top:18px;">Organization info</div>
-                    <div class="ssl-grid3">
-                        <div class="ssl-field"><label for="a-cn">Domain (CN)</label><input id="a-cn" value="*.company.name"></div>
-                        <div class="ssl-field"><label for="a-ou">Department (OU)</label><input id="a-ou" value="IT"></div>
-                        <div class="ssl-field"><label for="a-o">Organization (O)</label><input id="a-o" value="company.name"></div>
-                        <div class="ssl-field"><label for="a-l">City</label><input id="a-l" value="Atlanta"></div>
-                        <div class="ssl-field"><label for="a-st">State</label><input id="a-st" value="GA"></div>
-                        <div class="ssl-field"><label for="a-c">Country</label><input id="a-c" value="US" maxlength="2"></div>
-                    </div>
-                </div>
-
-                <div class="ssl-section" id="section-B" style="display:none">
-                    <div class="ssl-section-title">CA certificate details</div>
-                    <div class="ssl-grid2">
-                        <div class="ssl-field"><label for="b-alias">Key alias</label><input id="b-alias" value="uac"></div>
-                        <div class="ssl-field"><label for="b-ks-file">Keystore filename</label><input id="b-ks-file" value="keystore.jks"></div>
-                        <div class="ssl-field"><label for="b-ks-pass">Keystore password</label><input id="b-ks-pass" type="password" value="changeit"></div>
-                        <div class="ssl-field"><label for="b-ca-root">CA root cert filename</label><input id="b-ca-root" value="root-ca.crt"></div>
-                        <div class="ssl-field"><label for="b-signed">Signed cert filename</label><input id="b-signed" value="signed-cert.crt"></div>
-                    </div>
-                </div>
-
-                <div class="ssl-section" id="section-C" style="display:none">
-                    <div class="ssl-section-title">Certificate file details</div>
-                    <div class="ssl-grid2">
-                        <div class="ssl-field"><label for="c-crt">Certificate filename (.crt / .pem)</label><input id="c-crt" value="cert.crt"></div>
-                        <div class="ssl-field"><label for="c-key">Private key filename (.key)</label><input id="c-key" value="private.key"></div>
-                        <div class="ssl-field"><label for="c-bundle">CA bundle filename (optional)</label><input id="c-bundle" value="ca-bundle.crt"></div>
-                        <div class="ssl-field"><label for="c-out">Output keystore filename (.p12)</label><input id="c-out" value="keystore.p12"></div>
-                        <div class="ssl-field"><label for="c-alias">Key alias</label><input id="c-alias" value="uac"></div>
-                        <div class="ssl-field"><label for="c-pass">Keystore password</label><input id="c-pass" type="password" value="changeit"></div>
-                    </div>
-                </div>
-
-                <div class="ssl-section" id="section-D" style="display:none">
-                    <div class="ssl-section-title">Existing keystore details</div>
-                    <p class="prop-hint" style="margin-bottom:12px;">No extra setup commands needed — just point to your existing keystore file and provide the credentials.</p>
-                    <div class="ssl-grid2">
-                        <div class="ssl-field">
-                            <label for="d-ks-file">Keystore filename</label>
-                            <input id="d-ks-file" value="keystore.jks">
-                            <span class="prop-hint">Use a <code>.p12</code> extension if it's a PKCS12 file.</span>
-                        </div>
-                        <div class="ssl-field"><label for="d-alias">Key alias</label><input id="d-alias" value="uac"></div>
-                        <div class="ssl-field"><label for="d-ks-pass">Keystore password</label><input id="d-ks-pass" type="password" value="changeit"></div>
-                        <div class="ssl-field"><label for="d-ks-type">Keystore type</label>
-                            <select id="d-ks-type">
-                                <option value="JKS">JKS (.jks)</option>
-                                <option value="PKCS12">PKCS12 (.p12)</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ssl-section">
-                    <div class="ssl-subtab-bar">
-                        <button type="button" class="ssl-subtab active" id="ssl-tab-xml">server.xml snippet</button>
-                        <button type="button" class="ssl-subtab" id="ssl-tab-cmd">keytool / openssl command</button>
-                    </div>
-                    <pre class="ssl-out"><code id="ssl-out-xml"></code></pre>
-                    <pre class="ssl-out" id="ssl-out-cmd-wrap" style="display:none"><code id="ssl-out-cmd"></code></pre>
-                    <button type="button" class="copy-icon ssl-copy-btn" id="ssl-copy-btn" aria-label="Copy to clipboard">Copy to clipboard</button>
-                </div>
-
-                <div class="ssl-section">
-                    <div class="ssl-section-title">Restart Tomcat</div>
-                    <p>After applying the keystore and updating <code>server.xml</code>, restart Tomcat for the changes to take effect:</p>
-                    <pre><code>sudo systemctl restart tomcat</code></pre>
-                </div>
-
-                <p class="prop-hint" style="margin-top:14px;">Replace the default passwords (<code>changeit</code>) and adjust filenames/paths to match your environment. Keep the keystore password out of version control and restrict file permissions on the keystore file (e.g., <code>chmod 600</code>).</p>
+                        <fieldset style="margin-top:20px;">
+                            <legend>Restart Tomcat</legend>
+                            <p>After applying the keystore and updating <code>server.xml</code>, restart Tomcat for the changes to take effect:</p>
+                            <div class="command-line">
+                                <pre><code>sudo systemctl restart tomcat</code></pre>
+                                <button type="button" class="copy-icon" id="ssl-copy-restart" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </fieldset>
+                </form>
             </section>
         </div>
     </main>
@@ -339,7 +417,7 @@ keytool -importcert \\
                 activeSubTab = t;
                 $('ssl-tab-xml').classList.toggle('active', t === 'xml');
                 $('ssl-tab-cmd').classList.toggle('active', t === 'cmd');
-                document.querySelector('pre.ssl-out:not(#ssl-out-cmd-wrap)').style.display = t === 'xml' ? 'block' : 'none';
+                $('ssl-out-xml-wrap').style.display = t === 'xml' ? 'block' : 'none';
                 $('ssl-out-cmd-wrap').style.display = t === 'cmd' ? 'block' : 'none';
             }
 
@@ -374,16 +452,22 @@ keytool -importcert \\
                 el.addEventListener('input', regenerate);
             });
 
-            $('ssl-copy-btn').addEventListener('click', () => {
-                const txt = activeSubTab === 'xml'
-                    ? $('ssl-out-xml').textContent
-                    : $('ssl-out-cmd').textContent;
-                if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
-                const btn = $('ssl-copy-btn');
-                const original = btn.textContent;
-                btn.textContent = 'Copied!';
-                setTimeout(() => { btn.textContent = original; }, 1500);
-            });
+            function flashCopied(btn) {
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 1200);
+            }
+            function attachCopy(btnId, getText) {
+                const btn = $(btnId);
+                if (!btn) return;
+                btn.addEventListener('click', () => {
+                    const txt = getText();
+                    if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+                    flashCopied(btn);
+                });
+            }
+            attachCopy('ssl-copy-xml', () => $('ssl-out-xml').textContent);
+            attachCopy('ssl-copy-cmd', () => $('ssl-out-cmd').textContent);
+            attachCopy('ssl-copy-restart', () => 'sudo systemctl restart tomcat');
 
             regenerate();
         })();

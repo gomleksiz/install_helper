@@ -37,7 +37,13 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 - Agent cluster configuration
 - Simplified parameter set focused on Windows-specific options
 
+### Post Configuration
+- Tabbed reference page for recommended post-install settings
+- **UC Properties** tab with curated list of recommended Universal Controller properties and values
+- **SSL Configuration** tab with an interactive Tomcat SSL generator: pick from four certificate sources (no certificate, CA certificate, `.pem`/`.pkcs12` files, or existing keystore) and the form live-generates the matching `keytool`/`openssl` commands and the `server.xml` `<Connector>` snippet (TLS 1.2/1.3, port 443), plus a one-click `sudo systemctl restart tomcat` command
+
 ### General Features
+- **Header disclaimer banner** indicating reference-only information
 - **Copy-to-clipboard functionality** with SVG icons
 - **Responsive design** with Stonebranch branding
 - **Form validation** and conditional field display
@@ -98,8 +104,8 @@ install_helper/
 
 For detailed installation instructions and requirements, refer to the official Stonebranch documentation:
 
-- **Universal Controller**: [Installation and Applying Maintenance](https://stonebranchdocs.atlassian.net/wiki/spaces/UC78/pages/1086341004/Installation+and+Applying+Maintenance)
-- **Universal Agent**: [Universal Agent 7.8.x Installation Information](https://stonebranchdocs.atlassian.net/wiki/spaces/UA78/pages/1086503967/Universal+Agent+7.8.x+Installation+Information)
+- **Universal Controller**: [Installation and Applying Maintenance](https://docs.stonebranch.com/uac/uc/installation-and-applying-maintenance-overview)
+- **Universal Agent**: [Universal Agent Installation Information](https://docs.stonebranch.com/uac/ua/universal-agent-installation-information)
 
 ## 🎨 Technical Details
 
