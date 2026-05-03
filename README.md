@@ -43,6 +43,7 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 - **SSL Configuration** tab with an interactive Tomcat SSL generator: pick from four certificate sources (no certificate, CA certificate, `.pem`/`.pkcs12` files, or existing keystore) and the form live-generates the matching `keytool`/`openssl` commands and the `server.xml` `<Connector>` snippet (TLS 1.2/1.3, port 443), plus a one-click `sudo systemctl restart tomcat` command
 
 ### General Features
+- **Home page tool cards** including a dedicated Post Configuration card describing recommended UC properties and the Tomcat SSL setup guide
 - **Header disclaimer banner** indicating reference-only information
 - **Copy-to-clipboard functionality** with SVG icons
 - **Responsive design** with Stonebranch branding
