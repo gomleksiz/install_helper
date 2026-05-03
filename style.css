@@ -181,7 +181,8 @@ button:hover {
 button:active {
     transform: translateY(0);
 }
-#command-output {
+#command-output,
+#uacert-output {
     background: #f1f5f9;
     padding: 20px;
     border-radius: 8px;
@@ -192,7 +193,10 @@ button:active {
     min-width: 0;
     overflow: hidden;
 }
-#command-output pre {
+#command-output pre,
+#uacert-output pre,
+#ssl-config .command-line pre,
+#ua-cert-config .command-line pre {
     background: #1e293b;
     color: #e2e8f0;
     padding: 15px;

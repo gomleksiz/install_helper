@@ -37,6 +37,7 @@
             <div class="tab-buttons" role="tablist">
                 <button class="tab-button active" role="tab" data-tab="uc-properties">UC Properties</button>
                 <button class="tab-button" role="tab" data-tab="ssl-config">SSL Configuration</button>
+                <button class="tab-button" role="tab" data-tab="ua-cert-config">UA Cert Configuration</button>
             </div>
 
             <section id="uc-properties" class="tab-panel active" role="tabpanel">
@@ -308,6 +309,168 @@
                         </fieldset>
                 </form>
             </section>
+
+            <section id="ua-cert-config" class="tab-panel" role="tabpanel">
+                <h3>Configure Universal Agent Certificates</h3>
+                <p>Pick whether you already have certificates. The form generates the matching <code>ucert</code> commands, the <code>ubroker.conf</code> / <code>omss.conf</code> / <code>uags.conf</code> snippets, and the <code>uacl.conf</code> rules to enforce certificate-based authentication between OMS and agents.</p>
+
+                <form id="uacert-form" class="ssl-form-full" onsubmit="return false;">
+                    <fieldset>
+                        <legend>Do you already have certificates?</legend>
+                        <div class="cert-cards" id="uacert-type-group">
+                            <div class="cert-card active" data-val="N">
+                                <div class="cert-card-icon">🆕</div>
+                                <div class="cert-card-title">I don't have certs</div>
+                                <div class="cert-card-desc">Generate a self-signed CA and a host certificate with <code>ucert</code></div>
+                            </div>
+                            <div class="cert-card" data-val="C">
+                                <div class="cert-card-icon">🖋️</div>
+                                <div class="cert-card-title">I have a CA, create host cert</div>
+                                <div class="cert-card-desc">Use an existing CA cert + private key to sign a new host certificate</div>
+                            </div>
+                            <div class="cert-card" data-val="Y">
+                                <div class="cert-card-icon">📑</div>
+                                <div class="cert-card-title">I have certs</div>
+                                <div class="cert-card-desc">Use existing CA + host certificate / private key files</div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="uacert-section-N">
+                        <legend>Certificate Subject</legend>
+                        <p class="prop-hint" style="margin-top:0">Used for the CA and the host certificate. CA filenames default to <code>ca_*.pem</code>; host filenames are derived from the hostname.</p>
+                        <div class="form-group">
+                            <label for="uacert-c">Country / State / City:</label>
+                            <div class="inline-fields">
+                                <input type="text" id="uacert-c" value="US" maxlength="2" aria-label="Country">
+                                <input type="text" id="uacert-st" value="GA" aria-label="State">
+                                <input type="text" id="uacert-l" value="Alpharetta" aria-label="City">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-o">Organization (O):</label>
+                            <input type="text" id="uacert-o" value="company">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-ou">Organizational Unit (OU, optional):</label>
+                            <input type="text" id="uacert-ou" value="">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-hostname">Hostname <span class="prop-hint">(used as host CN, DNS SAN, and to derive the cert filenames — e.g. <code>agent01_crt.pem</code>)</span></label>
+                            <input type="text" id="uacert-hostname" value="agent01">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-days">Validity (days, applied to CA and host cert):</label>
+                            <input type="number" id="uacert-days" value="3650">
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="uacert-section-C" style="display:none">
+                        <legend>Existing CA Files</legend>
+                        <div class="form-group">
+                            <label for="uacert-c-ca-cert">CA Certificate Path:</label>
+                            <input type="text" id="uacert-c-ca-cert" value="/opt/universal/certs/ca_company_crt.pem">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-c-ca-pkey">CA Private Key Path:</label>
+                            <input type="text" id="uacert-c-ca-pkey" value="/opt/universal/certs/ca_company_pkey.pem">
+                        </div>
+                    </fieldset>
+
+                    <fieldset id="uacert-section-Y" style="display:none">
+                        <legend>Existing Certificate Files</legend>
+                        <div class="form-group">
+                            <label for="uacert-y-ca-cert">CA Certificate Path:</label>
+                            <input type="text" id="uacert-y-ca-cert" value="/opt/universal/certs/ca_crt.pem">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-y-h-cert">Host Certificate Path:</label>
+                            <input type="text" id="uacert-y-h-cert" value="/opt/universal/certs/hostname_crt.pem">
+                        </div>
+                        <div class="form-group">
+                            <label for="uacert-y-h-pkey">Host Private Key Path:</label>
+                            <input type="text" id="uacert-y-h-pkey" value="/opt/universal/certs/hostname_pkey.pem">
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend>UACL Cert Map (optional)</legend>
+                        <div class="form-group" style="margin-bottom:8px">
+                            <label style="display:flex; align-items:center; gap:8px; font-weight:normal;">
+                                <input type="checkbox" id="uacert-map-enabled">
+                                Add a <code>cert_map</code> + <code>oms_cert_access</code> rule to <code>uacl.conf</code>
+                            </label>
+                        </div>
+                        <p class="prop-hint" style="margin:0">When disabled, <code>uacl.conf</code> only contains the <code>oms_access</code> rules that reject agents without certs. Enable to additionally restrict access to a specific certificate subject.</p>
+                    </fieldset>
+
+                    <div id="uacert-output" style="display:block; margin-top: 20px;">
+                        <div class="ssl-subtab-bar">
+                            <button type="button" class="ssl-subtab active" data-uacert-tab="cmd">ucert commands</button>
+                            <button type="button" class="ssl-subtab" data-uacert-tab="ubroker">ubroker.conf</button>
+                            <button type="button" class="ssl-subtab" data-uacert-tab="omss">omss.conf</button>
+                            <button type="button" class="ssl-subtab" data-uacert-tab="uags">uags.conf</button>
+                            <button type="button" class="ssl-subtab" data-uacert-tab="uacl">uacl.conf</button>
+                        </div>
+                        <div class="command-section" data-uacert-pane="cmd">
+                            <h3>ucert Commands:</h3>
+                            <div class="command-line">
+                                <pre><code id="uacert-out-cmd"></code></pre>
+                                <button type="button" class="copy-icon" data-uacert-copy="cmd" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="command-section" data-uacert-pane="ubroker" style="display:none">
+                            <h3>ubroker.conf (OMS host + each agent host):</h3>
+                            <div class="command-line">
+                                <pre><code id="uacert-out-ubroker"></code></pre>
+                                <button type="button" class="copy-icon" data-uacert-copy="ubroker" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="command-section" data-uacert-pane="omss" style="display:none">
+                            <h3>omss.conf (OMS server):</h3>
+                            <div class="command-line">
+                                <pre><code id="uacert-out-omss"></code></pre>
+                                <button type="button" class="copy-icon" data-uacert-copy="omss" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="command-section" data-uacert-pane="uags" style="display:none">
+                            <h3>uags.conf (each agent host):</h3>
+                            <div class="command-line">
+                                <pre><code id="uacert-out-uags"></code></pre>
+                                <button type="button" class="copy-icon" data-uacert-copy="uags" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="command-section" data-uacert-pane="uacl" style="display:none">
+                            <h3>uacl.conf (OMS host — reject agents without a valid cert):</h3>
+                            <div class="command-line">
+                                <pre><code id="uacert-out-uacl"></code></pre>
+                                <button type="button" class="copy-icon" data-uacert-copy="uacl" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <fieldset style="margin-top:20px;">
+                        <legend>Restart Universal Broker</legend>
+                        <p>After updating the configs on every host, restart the Universal Broker so the new certificate / UACL rules take effect:</p>
+                        <div class="command-line">
+                            <pre><code>sudo systemctl restart ubrokerd</code></pre>
+                            <button type="button" class="copy-icon" id="uacert-copy-restart" title="Copy to clipboard" aria-label="Copy to clipboard">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"><path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/></svg>
+                            </button>
+                        </div>
+                    </fieldset>
+                </form>
+            </section>
         </div>
     </main>
     <div class="disclaimer-alert disclaimer-bottom" role="note">
@@ -515,6 +678,223 @@ keytool -importcert \\
             attachCopy('ssl-copy-xml', () => $('ssl-out-xml').textContent);
             attachCopy('ssl-copy-cmd', () => $('ssl-out-cmd').textContent);
             attachCopy('ssl-copy-restart', () => 'sudo systemctl restart tomcat');
+
+            regenerate();
+        })();
+
+        (function () {
+            let mode = 'N';
+            let activePane = 'cmd';
+
+            const $ = (id) => document.getElementById(id);
+            const v = (id) => ($(id) || {}).value || '';
+
+            const UCERT_BIN = '/opt/universal/bin/ucert';
+            const CERT_DIR = '/opt/universal/certs';
+
+            function workPath(file) { return CERT_DIR + '/' + file; }
+            function slug(s) { return (s || '').trim().toLowerCase().replace(/[^a-z0-9._-]/g, '_'); }
+            function hostSlug() { return slug(v('uacert-hostname')) || 'host'; }
+            function orgSlug() { return slug(v('uacert-o')) || 'company'; }
+            function hostFile(suffix) { return hostSlug() + suffix; }
+            function caFile(suffix) { return 'ca_' + orgSlug() + suffix; }
+
+            function caCertPath() {
+                if (mode === 'Y') return v('uacert-y-ca-cert');
+                if (mode === 'C') return v('uacert-c-ca-cert');
+                return workPath(caFile('_crt.pem'));
+            }
+            function caPkeyPath() {
+                if (mode === 'C') return v('uacert-c-ca-pkey');
+                return workPath(caFile('_pkey.pem'));
+            }
+            function hostCertPath() {
+                if (mode === 'Y') return v('uacert-y-h-cert');
+                return workPath(hostFile('_crt.pem'));
+            }
+            function hostPkeyPath() {
+                if (mode === 'Y') return v('uacert-y-h-pkey');
+                return workPath(hostFile('_pkey.pem'));
+            }
+
+            function buildSubject() {
+                const c = v('uacert-c') || 'US';
+                const st = v('uacert-st') || 'GA';
+                const l = v('uacert-l') || 'Alpharetta';
+                const o = v('uacert-o') || 'company';
+                const cn = (v('uacert-hostname') || 'host').trim();
+                return `/C=${c}/ST=${st}/L=${l}/O=${o}/CN=${cn}/`;
+            }
+
+            function buildCmd() {
+                if (mode === 'Y') {
+                    return '— No commands needed. Using existing certificate files.';
+                }
+                const bin = UCERT_BIN;
+                const c = v('uacert-c') || 'US';
+                const st = v('uacert-st') || 'GA';
+                const l = v('uacert-l') || 'Alpharetta';
+                const o = v('uacert-o') || 'company';
+                const ou = v('uacert-ou') || '';
+                const ouFlag = ou ? ` -organizational_unit "${ou}"` : '';
+                const days = v('uacert-days') || '3650';
+
+                const caCert = caCertPath();
+                const caPkey = caPkeyPath();
+                const caReq = workPath(caFile('_req.pem'));
+                const caCn = `${o}-ca`;
+
+                const hReq = workPath(hostFile('_req.pem'));
+                const hPkey = workPath(hostFile('_pkey.pem'));
+                const hCert = workPath(hostFile('_crt.pem'));
+                const hCn = (v('uacert-hostname') || 'host').trim();
+
+                const stepSudo = `sudo su - ubroker`;
+                const stepMkdir = `mkdir -p ${CERT_DIR} && cd ${CERT_DIR}`;
+                const stepCaReq = `${bin} -create request -request_file ${caReq} -private_key_file ${caPkey} -country ${c} -state ${st} -locality ${l} -organization "${o}"${ouFlag} -common_name "${caCn}"`;
+                const stepCaCert = `${bin} -create cert -request_file ${caReq} -private_key_file ${caPkey} -cert_file ${caCert} -ca yes -not_after_date +${days}`;
+                const stepHostReq = `${bin} -create request -request_file ${hReq} -private_key_file ${hPkey} -country ${c} -state ${st} -locality ${l} -organization "${o}"${ouFlag} -common_name "${hCn}" -dns_name "${hCn}"`;
+                const stepHostCert = `${bin} -create cert -ca_cert_file ${caCert} -request_file ${hReq} -private_key_file ${caPkey} -cert_file ${hCert} -not_after_date +${days}`;
+                const stepValidate = `openssl x509 -in ${caCert} -noout -subject -issuer -dates\nopenssl x509 -in ${hCert} -noout -subject -issuer -dates -ext subjectAltName\nopenssl verify -CAfile ${caCert} ${hCert}`;
+
+                if (mode === 'C') {
+                    return `# Step 1 — Switch to the ubroker user (owns the agent / OMS install)
+${stepSudo}
+
+# Step 2 — Ensure the cert directory exists
+${stepMkdir}
+
+# Step 3 — Create the host certificate request (run per agent / host)
+${stepHostReq}
+
+# Step 4 — Sign the host certificate with the existing CA
+${stepHostCert}
+
+# Step 5 — Validate the host certificate against the CA
+${stepValidate}`;
+                }
+
+                return `# Step 1 — Switch to the ubroker user (owns the agent / OMS install)
+${stepSudo}
+
+# Step 2 — Create the cert directory
+${stepMkdir}
+
+# Step 3 — Create the CA request
+${stepCaReq}
+
+# Step 4 — Self-sign the CA certificate
+${stepCaCert}
+
+# Step 5 — Create the host certificate request (run per agent / host)
+${stepHostReq}
+
+# Step 6 — Sign the host certificate with the CA
+${stepHostCert}
+
+# Step 7 — Validate the generated certificates
+${stepValidate}`;
+            }
+
+            function buildUbroker() {
+                return `# OMS host — trust the CA so it can validate agent certs
+ca_certificates ${caCertPath()}
+
+# Each agent host — present its host certificate to OMS
+certificate ${hostCertPath()}
+private_key ${hostPkeyPath()}`;
+            }
+
+            function buildOmss() {
+                return `# OMS server — require SSL and reject mismatched peer hostnames
+require_ssl yes
+authentication_peer no`;
+            }
+
+            function buildUags() {
+                return `# UAG agent — enable SSL with client certificate authentication
+enable_ssl yes
+ssl_client_auth yes`;
+            }
+
+            function buildUacl() {
+                const baseAccess = `# Require certs except for local connections
+oms_access 127.0.0.1,allow,nocert
+oms_access ALL,allow,cert
+oms_access ALL,deny,nocert`;
+                const enabled = ($('uacert-map-enabled') || {}).checked;
+                if (!enabled) return baseAccess;
+                const id = (v('uacert-hostname') || 'host').trim().replace(/[^A-Za-z0-9._-]/g, '_') || 'host';
+                const subj = buildSubject();
+                return `# Map the host cert subject to a logical id
+cert_map 'id=${id},subject="${subj}"'
+
+${baseAccess}
+
+# Only allow agents whose cert maps to the id above
+oms_cert_access ${id},allow
+oms_cert_access *,deny`;
+            }
+
+            function regenerate() {
+                $('uacert-out-cmd').textContent = buildCmd();
+                $('uacert-out-ubroker').textContent = buildUbroker();
+                $('uacert-out-omss').textContent = buildOmss();
+                $('uacert-out-uags').textContent = buildUags();
+                $('uacert-out-uacl').textContent = buildUacl();
+            }
+
+            function switchPane(t) {
+                activePane = t;
+                document.querySelectorAll('#uacert-form .ssl-subtab').forEach(b => {
+                    b.classList.toggle('active', b.dataset.uacertTab === t);
+                });
+                document.querySelectorAll('#uacert-form [data-uacert-pane]').forEach(p => {
+                    p.style.display = p.dataset.uacertPane === t ? 'block' : 'none';
+                });
+            }
+
+            document.querySelectorAll('#uacert-form .ssl-subtab').forEach(btn => {
+                btn.addEventListener('click', () => switchPane(btn.dataset.uacertTab));
+            });
+
+            document.querySelectorAll('#uacert-type-group .cert-card').forEach(card => {
+                card.addEventListener('click', () => {
+                    mode = card.dataset.val;
+                    document.querySelectorAll('#uacert-type-group .cert-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    $('uacert-section-N').style.display = (mode === 'N' || mode === 'C') ? 'block' : 'none';
+                    $('uacert-section-C').style.display = mode === 'C' ? 'block' : 'none';
+                    $('uacert-section-Y').style.display = mode === 'Y' ? 'block' : 'none';
+                    regenerate();
+                });
+            });
+
+            document.querySelectorAll('#uacert-form input').forEach(el => {
+                el.addEventListener('input', regenerate);
+                if (el.type === 'checkbox') el.addEventListener('change', regenerate);
+            });
+
+            function flashCopied(btn) {
+                btn.classList.add('copied');
+                setTimeout(() => btn.classList.remove('copied'), 1200);
+            }
+            document.querySelectorAll('#uacert-form [data-uacert-copy]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const key = btn.dataset.uacertCopy;
+                    const target = $('uacert-out-' + key);
+                    const txt = target ? target.textContent : '';
+                    if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+                    flashCopied(btn);
+                });
+            });
+            const restartBtn = $('uacert-copy-restart');
+            if (restartBtn) {
+                restartBtn.addEventListener('click', () => {
+                    if (navigator.clipboard) navigator.clipboard.writeText('sudo systemctl restart ubrokerd').catch(() => {});
+                    flashCopied(restartBtn);
+                });
+            }
 
             regenerate();
         })();
