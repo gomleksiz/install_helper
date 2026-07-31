@@ -35,12 +35,72 @@
 
         <div class="tabs">
             <div class="tab-buttons" role="tablist">
-                <button class="tab-button active" role="tab" data-tab="uc-properties">UC Properties</button>
+                <button class="tab-button active" role="tab" data-tab="oms-setup">OMS Setup</button>
+                <button class="tab-button" role="tab" data-tab="uc-properties">UC Properties</button>
                 <button class="tab-button" role="tab" data-tab="ssl-config">SSL Configuration</button>
                 <button class="tab-button" role="tab" data-tab="ua-cert-config">UA Cert Configuration</button>
             </div>
 
-            <section id="uc-properties" class="tab-panel active" role="tabpanel">
+            <section id="oms-setup" class="tab-panel active" role="tabpanel">
+                <h3>OMS Server Setup</h3>
+                <p>After the Universal Agent and OMS are installed, register the OMS Server record in the Universal Controller so the Controller can communicate with the Output Management System.</p>
+
+                <ol class="oms-steps">
+                    <li>
+                        <strong>Navigate to OMS Servers</strong><br>
+                        In the Universal Controller UI, go to <em>Services &gt; System &gt; OMS Servers</em>.
+                    </li>
+                    <li>
+                        <strong>Add a new record</strong><br>
+                        Click the <strong>+</strong> button to open the New OMS Server form.
+                    </li>
+                    <li>
+                        <strong>Set the OMS Server Address</strong><br>
+                        <p>A comma-separated list of OMS server host names with optional port and TLS SNI hostname:</p>
+                        <code>hostname[:[port][:sni_hostname]]</code>
+                        <table class="property-table" style="margin-top: 12px;">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Scenario</th>
+                                    <th scope="col">Example value</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>OMS on the same host (default port)</td>
+                                    <td><code>localhost</code></td>
+                                </tr>
+                                <tr>
+                                    <td>OMS on the same host with explicit port</td>
+                                    <td><code>localhost:7878</code></td>
+                                </tr>
+                                <tr>
+                                    <td>OMS with port and TLS SNI hostname</td>
+                                    <td><code>localhost:7878:snihost</code></td>
+                                </tr>
+                                <tr>
+                                    <td>OMS with SNI hostname, default port</td>
+                                    <td><code>localhost::snihost</code></td>
+                                </tr>
+                                <tr>
+                                    <td>High Availability (multiple OMS nodes)</td>
+                                    <td><code>dallas,atlanta:7888,chicago:7999:csnihost</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </li>
+                    <li>
+                        <strong>Save the record</strong><br>
+                        Click <strong>Save</strong>. The Controller will attempt to connect to the OMS Server immediately.
+                    </li>
+                </ol>
+
+                <div style="margin-top: 20px; padding: 16px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #1e3a8a;">
+                    <strong>Note:</strong> Ensure the OMS service is running on the target host and that the configured port (default <code>7878</code>) is reachable from the Controller server before saving the record.
+                </div>
+            </section>
+
+            <section id="uc-properties" class="tab-panel" role="tabpanel">
                 <h3>Recommended Universal Controller Properties</h3>
                 <p>Set these properties in the Universal Controller after installation (<em>Services &gt; Administration &gt; Properties</em>). Adjust values to match your environment.</p>
                 <table class="property-table">
@@ -471,6 +531,7 @@
                     </fieldset>
                 </form>
             </section>
+
         </div>
     </main>
     <div class="disclaimer-alert disclaimer-bottom" role="note">
