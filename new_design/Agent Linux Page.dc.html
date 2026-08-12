@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f5f7;font-family:"Inter Tight",system-ui,sans-serif;color:#1d2126;-webkit-font-smoothing:antialiased}
+a{color:#186CDA;text-decoration:none}a:hover{color:#12539f;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="background:#12233d;color:#fff;padding:0 22px;display:flex;align-items:center;gap:26px;height:52px;flex:none">
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:2px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Home</a>
+      <a href="environment.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Prerequisite</a>
+      <a href="controller.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Controller</a>
+      <a href="agent_linux.html" style="color:#fff;padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.12);font-weight:600">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Post Config</a>
+      <a href="sizing.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Sizing</a>
+    </nav>
+  </header>
+
+  <div style="padding:16px 22px 0;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5a6472">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:6px;padding:6px 10px"><span style="width:14px;height:14px;border-radius:50%;background:#186CDA;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+  </div>
+
+  <form id="linux-form" style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;padding:16px 22px 0;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;font-weight:600">Connection</span><span style="flex:1;height:1px;background:#f0f2f5"></span></div>
+        <div id="oms-servers-group" style="display:flex;gap:9px;flex-wrap:wrap">
+          <label style="flex:1;min-width:210px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">OMS servers
+            <input type="text" id="oms_servers" name="oms_servers" value="{{ oms }}" onChange="{{ setOms }}" placeholder="7878@oms1,7878@oms2" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            <span id="oms-servers-error" style="{{ omsErrStyle }}">{{ omsErr }}</span>
+          </label>
+          <label style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493"><span>Agent cluster <span style="color:#98a1ad">(optional)</span></span>
+            <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" value="{{ cluster }}" onChange="{{ setCluster }}" placeholder="Default Linux Agents" style="font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          </label>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:9px;border-top:1px dashed #e6e9ed">
+          <sc-for list="{{ baseFlags }}" as="f" hint-placeholder-count="4">
+            <button type="button" onClick="{{ f.pick }}" title="{{ f.title }}" style="{{ f.style }}">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showUbrokerdId }}" hint-placeholder-val="{{ false }}">
+          <label id="ubrokerd-id-group" style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493"><span>UBrokerD ID <span style="color:#98a1ad">— usermode installs only</span></span>
+            <input type="text" id="ubrokerd_id" name="ubrokerd_id" value="{{ ubrokerdId }}" onChange="{{ setUbrokerdId }}" placeholder="e.g. ubroker2" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          </label>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600;margin-right:4px">Install mode</span>
+          <sc-for list="{{ modeToggles }}" as="t" hint-placeholder-count="4">
+            <button type="button" onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ noRoot }}" hint-placeholder-val="{{ false }}">
+          <div style="padding-top:9px;border-top:1px dashed #e6e9ed;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:11.5px;color:#7a8493">Regular-user install — no sudo.</span>
+            <label for="no-root-postinstall" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#5a6472;cursor:pointer"><input type="checkbox" id="no-root-postinstall" name="no-root-postinstall" checked="{{ noRootPost }}" onChange="{{ toggleNoRootPost }}" style="accent-color:#186CDA;width:14px;height:14px">skip post-install root tasks</label>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ diffUser }}" hint-placeholder-val="{{ false }}">
+          <div id="user-options" style="padding-top:9px;border-top:1px dashed #e6e9ed;display:flex;flex-direction:column;gap:9px">
+            <div style="display:flex;gap:9px;flex-wrap:wrap">
+              <label style="flex:1;min-width:120px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">User
+                <input type="text" id="user" name="user" value="{{ user }}" onChange="{{ setUser }}" placeholder="ubroker" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+              <label style="flex:1;min-width:120px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Group
+                <input type="text" id="group" name="group" value="{{ group }}" onChange="{{ setGroup }}" placeholder="ubroker" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+              <label id="userdir-group" style="flex:1.4;min-width:150px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">User directory
+                <input type="text" id="userdir" name="userdir" value="{{ userdir }}" onChange="{{ setUserdir }}" placeholder="/home/ubroker" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+            </div>
+            <div style="display:flex;gap:14px">
+              <label for="create_user" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#5a6472;cursor:pointer"><input type="checkbox" id="create_user" name="create_user" checked="{{ createUser }}" onChange="{{ toggleCreateUser }}" style="accent-color:#186CDA;width:14px;height:14px">create user</label>
+              <label for="create_group" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#5a6472;cursor:pointer"><input type="checkbox" id="create_group" name="create_group" checked="{{ createGroup }}" onChange="{{ toggleCreateGroup }}" style="accent-color:#186CDA;width:14px;height:14px">create group</label>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ diffDirs }}" hint-placeholder-val="{{ false }}">
+          <div id="user-mode-parameters" style="padding-top:9px;border-top:1px dashed #e6e9ed;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:9px">
+            <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Base directory
+              <input type="text" id="basedir" name="basedir" value="{{ basedir }}" onChange="{{ setBasedir }}" placeholder="/usr/local" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label id="unvdir-group" style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Install directory
+              <input type="text" id="unvdir" name="unvdir" value="{{ unvdir }}" onChange="{{ setUnvdir }}" placeholder="/opt/universal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label id="unvcfgdir-group" style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Config directory
+              <input type="text" id="unvcfgdir" name="unvcfgdir" value="{{ unvcfgdir }}" onChange="{{ setUnvcfgdir }}" placeholder="/etc/universal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label id="unvdatadir-group" style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Data directory
+              <input type="text" id="unvdatadir" name="unvdatadir" value="{{ unvdatadir }}" onChange="{{ setUnvdatadir }}" placeholder="/var/opt/universal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ advanced }}" hint-placeholder-val="{{ false }}">
+          <div id="advanced-options" style="padding-top:9px;border-top:1px dashed #e6e9ed;display:flex;flex-direction:column;gap:10px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px">
+              <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Netname
+                <input type="text" id="ac_netname" name="ac_netname" value="{{ netname }}" onChange="{{ setNetname }}" placeholder="agent_net" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">OMS port
+                <input type="text" id="oms_port" name="oms_port" value="{{ omsPort }}" onChange="{{ setOmsPort }}" placeholder="7878" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">UNV port
+                <input type="text" id="unvport" name="unvport" value="{{ unvport }}" onChange="{{ setUnvport }}" placeholder="7887" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Agent IP
+                <input type="text" id="ac_agent_ip" name="ac_agent_ip" value="{{ agentIp }}" onChange="{{ setAgentIp }}" placeholder="192.168.1.10" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+              </label>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+              <span id="security-label" style="font-size:11.5px;color:#7a8493;min-width:56px">Security</span>
+              <input type="hidden" id="security" name="security" value="appdef">
+              <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">
+                <sc-for list="{{ securityOptions }}" as="o" hint-placeholder-count="5">
+                  <button type="button" class="option-button" data-target="security" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              <sc-for list="{{ advFlags }}" as="f" hint-placeholder-count="3">
+                <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showExtra }}" hint-placeholder-val="{{ false }}">
+          <div id="additional-params-section" style="padding-top:9px;border-top:1px dashed #e6e9ed">
+            <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Additional parameters — appended verbatim
+              <input type="text" id="additional_params" name="additional_params" value="{{ extra }}" onChange="{{ setExtra }}" placeholder="e.g. UNVDIR=/opt/universal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:4px 14px 6px">
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="5">
+          <details style="border-bottom:1px solid #f0f2f5">
+            <summary style="cursor:pointer;list-style:none;padding:9px 0;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>{{ g.title }}<span style="margin-left:auto;font-size:11px;color:#98a1ad">{{ g.hint }}</span></summary>
+            <p style="margin:0 0 10px 19px;font-size:12px;line-height:1.65;color:#5a6472;max-width:70ch;text-wrap:pretty">{{ g.body }}</p>
+          </details>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:16px;display:flex;flex-direction:column;gap:12px">
+      <div id="command-output" style="background:#12181f;border-radius:10px;overflow:hidden;border:1px solid #1e2731;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #232c37">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#e8ebee;font-weight:600">unvinst</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6d7885">{{ argCount }} params · live</span>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button id="copy-button" type="button" onClick="{{ copyMain }}" style="padding:5px 11px;border:1px solid #313b47;background:transparent;color:#dfe4e9;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#4a5764;color:#fff">{{ copyLabel }}</button>
+            <button type="button" onClick="{{ downloadScript }}" style="padding:5px 11px;border:none;background:#186CDA;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="background:#1259b4">Download</button>
+          </span>
+        </div>
+        <pre style="margin:0;padding:11px 12px;max-height:46vh;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><code id="generated-command" style="display:flex;flex-direction:column"><sc-for list="{{ mainLines }}" as="l" hint-placeholder-count="10"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+      </div>
+
+      <div id="manual-download-section" style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12.5px;font-weight:600">Files &amp; downloads</span><span style="font-size:11px;color:#8b95a3">{{ fileCount }} items</span></div>
+        <div id="download-links" style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+            <a href="{{ f.href }}" target="{{ f.target }}" onClick="{{ f.onClick }}" style="{{ f.style }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;color:#8b95a3">{{ f.kind }}</span>{{ f.name }}<span style="color:#186CDA;font-weight:600">{{ f.glyph }}</span></a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;font-weight:600">Active choices</span>
+        <sc-for list="{{ summary }}" as="c" hint-placeholder-count="4">
+          <span style="display:flex;gap:8px;font-size:11.5px;color:#5a6472;line-height:1.5"><span style="color:#186CDA">•</span>{{ c }}</span>
+        </sc-for>
+      </div>
+    </aside>
+  </form>
+
+  <footer style="margin-top:22px;padding:12px 22px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#8b95a3;display:flex;gap:12px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const CHIP = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#1d2126;text-decoration:none";
+const CHIP_DOC = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px dashed #cfd5dd;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#5a6472;text-decoration:none";
+
+class Component extends DCLogic {
+  state = {
+    oms: "7878@localhost", cluster: "", omsAutostart: false, python: false,
+    registerUbrokerd: false, ubrokerdId: "",
+    noRoot: false, noRootPost: false,
+    diffUser: false, user: "", group: "", createUser: false, createGroup: false, userdir: "",
+    diffDirs: false, basedir: "", unvdir: "", unvcfgdir: "", unvdatadir: "",
+    advanced: false, netname: "", omsPort: "", unvport: "", agentIp: "", security: "appdef",
+    tls13: false, opscli: false, ubrokerStart: true,
+    showExtra: false, extra: "", copied: false
+  };
+
+  set(p) { this.setState(s => ({ ...p, copied: false })); }
+  flip(k) { this.setState(s => ({ [k]: !s[k], copied: false })); }
+
+  group(list, current, onPick) {
+    return list.map(o => ({ label: o.label, value: o.value, style: current === o.value ? PILL_ON : PILL_OFF, pick: () => onPick(o.value) }));
+  }
+  flags(list) {
+    return list.map(f => ({ label: f.label, title: f.title || "", style: f.on ? PILL_ON : PILL_OFF, pick: f.pick }));
+  }
+
+  args() {
+    const s = this.state, a = [];
+    const q = v => (/\s/.test(v) ? '"' + v + '"' : v);
+    a.push("OMS_SERVERS=" + q(s.oms.trim() || "7878@localhost"));
+    if (s.cluster.trim()) a.push("AC_AGENT_CLUSTERS=" + q(s.cluster.trim()));
+    if (s.omsAutostart) a.push("OMS_AUTOSTART=yes");
+    if (s.python) a.push("PYTHON=yes");
+    if (s.registerUbrokerd) a.push("REGISTER_UBROKERD=yes");
+    if (s.registerUbrokerd && s.ubrokerdId.trim()) a.push("UBROKERD_ID=" + s.ubrokerdId.trim());
+    if (s.noRoot) a.push("NO_ROOT_INSTALL=yes");
+    if (s.noRoot && s.noRootPost) a.push("NO_ROOT_POSTINSTALL=yes");
+    if (s.diffUser) {
+      if (s.user.trim()) a.push("USER=" + s.user.trim());
+      if (s.group.trim()) a.push("GROUP=" + s.group.trim());
+      if (s.createUser) a.push("CREATE_USER=yes");
+      if (s.createGroup) a.push("CREATE_GROUP=yes");
+      if (s.userdir.trim()) a.push("USERDIR=" + s.userdir.trim());
+    }
+    if (s.diffDirs) {
+      if (s.basedir.trim()) a.push("BASEDIR=" + s.basedir.trim());
+      if (s.unvdir.trim()) a.push("UNVDIR=" + s.unvdir.trim());
+      if (s.unvcfgdir.trim()) a.push("UNVCFGDIR=" + s.unvcfgdir.trim());
+      if (s.unvdatadir.trim()) a.push("UNVDATADIR=" + s.unvdatadir.trim());
+    }
+    if (s.advanced) {
+      if (s.netname.trim()) a.push("AC_NETNAME=" + q(s.netname.trim()));
+      if (s.omsPort.trim()) a.push("OMS_PORT=" + s.omsPort.trim());
+      if (s.unvport.trim()) a.push("UNVPORT=" + s.unvport.trim());
+      if (s.agentIp.trim()) a.push("AC_AGENT_IP=" + s.agentIp.trim());
+      if (s.security !== "appdef") a.push("SECURITY=" + s.security);
+      if (s.tls13) a.push("USE_TLS1_3=yes");
+      if (s.opscli) a.push("OPSCLI=yes");
+      if (!s.ubrokerStart) a.push("UBROKER_START=no");
+    }
+    if (s.showExtra && s.extra.trim()) a.push(s.extra.trim());
+    return a;
+  }
+
+  lines() {
+    const s = this.state, a = this.args();
+    const head = (s.noRoot ? "sh ./unvinst \\" : "sudo sh ./unvinst \\");
+    const L = [{ text: head, c: "#cdd4db" }];
+    a.forEach((x, i) => L.push({ text: "  " + x + (i < a.length - 1 ? " \\" : ""), c: "#cdd4db" }));
+    return L;
+  }
+
+  saveFile(name, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/x-shellscript" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const lines = this.lines();
+    const text = lines.map(l => l.text).join("\n");
+    const omsBad = s.oms.trim() === "";
+
+    const files = [
+      { kind: "SH", name: "install-agent.sh", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("install-agent.sh", "#!/bin/bash\nset -e\n" + text + "\n"); } },
+      { kind: "DOC", name: "Agent install guide", glyph: "↗", href: "https://docs.stonebranch.com/uac/ua/universal-agent-installation-information", target: "_blank", style: CHIP_DOC, onClick: null }
+    ];
+
+    const summary = [];
+    summary.push(s.noRoot ? "Regular-user install (no sudo)" : "Root/sudo install");
+    summary.push(s.registerUbrokerd ? "systemd service registered (ubrokerd)" : "No systemd service registered");
+    summary.push(s.diffDirs ? "Custom install/config/data directories" : "Default directory layout");
+    if (s.advanced && s.security !== "appdef") summary.push("Security: " + s.security);
+    if (s.advanced && s.tls13) summary.push("TLS 1.3 enforced");
+    if (s.cluster.trim()) summary.push("Cluster: " + s.cluster.trim());
+
+    return {
+      oms: s.oms, cluster: s.cluster, ubrokerdId: s.ubrokerdId,
+      user: s.user, group: s.group, userdir: s.userdir, createUser: s.createUser, createGroup: s.createGroup,
+      basedir: s.basedir, unvdir: s.unvdir, unvcfgdir: s.unvcfgdir, unvdatadir: s.unvdatadir,
+      netname: s.netname, omsPort: s.omsPort, unvport: s.unvport, agentIp: s.agentIp,
+      extra: s.extra, noRoot: s.noRoot, noRootPost: s.noRootPost, diffUser: s.diffUser,
+      diffDirs: s.diffDirs, advanced: s.advanced, showExtra: s.showExtra,
+      showUbrokerdId: s.registerUbrokerd,
+      omsErr: omsBad ? "OMS servers is required — e.g. 7878@localhost" : "",
+      omsErrStyle: "font-size:11px;color:" + (omsBad ? "#c0392b" : "#8b95a3") + ";min-height:14px",
+      baseFlags: this.flags([
+        { label: "OMS autostart", on: s.omsAutostart, pick: () => this.flip("omsAutostart") },
+        { label: "Agent Python", on: s.python, pick: () => this.flip("python") },
+        { label: "systemctl service", on: s.registerUbrokerd, pick: () => this.flip("registerUbrokerd"), title: "Registers ubrokerd for automatic start" }
+      ]),
+      modeToggles: this.flags([
+        { label: "Regular user (no root)", on: s.noRoot, pick: () => this.flip("noRoot") },
+        { label: "Different user/group", on: s.diffUser, pick: () => this.flip("diffUser") },
+        { label: "Different folders", on: s.diffDirs, pick: () => this.flip("diffDirs") },
+        { label: "Advanced", on: s.advanced, pick: () => this.flip("advanced") },
+        { label: "Manual parameters", on: s.showExtra, pick: () => this.flip("showExtra") }
+      ]),
+      advFlags: this.flags([
+        { label: "TLS 1.3", on: s.tls13, pick: () => this.flip("tls13") },
+        { label: "OpsCLI", on: s.opscli, pick: () => this.flip("opscli") },
+        { label: "Start UBroker after install", on: s.ubrokerStart, pick: () => this.flip("ubrokerStart") }
+      ]),
+      securityOptions: this.group([
+        { label: "App default", value: "appdef" }, { label: "Password-based", value: "default" },
+        { label: "Inherit", value: "inherit" }, { label: "PAM", value: "pam" }, { label: "PAM sessions", value: "pam_sessions" }
+      ], s.security, v => this.set({ security: v })),
+      mainLines: lines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      argCount: this.args().length,
+      copyLabel: s.copied ? "Copied" : "Copy",
+      copyMain: () => { navigator.clipboard.writeText(text); this.setState({ copied: true }); },
+      downloadScript: () => this.saveFile("install-agent.sh", "#!/bin/bash\nset -e\n" + text + "\n"),
+      files, fileCount: files.length, summary,
+      setOms: e => this.set({ oms: e.target.value }),
+      setCluster: e => this.set({ cluster: e.target.value }),
+      setUbrokerdId: e => this.set({ ubrokerdId: e.target.value }),
+      setUser: e => this.set({ user: e.target.value }),
+      setGroup: e => this.set({ group: e.target.value }),
+      setUserdir: e => this.set({ userdir: e.target.value }),
+      setBasedir: e => this.set({ basedir: e.target.value }),
+      setUnvdir: e => this.set({ unvdir: e.target.value }),
+      setUnvcfgdir: e => this.set({ unvcfgdir: e.target.value }),
+      setUnvdatadir: e => this.set({ unvdatadir: e.target.value }),
+      setNetname: e => this.set({ netname: e.target.value }),
+      setOmsPort: e => this.set({ omsPort: e.target.value }),
+      setUnvport: e => this.set({ unvport: e.target.value }),
+      setAgentIp: e => this.set({ agentIp: e.target.value }),
+      setExtra: e => this.set({ extra: e.target.value }),
+      toggleNoRootPost: e => this.set({ noRootPost: e.target.checked }),
+      toggleCreateUser: e => this.set({ createUser: e.target.checked }),
+      toggleCreateGroup: e => this.set({ createGroup: e.target.checked }),
+      guides: [
+        { title: "OMS servers", hint: "host list", body: "Where the Universal Message Service runs. One entry: 7878@localhost or oms-server.company.com. For HA, comma-separate: oms1.company.com,oms2.company.com. The port prefix is optional." },
+        { title: "Agent cluster", hint: "optional", body: "Which cluster this agent joins — clusters group agents for scheduling and failover. Single: Linux Production Agents. Multiple: Production,Linux,Database. Quotes are added for you when the value contains spaces." },
+        { title: "Agent Python", hint: "bundled runtime", body: "Uses the Python distribution shipped with Universal Agent instead of the host's Python installation." },
+        { title: "systemctl service", hint: "auto start", body: "Registers ubrokerd as a systemd service for automatic startup. Usermode installs also need a UBrokerD ID to keep multiple instances apart." },
+        { title: "Different user / folders", hint: "non-default installs", body: "By default the agent installs and runs as ubroker under the standard directory layout. Override the user, group and the install/config/data directories for hardened or shared hosts." },
+        { title: "Security mode", hint: "advanced", body: "Application Default keeps the broker's own setting. Password-based, Inherit, PAM and PAM Sessions change how the agent authenticates task-level credentials — match your site's policy." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f5f7;font-family:"Inter Tight",system-ui,sans-serif;color:#1d2126;-webkit-font-smoothing:antialiased}
+a{color:#186CDA;text-decoration:none}a:hover{color:#12539f;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+input[type=range]{accent-color:#186CDA}
+.print-only{display:none}
+@page{size:letter;margin:15mm}
+@media print{
+  html,body{background:#fff}
+  .noprint{display:none !important}
+  .print-only{display:block}
+  .pbreak{break-inside:avoid;page-break-inside:avoid}
+}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header class="noprint" style="background:#12233d;color:#fff;padding:0 22px;display:flex;align-items:center;gap:26px;height:52px;flex:none">
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:2px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Home</a>
+      <a href="environment.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Prerequisite</a>
+      <a href="controller.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Controller</a>
+      <a href="agent_linux.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Post Config</a>
+      <a href="sizing.html" style="color:#fff;padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.12);font-weight:600">Sizing</a>
+    </nav>
+  </header>
+
+  <main class="noprint" style="flex:1;width:100%;max-width:1180px;margin:0 auto;padding:18px 22px 0;display:flex;flex-direction:column;gap:16px">
+
+    <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <span style="font-size:13px;font-weight:600">Workload</span>
+        <span style="font-size:11.5px;color:#8b95a3">pick a category, or fine-tune the volume below</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px">
+        <sc-for list="{{ categories }}" as="c" hint-placeholder-count="4">
+          <button type="button" onClick="{{ c.pick }}" style="{{ c.style }}">
+            <span style="font-size:14px;font-weight:600">{{ c.name }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7580">{{ c.limit }}</span>
+            <span style="font-size:11px;color:#8b95a3;line-height:1.4">{{ c.desc }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding-top:11px;border-top:1px dashed #e6e9ed">
+        <div style="display:flex;align-items:baseline;gap:10px">
+          <span style="font-size:12px;color:#7a8493">Task executions per month</span>
+          <span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600">{{ taskLabel }}</span>
+        </div>
+        <input type="range" id="tasks" min="0" max="13" step="1" value="{{ taskIndex }}" onChange="{{ setTaskIndex }}" onInput="{{ setTaskIndex }}" style="width:100%;height:22px">
+        <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#a3abb5"><span>10K</span><span>100K</span><span>500K</span><span>3M</span><span>10M</span><span>15M</span></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px">
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:13px;font-weight:600">Retention</span>
+        <sc-for list="{{ retentions }}" as="r" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:12px;color:#7a8493;min-width:74px">{{ r.label }}</span>
+            <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">
+              <sc-for list="{{ r.options }}" as="o" hint-placeholder-count="6">
+                <button type="button" class="option-button" data-target="{{ r.target }}" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <span style="margin-left:auto;font-size:11px;color:#a3abb5;font-family:'IBM Plex Mono',monospace">{{ r.share }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:13px;font-weight:600">Deployment</span>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:12px;color:#7a8493;min-width:74px">Where</span>
+          <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">
+            <sc-for list="{{ deployments }}" as="o" hint-placeholder-count="3">
+              <button type="button" class="option-button" data-target="deployment" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ showCloud }}" hint-placeholder-val="{{ true }}">
+          <div id="cloud-provider-group" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font-size:12px;color:#7a8493;min-width:74px">Provider</span>
+            <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">
+              <sc-for list="{{ providers }}" as="o" hint-placeholder-count="3">
+                <button type="button" class="option-button" data-target="cloud-provider" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+        <p style="margin:0;font-size:11.5px;color:#8b95a3;line-height:1.5">{{ deploymentNote }}</p>
+      </div>
+    </div>
+
+    <div id="sizing-result" style="display:flex;flex-direction:column;gap:14px;padding-top:4px">
+      <div style="background:#12233d;color:#fff;border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:11px;letter-spacing:.1em;color:#93a3ba;font-family:'IBM Plex Mono',monospace">SIZING CATEGORY</span>
+          <span style="font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.1">{{ categoryName }}</span>
+        </div>
+        <div style="width:1px;height:38px;background:rgba(255,255,255,.16)"></div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:11px;letter-spacing:.1em;color:#93a3ba;font-family:'IBM Plex Mono',monospace">TOTAL DATABASE</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:27px;font-weight:600;line-height:1.1">{{ totalStorage }}</span>
+        </div>
+        <div style="width:1px;height:38px;background:rgba(255,255,255,.16)"></div>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:11px;letter-spacing:.1em;color:#93a3ba;font-family:'IBM Plex Mono',monospace">TARGET</span>
+          <span style="font-size:15px;font-weight:500;line-height:1.3">{{ targetLabel }}</span>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:7px">
+          <button type="button" onClick="{{ copySummary }}" style="padding:8px 14px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;border-radius:7px;font-size:12.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#fff">{{ copyLabel }}</button>
+          <button type="button" onClick="{{ downloadSummary }}" style="padding:8px 14px;border:none;background:#3d8bef;color:#fff;border-radius:7px;font-size:12.5px;font-family:inherit;cursor:pointer" style-hover="background:#2a78d6">Download summary</button>
+          <button type="button" onClick="{{ printPage }}" style="padding:8px 14px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;border-radius:7px;font-size:12.5px;font-family:inherit;cursor:pointer">PDF</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:7px">
+          <sc-for list="{{ warnings }}" as="w" hint-placeholder-count="2">
+            <div style="{{ w.style }}"><span style="font-weight:600;font-size:12px;white-space:nowrap">{{ w.tag }}</span><span style="font-size:12.5px;line-height:1.5">{{ w.text }}</span></div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;overflow:hidden">
+        <div style="display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:10px 16px;background:#fafbfc;border-bottom:1px solid #e6e9ed;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;color:#98a1ad">
+          <span>SERVER</span><span style="text-align:right">vCPU</span><span style="text-align:right">MEMORY</span><span style="text-align:right">DISK</span><span>{{ extraHeader }}</span>
+        </div>
+        <sc-for list="{{ specRows }}" as="r" hint-placeholder-count="3">
+          <div style="{{ r.rowStyle }}">
+            <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:14px;font-weight:600">{{ r.name }}</span><span style="font-size:11.5px;color:#8b95a3">{{ r.sub }}</span></span>
+            <span style="{{ r.numStyle }}">{{ r.cpu }}</span>
+            <span style="{{ r.numStyle }}">{{ r.ram }}</span>
+            <span style="{{ r.numStyle }}">{{ r.disk }}</span>
+            <span style="display:flex;flex-direction:column;gap:1px;font-size:11.5px;color:#5a6472;align-self:center"><span style="font-family:'IBM Plex Mono',monospace;color:#1d2126">{{ r.extra }}</span><span style="color:#a3abb5">{{ r.extraSub }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">
+        <sc-for list="{{ sideCards }}" as="c" hint-placeholder-count="3">
+          <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:7px">
+            <span style="font-size:12.5px;font-weight:600">{{ c.title }}</span>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;letter-spacing:-.01em">{{ c.value }}</span>
+            <span style="font-size:11.5px;color:#8b95a3;line-height:1.5">{{ c.note }}</span>
+          </div>
+        </sc-for>
+      </div>
+
+      <details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
+        <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Where the database size comes from<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">{{ totalStorage }}</span></summary>
+        <div style="display:flex;flex-direction:column;gap:8px;padding-top:11px">
+          <sc-for list="{{ storageBars }}" as="b" hint-placeholder-count="3">
+            <div style="display:flex;flex-direction:column;gap:4px">
+              <div style="display:flex;align-items:baseline;gap:8px;font-size:12px"><span style="font-weight:500">{{ b.label }}</span><span style="color:#8b95a3;font-size:11.5px">{{ b.formula }}</span><span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:600">{{ b.value }}</span></div>
+              <div style="height:7px;background:#eef0f3;border-radius:4px;overflow:hidden"><span style="{{ b.barStyle }}"></span></div>
+            </div>
+          </sc-for>
+          <p style="margin:4px 0 0;font-size:11.5px;color:#8b95a3;line-height:1.55">Row sizes assume ~12 KB per task instance in activity, ~6 KB once archived to history, ~3 KB of audit per task, then 30% headroom for indexes and growth.</p>
+        </div>
+      </details>
+
+      <details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
+        <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Procurement summary<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">plain text</span></summary>
+        <pre style="margin:11px 0 0;background:#12181f;border-radius:8px;padding:12px 14px;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8;color:#cdd4db">{{ summaryText }}</pre>
+      </details>
+
+      <details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
+        <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Reference architecture<span style="margin-left:auto;font-size:11px;color:#98a1ad">active / passive controllers, shared DB and file system</span></summary>
+        <img src="architecture.png" alt="UAC architecture: active and passive Universal Controller with OMS, shared database and file system, agents connecting over port 7878" style="display:block;max-width:100%;margin:12px auto 0">
+      </details>
+    </div>
+  </main>
+
+  <footer class="noprint" style="margin-top:22px;padding:12px 22px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#8b95a3;display:flex;gap:12px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+
+  <section class="print-only" style="color:#111;font-size:11pt;line-height:1.45">
+    <div style="display:flex;align-items:flex-end;gap:14px;border-bottom:2px solid #12233d;padding-bottom:8px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:8.5pt;letter-spacing:.12em;color:#666">STONEBRANCH UAC · HARDWARE SIZING</span>
+        <span style="font-size:20pt;font-weight:600;letter-spacing:-.01em;line-height:1.1">{{ categoryName }} deployment</span>
+      </div>
+      <span style="margin-left:auto;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#444">{{ targetLabel }}<br>{{ printDate }}</span>
+    </div>
+
+    <table style="width:100%;border-collapse:collapse;margin-top:12px" class="pbreak">
+      <tbody>
+        <sc-for list="{{ printInputs }}" as="r" hint-placeholder-count="4">
+          <tr>
+            <td style="width:34%;padding:4px 0;font-size:9.5pt;color:#555;vertical-align:top">{{ r.label }}</td>
+            <td style="padding:4px 0;font-family:'IBM Plex Mono',monospace;font-size:10pt;font-weight:500">{{ r.value }}</td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+
+    <h2 style="margin:18px 0 6px;font-size:12pt;font-weight:600;letter-spacing:.02em">Server specifications</h2>
+    <table style="width:100%;border-collapse:collapse" class="pbreak">
+      <thead>
+        <tr style="border-bottom:1px solid #12233d">
+          <th style="text-align:left;padding:5px 6px 5px 0;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">SERVER</th>
+          <th style="text-align:right;padding:5px 6px;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">vCPU</th>
+          <th style="text-align:right;padding:5px 6px;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">MEMORY</th>
+          <th style="text-align:right;padding:5px 6px;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">DISK</th>
+          <th style="text-align:left;padding:5px 0 5px 12px;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">{{ extraHeader }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <sc-for list="{{ specRows }}" as="r" hint-placeholder-count="3">
+          <tr style="border-bottom:1px solid #ddd">
+            <td style="padding:8px 6px 8px 0;vertical-align:top"><span style="font-size:10.5pt;font-weight:600;display:block">{{ r.name }}</span><span style="font-size:8.5pt;color:#666">{{ r.sub }}</span></td>
+            <td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">{{ r.cpu }}</td>
+            <td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">{{ r.ram }}</td>
+            <td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">{{ r.disk }}</td>
+            <td style="padding:8px 0 8px 12px;vertical-align:top"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5pt;display:block">{{ r.extra }}</span><span style="font-size:8.5pt;color:#666">{{ r.extraSub }}</span></td>
+          </tr>
+        </sc-for>
+      </tbody>
+    </table>
+
+    <div style="display:flex;gap:22px;margin-top:18px" class="pbreak">
+      <div style="flex:1">
+        <h2 style="margin:0 0 6px;font-size:12pt;font-weight:600">Database storage</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tbody>
+            <sc-for list="{{ storageBars }}" as="b" hint-placeholder-count="3">
+              <tr style="border-bottom:1px solid #eee">
+                <td style="padding:4px 0;font-size:9.5pt">{{ b.label }}<span style="color:#777;font-size:8.5pt"> · {{ b.formula }}</span></td>
+                <td style="padding:4px 0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10pt;font-weight:600">{{ b.value }}</td>
+              </tr>
+            </sc-for>
+            <tr>
+              <td style="padding:6px 0;font-size:10pt;font-weight:600">Total with 30% headroom</td>
+              <td style="padding:6px 0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">{{ totalStorage }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="flex:1">
+        <h2 style="margin:0 0 6px;font-size:12pt;font-weight:600">Shared services</h2>
+        <table style="width:100%;border-collapse:collapse">
+          <tbody>
+            <sc-for list="{{ sideCards }}" as="c" hint-placeholder-count="3">
+              <tr style="border-bottom:1px solid #eee">
+                <td style="padding:4px 0;font-size:9.5pt;vertical-align:top">{{ c.title }}</td>
+                <td style="padding:4px 0;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:10pt;font-weight:600">{{ c.value }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <sc-if value="{{ hasWarnings }}" hint-placeholder-val="{{ false }}">
+      <div style="margin-top:18px" class="pbreak">
+        <h2 style="margin:0 0 6px;font-size:12pt;font-weight:600">Things to check</h2>
+        <sc-for list="{{ warnings }}" as="w" hint-placeholder-count="2">
+          <p style="margin:0 0 5px;font-size:9.5pt;line-height:1.5;padding-left:10px;border-left:2px solid #999"><b>{{ w.tag }}.</b> {{ w.text }}</p>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <div style="margin-top:18px;break-before:page;page-break-before:always">
+      <h2 style="margin:0 0 8px;font-size:12pt;font-weight:600">Reference architecture</h2>
+      <img src="architecture.png" alt="UAC architecture: active and passive Universal Controller with OMS, shared database and file system, agents connecting over port 7878" style="display:block;max-width:100%;margin:0 auto">
+      <p style="margin:8px 0 0;font-size:9pt;color:#555;text-align:center">Active / passive Universal Controller with OMS, shared database and file system; agents connect outbound on port 7878.</p>
+    </div>
+
+    <p style="margin:20px 0 0;padding-top:8px;border-top:1px solid #ccc;font-size:8.5pt;color:#666">Reference only — figures are estimates from the stated inputs and may be outdated or inaccurate. Always verify against official Stonebranch documentation before purchase.</p>
+  </section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1240,&quot;height&quot;:940}}">
+const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const CAT_ON = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid #186CDA;background:#eef5fe;border-radius:9px;font-family:inherit;cursor:pointer";
+const CAT_OFF = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid #dfe3e8;background:#fff;border-radius:9px;font-family:inherit;cursor:pointer";
+const NUM = "font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;text-align:right;align-self:center;letter-spacing:-.01em";
+const ROW = "display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:13px 16px;border-bottom:1px solid #f0f2f5;align-items:center";
+
+const STEPS = [10000, 25000, 40000, 100000, 250000, 300000, 400000, 500000, 1000000, 3000000, 5000000, 7000000, 10000000, 15000000];
+const CATEGORIES = [
+  { name: "Micro", tasks: 25000, index: 1, limit: "≤ 100K / month", desc: "Small environments or test systems" },
+  { name: "Small", tasks: 250000, index: 4, limit: "≤ 500K / month", desc: "Smaller production workloads" },
+  { name: "Medium", tasks: 1000000, index: 8, limit: "≤ 3M / month", desc: "Standard mid-size production" },
+  { name: "Large", tasks: 10000000, index: 12, limit: "≤ 15M / month", desc: "Enterprise high-volume" }
+];
+const INSTANCES = {
+  aws: { app: ["m6i.large", "m6i.xlarge", "m6i.2xlarge", "m6i.4xlarge"], db: ["r6i.large", "r6i.xlarge", "r6i.2xlarge", "r6i.4xlarge"] },
+  azure: { app: ["D2as_v5", "D4as_v5", "D8as_v5", "D16as_v5"], db: ["E2ds_v5", "E4ds_v5", "E8ds_v5", "E16ds_v5"] },
+  other: { app: ["2 vCPU VM", "4 vCPU VM", "8 vCPU VM", "16 vCPU VM"], db: ["2 vCPU VM", "4 vCPU VM", "8 vCPU VM", "16 vCPU VM"] }
+};
+
+const fmtTasks = n => (n >= 1000000 ? (n / 1000000) + "M" : (n / 1000) + "K");
+const gb = n => (n >= 1024 ? (Math.round(n / 102.4) / 10) + " TB" : Math.round(n) + " GB");
+
+class Component extends DCLogic {
+  state = { taskIndex: 8, activity: 7, history: 60, audit: 90, deployment: "saas", provider: "aws", copied: false };
+
+  set(p) { this.setState(s => ({ ...p, copied: false })); }
+
+  tier() {
+    const t = STEPS[this.state.taskIndex];
+    return t <= 100000 ? 0 : t <= 500000 ? 1 : t <= 3000000 ? 2 : 3;
+  }
+  categoryName() { return ["Micro", "Small", "Medium", "Large"][this.tier()]; }
+
+  storage() {
+    const t = STEPS[this.state.taskIndex], s = this.state;
+    const perDay = t / 30;
+    const activity = perDay * s.activity * 12 / 1048576;
+    const history = perDay * s.history * 6 / 1048576;
+    const audit = perDay * s.audit * 3 / 1048576;
+    const raw = activity + history + audit;
+    const total = Math.max(50, Math.ceil(raw * 1.3 / 50) * 50);
+    return { activity, history, audit, raw, total };
+  }
+
+  specs() {
+    const i = this.tier(), st = this.storage(), prov = this.state.deployment === "on-prem" ? "other" : this.state.provider;
+    const inst = INSTANCES[prov] || INSTANCES.other;
+    const dbDisk = Math.ceil((st.total * 1.2) / 50) * 50;
+    return {
+      controller: { cpu: [2, 4, 8, 16][i], ram: [8, 16, 32, 64][i], disk: [60, 80, 100, 150][i], heap: ["2 GB", "4 GB", "8 GB", "16 GB"][i], inst: inst.app[i] },
+      db: { cpu: [2, 4, 8, 16][i], ram: [16, 32, 64, 128][i], disk: dbDisk, iops: [1000, 3000, 6000, 12000][i], inst: inst.db[i] },
+      agent: { cpu: [2, 2, 4, 4][i], ram: [4, 8, 8, 16][i], disk: [40, 60, 80, 100][i], inst: inst.app[Math.max(0, i - 1)] }
+    };
+  }
+
+  warnings() {
+    const s = this.state, t = STEPS[s.taskIndex], st = this.storage(), i = this.tier(), out = [];
+    const amber = "display:flex;gap:10px;align-items:baseline;background:#fdf6e3;border:1px solid #f0dfae;border-left:4px solid #d99e1f;border-radius:8px;padding:10px 13px;color:#7a5b00";
+    const blue = "display:flex;gap:10px;align-items:baseline;background:#eef5fe;border:1px solid #cfe0f8;border-left:4px solid #186CDA;border-radius:8px;padding:10px 13px;color:#12539f";
+    if (st.total >= 1000) out.push({ tag: "Storage", text: "Over 1 TB of database. Confirm your storage growth policy and plan purges before go-live.", style: amber });
+    const histShare = st.history / st.raw;
+    if (histShare > 0.5 && s.history >= 120) out.push({ tag: "Retention", text: "History retention of " + s.history + " days is " + Math.round(histShare * 100) + "% of the database. Dropping to 90 days would save roughly " + gb((st.history - st.history * 90 / s.history) * 1.3) + ".", style: amber });
+    if (s.audit >= 365) out.push({ tag: "Retention", text: "365-day audit retention is usually a compliance requirement — keep it only if yours says so.", style: amber });
+    if (t >= 5000000) out.push({ tag: "Availability", text: "At " + fmtTasks(t) + " tasks/month plan active/passive controllers and a dedicated database host, not a shared one.", style: blue });
+    if (i === 0 && (s.history >= 180 || s.audit >= 180)) out.push({ tag: "Mismatch", text: "Long retention on a Micro workload — the database will outgrow the small disk before CPU or memory become a limit.", style: amber });
+    if (s.deployment === "on-prem" && i >= 2) out.push({ tag: "Disk", text: "On-prem at this size: the database needs sustained " + this.specs().db.iops + " IOPS. Spinning disks or shared SANs will bottleneck first.", style: amber });
+    return out;
+  }
+
+  summary() {
+    const s = this.state, sp = this.specs(), st = this.storage(), t = STEPS[s.taskIndex];
+    const target = s.deployment === "on-prem" ? "On-premises" : (s.deployment === "saas" ? "Stonebranch SaaS" : "Customer cloud") + " · " + s.provider.toUpperCase();
+    return [
+      "STONEBRANCH UAC — HARDWARE SIZING",
+      "Category            " + this.categoryName(),
+      "Task volume         " + fmtTasks(t) + " executions / month",
+      "Retention           activity " + s.activity + "d · history " + s.history + "d · audit " + s.audit + "d",
+      "Target              " + target,
+      "",
+      "SERVER                 vCPU   MEMORY     DISK   NOTE",
+      "Universal Controller   " + String(sp.controller.cpu).padStart(4) + "   " + (sp.controller.ram + " GB").padStart(6) + "   " + (sp.controller.disk + " GB").padStart(6) + "   heap " + sp.controller.heap + " · " + sp.controller.inst,
+      "Database               " + String(sp.db.cpu).padStart(4) + "   " + (sp.db.ram + " GB").padStart(6) + "   " + (sp.db.disk + " GB").padStart(6) + "   " + sp.db.iops + " IOPS · " + sp.db.inst,
+      "Universal Agent / OMS  " + String(sp.agent.cpu).padStart(4) + "   " + (sp.agent.ram + " GB").padStart(6) + "   " + (sp.agent.disk + " GB").padStart(6) + "   " + sp.agent.inst,
+      "",
+      "Database total        " + gb(st.total) + "  (activity " + gb(st.activity) + " · history " + gb(st.history) + " · audit " + gb(st.audit) + " + 30% headroom)",
+      "OMS file share        " + gb(Math.max(20, st.total * 0.1)),
+      "Log & backup share    " + gb(st.total * 2),
+      "",
+      "Reference only — verify against official Stonebranch documentation."
+    ].join("\n");
+  }
+
+  renderVals() {
+    const s = this.state, sp = this.specs(), st = this.storage(), t = STEPS[s.taskIndex], i = this.tier();
+    const summaryText = this.summary();
+    const warnings = this.warnings();
+    const pct = v => Math.max(2, Math.round(v / st.raw * 100));
+    const bar = c => "display:block;height:100%;background:" + c + ";border-radius:4px;width:";
+
+    const retention = (label, key, opts) => ({
+      label, target: key,
+      share: key === "activity" ? gb(st.activity) : key === "history" ? gb(st.history) : gb(st.audit),
+      options: opts.map(v => ({ label: String(v), value: String(v), style: s[key] === v ? PILL_ON : PILL_OFF, pick: () => this.set({ [key]: v }) }))
+    });
+
+    return {
+      categories: CATEGORIES.map(c => ({
+        name: c.name, limit: c.limit, desc: c.desc,
+        style: this.categoryName() === c.name ? CAT_ON : CAT_OFF,
+        pick: () => this.set({ taskIndex: c.index })
+      })),
+      taskIndex: s.taskIndex, taskLabel: fmtTasks(t) + " tasks / month",
+      setTaskIndex: e => this.set({ taskIndex: Number(e.target.value) }),
+      retentions: [
+        retention("Activity", "activity", [7, 14, 21, 30]),
+        retention("History", "history", [30, 60, 90, 120, 180, 365]),
+        retention("Audit", "audit", [30, 60, 90, 120, 180, 365])
+      ],
+      deployments: [
+        { label: "SaaS", value: "saas" }, { label: "Customer cloud", value: "customer-cloud" }, { label: "On-prem", value: "on-prem" }
+      ].map(o => ({ label: o.label, value: o.value, style: s.deployment === o.value ? PILL_ON : PILL_OFF, pick: () => this.set({ deployment: o.value }) })),
+      providers: [{ label: "AWS", value: "aws" }, { label: "Azure", value: "azure" }].map(o => ({ label: o.label, value: o.value, style: s.provider === o.value ? PILL_ON : PILL_OFF, pick: () => this.set({ provider: o.value }) })),
+      showCloud: s.deployment !== "on-prem",
+      deploymentNote: s.deployment === "saas"
+        ? "Stonebranch runs the Controller and database; the figures below tell you what the service is provisioned against, and what your own agent hosts need."
+        : (s.deployment === "on-prem"
+          ? "You provide the hardware. Disk throughput on the database host matters more than raw CPU at every size."
+          : "Instance types below are the closest fit in your provider's general-purpose and memory-optimised families."),
+
+      categoryName: this.categoryName(),
+      totalStorage: gb(st.total),
+      targetLabel: s.deployment === "saas" ? "Stonebranch SaaS" : (s.deployment === "on-prem" ? "On-premises" : s.provider.toUpperCase() + " cloud"),
+      extraHeader: s.deployment === "on-prem" ? "NOTES" : "INSTANCE",
+
+      specRows: [
+        { name: "Universal Controller", sub: "Tomcat + Controller WAR", cpu: sp.controller.cpu, ram: sp.controller.ram + " GB", disk: sp.controller.disk + " GB", extra: sp.controller.inst, extraSub: "JVM heap " + sp.controller.heap },
+        { name: "Database", sub: "MySQL · MariaDB · Postgres · Oracle · MSSQL", cpu: sp.db.cpu, ram: sp.db.ram + " GB", disk: gb(sp.db.disk), extra: sp.db.inst, extraSub: sp.db.iops.toLocaleString() + " IOPS minimum" },
+        { name: "Universal Agent + OMS", sub: "message bus and agent host", cpu: sp.agent.cpu, ram: sp.agent.ram + " GB", disk: sp.agent.disk + " GB", extra: sp.agent.inst, extraSub: "per agent host" }
+      ].map(r => ({ ...r, rowStyle: ROW, numStyle: NUM })),
+
+      sideCards: [
+        { title: "OMS file share", value: gb(Math.max(20, st.total * 0.1)), note: "Shared between active and passive controllers. Must be writable by both." },
+        { title: "Log & backup share", value: gb(st.total * 2), note: "Two full database backups plus rolling logs. Keep it off the database volume." },
+        { title: "Load balancer", value: s.deployment === "on-prem" ? "TCP / L4" : (s.provider === "aws" ? "ALB / NLB" : "Azure LB"), note: "Fronts the active/passive controller pair with sticky sessions on 8443." }
+      ],
+
+      storageBars: [
+        { label: "Activity", formula: fmtTasks(t) + " ÷ 30 × " + s.activity + "d × 12 KB", value: gb(st.activity), barStyle: bar("#186CDA") + pct(st.activity) + "%" },
+        { label: "History", formula: fmtTasks(t) + " ÷ 30 × " + s.history + "d × 6 KB", value: gb(st.history), barStyle: bar("#7048C6") + pct(st.history) + "%" },
+        { label: "Audit", formula: fmtTasks(t) + " ÷ 30 × " + s.audit + "d × 3 KB", value: gb(st.audit), barStyle: bar("#0E8A76") + pct(st.audit) + "%" }
+      ],
+
+      printDate: new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" }),
+      printInputs: [
+        { label: "Task volume", value: fmtTasks(t) + " executions / month" },
+        { label: "Retention (activity / history / audit)", value: s.activity + " / " + s.history + " / " + s.audit + " days" },
+        { label: "Deployment", value: s.deployment === "saas" ? "Stonebranch SaaS" : (s.deployment === "on-prem" ? "On-premises" : "Customer cloud · " + s.provider.toUpperCase()) },
+        { label: "Sizing category", value: this.categoryName() + " (" + ["≤ 100K", "≤ 500K", "≤ 3M", "≤ 15M"][i] + " tasks / month)" }
+      ],
+      warnings, hasWarnings: warnings.length > 0,
+      summaryText,
+      copyLabel: s.copied ? "Copied" : "Copy summary",
+      copySummary: () => { navigator.clipboard.writeText(summaryText); this.setState({ copied: true }); },
+      downloadSummary: () => {
+        const url = URL.createObjectURL(new Blob([summaryText + "\n"], { type: "text/plain" }));
+        const a = document.createElement("a");
+        a.href = url; a.download = "uac-sizing-" + this.categoryName().toLowerCase() + ".txt"; a.click();
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      },
+      printPage: () => window.print()
+    };
+  }
+}
+</script>
+</body>
+</html>

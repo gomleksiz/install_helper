@@ -2,6 +2,19 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.0.0 — full redesign
+
+The whole site was rebuilt on a new design system. The generated commands and scripts are **unchanged** — the redesign was verified to produce byte-identical output to the previous version for the same inputs.
+
+- **New look**: dark app header with compact nav, white cards, pill-style option buttons, IBM Plex Mono / Inter Tight typography
+- **Side-by-side layout**: form on the left, generated script on the right (50/50 by default) with an **expand** button that widens the output to 60% and enlarges the code font
+- **Wrapping terminal output** — no more horizontal scrolling to read a long command
+- **Collapsible inline guidance** instead of a permanent reference column
+- **Post Configuration** now uses the same two-column form/output layout on its SSL and UA Cert tabs
+- **Sizing Calculator** rebuilt with the new design (workload cards, retention/deployment pills, spec table, storage breakdown, warnings, procurement summary, print-to-PDF) while keeping the **original sizing calculations** unchanged
+- **Previous version archived** under [`v1/`](v1/) and still fully usable
+
+
 ## 🌐 Live Demo
 
 Visit the live application: [https://gomleksiz.github.io/install_helper/](https://gomleksiz.github.io/install_helper/)
@@ -9,6 +22,8 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 ## 📋 Features
 
 ### Environment Prerequisite Generator
+- One-click button selectors (instead of dropdowns) for OS, Java version/method, Tomcat method, and database type
+- Java, Tomcat, and Database pre-selected by default, with the script generated live as you toggle options (no "Generate" button needed)
 - OS-specific setup scripts for Java, Tomcat, and database prerequisites
 - Tomcat installation via package manager or manual download (tar.gz)
 - Configurable Tomcat user and install folder for manual installs
@@ -17,6 +32,8 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 - Windows support with installer (.exe) and ZIP download options
 - Syntax-highlighted script output (comments vs commands)
 - Database installation commands for MySQL, MariaDB, and PostgreSQL
+- Configurable Database Name, User, and Password fields that generate database/user creation and privilege-grant commands (including the PostgreSQL 15+ `public` schema grant)
+- Correct `chown -R` handling for symlinked Tomcat install folders (uses a trailing slash so ownership applies to the real directory)
 - Agent prerequisite library installation (e.g., libxcrypt-compat for Amazon Linux)
 
 ### Universal Controller
@@ -82,25 +99,32 @@ Visit the live application: [https://gomleksiz.github.io/install_helper/](https:
 
 ```
 install_helper/
-├── index.html              # Homepage with navigation and documentation links
+├── index.html              # Homepage with deployment phases and tool cards
 ├── environment.html        # Environment prerequisite setup form
-├── environment.js          # Environment page logic and command generation
+├── environment.js          # Environment page logic and script generation
 ├── controller.html         # Controller installation form
 ├── agent_linux.html        # Linux Agent installation form
 ├── agent_windows.html      # Windows Agent installation form
-├── script.js              # JavaScript for form handling and command generation
-├── version.js             # Centralized version configuration
-├── style.css              # Styling with Stonebranch branding
-├── CLAUDE.md              # Development documentation
-└── README.md              # This file
+├── post_config.html        # Post-configuration reference + SSL / UA cert generators
+├── post_config.css         # Post-configuration page styles
+├── sizing.html             # Hardware sizing calculator
+├── sizing.js               # Sizing calculations and rendering
+├── sizing.css              # Sizing page styles (incl. print/PDF view)
+├── script.js               # Shared form handling and command generation
+├── version.js              # Centralized version configuration
+├── style.css               # Shared design system (tokens, cards, pills, terminal)
+├── v1/                     # Previous version of the site (archived, still usable)
+├── new_design/             # Design prototypes the 1.0 redesign was built from
+├── CLAUDE.md               # Development documentation
+└── README.md               # This file
 ```
 
 ## 🛠️ How to Use
 
 1. **Select Component**: Choose the component you want to install (Controller, Agent Linux, or Agent Windows)
-2. **Configure Parameters**: Fill out the form with your environment-specific values
-3. **Generate Command**: Click "Generate Command" to create the installation command
-4. **Copy & Execute**: Use the copy button to copy the command and run it on your target system
+2. **Configure Parameters**: Fill out the form with your environment-specific values — sensible defaults are pre-filled, so a usable command appears with zero clicks
+3. **Watch it update live**: The command/script on the right regenerates as you type or toggle options (there is no "Generate" button)
+4. **Copy & Execute**: Use the Copy button (or Download, where offered) and run it on your target system
 
 ## 📖 Documentation
 

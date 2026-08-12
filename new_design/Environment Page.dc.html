@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f5f7;font-family:"Inter Tight",system-ui,sans-serif;color:#1d2126;-webkit-font-smoothing:antialiased}
+a{color:#186CDA;text-decoration:none}a:hover{color:#12539f;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="background:#12233d;color:#fff;padding:0 22px;display:flex;align-items:center;gap:26px;height:52px;flex:none">
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:2px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Home</a>
+      <a href="environment.html" style="color:#fff;padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.12);font-weight:600">Prerequisite</a>
+      <a href="controller.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Controller</a>
+      <a href="agent_linux.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Post Config</a>
+      <a href="sizing.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Sizing</a>
+    </nav>
+  </header>
+
+  <div style="padding:16px 22px 0;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5a6472;background:#f4f5f7">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:6px;padding:6px 10px"><span style="width:14px;height:14px;border-radius:50%;background:#186CDA;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+  </div>
+
+  <form id="environment-form" style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;padding:16px 22px 0;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13px;font-weight:600">Target OS</span><span style="font-size:11px;color:#7a8493">drives every option below</span></div>
+        <input type="hidden" id="os_environment" name="os_environment" value="aws">
+        <div class="button-group" style="display:flex;gap:6px;flex-wrap:wrap;margin-left:auto">
+          <sc-for list="{{ osOptions }}" as="o" hint-placeholder-count="4">
+            <button type="button" class="option-button" data-target="os_environment" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;align-items:center;gap:10px;padding:0 2px">
+        <span style="font-size:11px;font-weight:600;letter-spacing:.09em;color:#7a8493">COMPONENTS</span>
+        <span style="flex:1;height:1px;background:#dfe3e8"></span>
+        <span style="font-size:11px;color:#7a8493">{{ activeCount }} of 4 enabled</span>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:13.5px;font-weight:600;min-width:104px">Java</span>
+          <input type="hidden" id="java_version" name="java_version" value="17">
+          <div class="button-group" style="display:flex;gap:6px;margin-left:auto">
+            <sc-for list="{{ javaOptions }}" as="o" hint-placeholder-count="3">
+              <button type="button" class="option-button" data-target="java_version" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ javaMethodVisible }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e6e9ed">
+            <span style="font-size:12.5px;color:#5a6472;min-width:104px">Method</span>
+            <input type="hidden" id="java_method" name="java_method" value="package">
+            <div class="button-group" style="display:flex;gap:6px">
+              <sc-for list="{{ javaMethodOptions }}" as="o" hint-placeholder-count="2">
+                <button type="button" class="option-button" data-target="java_method" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ javaManual }}" hint-placeholder-val="{{ true }}">
+              <label for="java_headless" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#5a6472;cursor:pointer">
+                <input type="checkbox" id="java_headless" name="java_headless" checked="{{ javaHeadless }}" onChange="{{ toggleHeadless }}" style="accent-color:#186CDA;width:14px;height:14px">headless
+              </label>
+              <a href="{{ javaRpmUrl }}" target="_blank" style="margin-left:auto;font-size:11.5px;font-family:'IBM Plex Mono',monospace">↓ corretto RPM</a>
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:9px">
+        <div id="tomcat-method-wrapper" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:13.5px;font-weight:600;min-width:104px">Tomcat 10</span>
+          <input type="hidden" id="tomcat_method" name="tomcat_method" value="package">
+          <div class="button-group" style="display:flex;gap:6px;margin-left:auto">
+            <sc-for list="{{ tomcatOptions }}" as="o" hint-placeholder-count="3">
+              <button type="button" class="option-button" data-target="tomcat_method" data-value="{{ o.value }}" onClick="{{ o.pick }}" title="{{ o.title }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ tomcatPkgUnavailable }}" hint-placeholder-val="{{ false }}">
+          <p id="tomcat-package-unavailable" style="margin:0;font-size:11.5px;color:#8a6100;background:#fdf6e3;border:1px solid #f0dfae;border-radius:6px;padding:6px 9px">No Tomcat 10 package on RHEL / Amazon Linux — manual tar.gz selected for you.</p>
+        </sc-if>
+        <sc-if value="{{ tomcatManual }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:9px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e6e9ed">
+            <label style="flex:1;min-width:150px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Tomcat user
+              <span style="display:flex;gap:8px;align-items:center">
+                <input type="text" id="tomcat_user" name="tomcat_user" value="{{ tomcatUser }}" onChange="{{ setTomcatUser }}" placeholder="tomcat" style="flex:1;min-width:0;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+                <label for="create_tomcat_user" style="display:inline-flex;align-items:center;gap:5px;font-size:11.5px;color:#5a6472;cursor:pointer;white-space:nowrap"><input type="checkbox" id="create_tomcat_user" name="create_tomcat_user" checked="{{ createUser }}" onChange="{{ toggleCreateUser }}" style="accent-color:#186CDA;width:14px;height:14px">create</label>
+              </span>
+            </label>
+            <label style="flex:1;min-width:150px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Install folder
+              <input type="text" id="tomcat_folder" name="tomcat_folder" value="{{ tomcatFolder }}" onChange="{{ setTomcatFolder }}" placeholder="/opt/tomcat" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+          </div>
+        </sc-if>
+        <sc-if value="{{ tomcatOn }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e6e9ed">
+            <span id="env-xmx-label" style="font-size:12.5px;color:#5a6472;min-width:104px">Max heap (Xmx)</span>
+            <input type="hidden" id="env_xmx" name="env_xmx" value="default">
+            <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">
+              <sc-for list="{{ xmxOptions }}" as="o" hint-placeholder-count="7">
+                <button type="button" class="option-button" data-target="env_xmx" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <span style="font-size:11px;color:#8b95a3;margin-left:auto">{{ xmxNote }}</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ systemdVisible }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e6e9ed" id="systemd-checkbox-wrapper">
+            <label for="configure_systemd" style="display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:#5a6472;cursor:pointer;min-width:104px"><input type="checkbox" id="configure_systemd" name="configure_systemd" checked="{{ systemd }}" onChange="{{ toggleSystemd }}" style="accent-color:#186CDA;width:14px;height:14px">systemd unit</label>
+            <sc-if value="{{ systemd }}" hint-placeholder-val="{{ true }}">
+              <input type="text" id="systemd_java_home" name="systemd_java_home" value="{{ javaHome }}" onChange="{{ setJavaHome }}" placeholder="JAVA_HOME (optional)" style="flex:1;min-width:180px;font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </sc-if>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:13.5px;font-weight:600;min-width:104px">Database</span>
+          <input type="hidden" id="database_type" name="database_type" value="mariadb">
+          <div class="button-group" style="display:flex;gap:6px;margin-left:auto">
+            <sc-for list="{{ dbOptions }}" as="o" hint-placeholder-count="4">
+              <button type="button" class="option-button" data-target="database_type" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <sc-if value="{{ dbFieldsVisible }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;gap:9px;flex-wrap:wrap;padding-top:8px;border-top:1px dashed #e6e9ed">
+            <label style="flex:1;min-width:120px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Database name
+              <input type="text" id="db_name" name="db_name" value="{{ dbName }}" onChange="{{ setDbName }}" placeholder="uc" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label style="flex:1;min-width:120px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Database user
+              <input type="text" id="db_user" name="db_user" value="{{ dbUser }}" onChange="{{ setDbUser }}" placeholder="ucuser" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label style="flex:1;min-width:150px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Password — locked
+              <input type="text" id="db_pass_display" value="CHANGE_ME" disabled style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:6px 8px;border:1px solid #e6e9ed;border-radius:6px;background:#f4f5f7;color:#98a1ad">
+            </label>
+          </div>
+          <p style="margin:0;font-size:11.5px;color:#7a8493">Replace <code style="font-family:'IBM Plex Mono',monospace;background:#f0f2f5;padding:1px 4px;border-radius:3px">CHANGE_ME</code> before you run the script — this tool never accepts a real password.</p>
+        </sc-if>
+        <sc-if value="{{ isWindows }}" hint-placeholder-val="{{ false }}">
+          <p id="db-windows-note" style="margin:0;font-size:11.5px;color:#5a6472">On Windows the generator hands you download links and the <a href="https://docs.stonebranch.com/uac/uc/installing-a-database" target="_blank">Database Installation Guide</a> instead of commands.</p>
+        </sc-if>
+      </div>
+
+      <div id="agent-prereqs-card" style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:1px;min-width:104px"><span style="font-size:13.5px;font-weight:600">Agent prereqs</span><span style="font-size:11px;color:#7a8493;font-family:'IBM Plex Mono',monospace">{{ agentPkgNote }}</span></div>
+        <input type="hidden" id="agent_prereqs" name="agent_prereqs" value="install">
+        <div class="button-group" style="display:flex;gap:6px;margin-left:auto">
+          <sc-for list="{{ agentOptions }}" as="o" hint-placeholder-count="2">
+            <button type="button" class="option-button" data-target="agent_prereqs" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:4px 14px 6px">
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="4">
+          <details style="border-bottom:1px solid #f0f2f5">
+            <summary style="cursor:pointer;list-style:none;padding:9px 0;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>{{ g.title }}<span style="margin-left:auto;font-size:11px;color:#98a1ad">{{ g.hint }}</span></summary>
+            <p style="margin:0 0 10px 19px;font-size:12px;line-height:1.65;color:#5a6472;max-width:70ch;text-wrap:pretty">{{ g.body }}</p>
+          </details>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:16px;display:flex;flex-direction:column;gap:12px">
+      <div id="command-output" style="background:#12181f;border-radius:10px;overflow:hidden;display:flex;flex-direction:column;border:1px solid #1e2731">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #232c37">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#e8ebee;font-weight:600">setup.sh</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6d7885">{{ lineCount }} lines · live</span>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button id="copy-button" type="button" onClick="{{ copyScript }}" style="padding:5px 11px;border:1px solid #313b47;background:transparent;color:#dfe4e9;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#4a5764;color:#fff">{{ copyLabel }}</button>
+            <button id="download-setup-button" type="button" onClick="{{ downloadScript }}" style="padding:5px 11px;border:none;background:#186CDA;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="background:#1259b4">Download</button>
+          </span>
+        </div>
+        <pre style="margin:0;padding:11px 12px;max-height:52vh;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.75"><code id="generated-command" style="display:flex;flex-direction:column"><sc-for list="{{ scriptLines }}" as="l" hint-placeholder-count="14"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+      </div>
+
+      <div id="manual-download-section" style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:baseline;gap:8px">
+          <span style="font-size:12.5px;font-weight:600">Files &amp; downloads</span>
+          <span style="font-size:11px;color:#8b95a3">{{ fileCount }} items · follows your choices</span>
+        </div>
+        <div id="download-links" style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="3">
+            <a href="{{ f.href }}" target="{{ f.target }}" onClick="{{ f.onClick }}" style="{{ f.style }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;color:#8b95a3">{{ f.kind }}</span>{{ f.name }}<span style="color:#186CDA;font-weight:600">{{ f.glyph }}</span></a>
+          </sc-for>
+        </div>
+        <sc-if value="{{ systemdFile }}" hint-placeholder-val="{{ true }}">
+          <details id="systemd-unit-details" style="border-top:1px solid #f0f2f5;padding-top:8px">
+            <summary style="cursor:pointer;list-style:none;font-size:11.5px;color:#186CDA">Show tomcat.service content</summary>
+            <pre style="margin:8px 0 0;background:#12181f;border-radius:7px;padding:9px 10px;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:10px;line-height:1.7;color:#cdd4db"><code id="systemd-unit-content">{{ unitFile }}</code></pre>
+            <p style="margin:7px 0 0;font-size:11px;color:#7a8493">Copy to <code style="font-family:'IBM Plex Mono',monospace">/etc/systemd/system/tomcat.service</code>, then <code style="font-family:'IBM Plex Mono',monospace">systemctl daemon-reload</code>.</p>
+          </details>
+        </sc-if>
+      </div>
+    </aside>
+  </form>
+
+  <footer style="margin-top:22px;padding:12px 22px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#8b95a3;display:flex;gap:12px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_DEAD = "padding:5px 10px;border:1px solid #eceef1;background:#fff;color:#c3c9d1;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:not-allowed;text-decoration:line-through;white-space:nowrap";
+const CHIP = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#1d2126;text-decoration:none";
+const TOMCAT_URL = "https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.tar.gz";
+
+class Component extends DCLogic {
+  state = {
+    os: "aws", java: "17", javaMethod: "package", javaHeadless: false,
+    tomcat: "manual", tomcatUser: "tomcat", createUser: true, tomcatFolder: "/opt/tomcat",
+    xmx: "default", systemd: false, javaHome: "",
+    db: "mariadb", dbName: "uc", dbUser: "ucuser", agent: "install", copied: false
+  };
+
+  set(patch) { this.setState(s => ({ ...patch, copied: false })); }
+
+  pickOs(os) {
+    const patch = { os };
+    if (os === "aws" || os === "rhel") { if (this.state.tomcat === "package") patch.tomcat = "manual"; }
+    if (os !== "aws" && this.state.javaMethod === "manual") patch.javaMethod = "package";
+    patch.agent = os === "aws" ? "install" : "none";
+    this.set(patch);
+  }
+
+  group(list, current, onPick, deadValues) {
+    return list.map(o => {
+      const dead = (deadValues || []).indexOf(o.value) !== -1;
+      return {
+        label: o.label, value: o.value, title: o.title || "",
+        style: dead ? PILL_DEAD : (current === o.value ? PILL_ON : PILL_OFF),
+        pick: dead ? (() => {}) : (() => onPick(o.value))
+      };
+    });
+  }
+
+  javaRpmUrl() {
+    return "https://corretto.aws/downloads/latest/amazon-corretto-" + this.state.java +
+      "-x64-linux" + (this.state.javaHeadless ? "-headless" : "") + "-jdk.rpm";
+  }
+
+  pkgMgr() { return this.state.os === "ubuntu" ? "apt-get" : "yum"; }
+
+  javaPackage() {
+    const v = this.state.java;
+    if (this.state.os === "aws") return "java-" + v + "-amazon-corretto-headless";
+    if (this.state.os === "ubuntu") return "openjdk-" + v + "-jre-headless";
+    return "java-" + v + "-openjdk-headless";
+  }
+
+  script() {
+    const s = this.state, L = [];
+    const cmt = t => L.push({ text: t, c: "#6d7885" });
+    const cmd = t => L.push({ text: t, c: "#cdd4db" });
+    const blank = () => L.push({ text: "", c: "#cdd4db" });
+    if (s.os === "windows") {
+      cmt("# Windows target — no shell script is generated.");
+      cmt("# Use the download links on the right, then follow the");
+      cmt("# Stonebranch installation guides for each component.");
+      return L;
+    }
+    cmd("#!/bin/bash");
+    cmd("set -e");
+    blank();
+    if (s.java !== "none") {
+      cmt("# ── Java " + s.java);
+      if (s.javaMethod === "manual") {
+        const f = this.javaRpmUrl().split("/").pop();
+        cmd("curl -LO " + this.javaRpmUrl());
+        cmd("sudo rpm -ivh " + f);
+      } else if (s.os === "ubuntu") {
+        cmd("sudo apt-get update");
+        cmd("sudo apt-get install -y " + this.javaPackage());
+      } else {
+        cmd("sudo yum install -y " + this.javaPackage());
+      }
+      blank();
+    }
+    const folder = s.tomcatFolder.trim() || "/opt/tomcat";
+    const user = s.tomcatUser.trim() || "tomcat";
+    if (s.tomcat !== "none") {
+      cmt("# ── Tomcat 10 (" + (s.tomcat === "package" ? "package manager" : "manual tar.gz") + ")");
+      if (s.tomcat === "package") {
+        cmd("sudo apt-get install -y tomcat10");
+      } else {
+        if (s.createUser) cmd("sudo useradd -r -m -U -d " + folder + " -s /bin/false " + user);
+        cmd("sudo mkdir -p " + folder);
+        cmd("curl -LO " + TOMCAT_URL);
+        cmd("sudo tar xzf " + TOMCAT_URL.split("/").pop() + " -C " + folder + " --strip-components=1");
+        cmd("sudo chown -R " + user + ":" + user + " " + folder);
+      }
+      blank();
+      if (s.xmx !== "default") {
+        const bin = s.tomcat === "manual" ? folder + "/bin" : "/usr/share/tomcat10/bin";
+        cmt("# ── JVM heap (setenv.sh)");
+        cmd("echo 'export CATALINA_OPTS=\"-Xms512m -Xmx" + s.xmx + "\"' \\");
+        cmd("  | sudo tee " + bin + "/setenv.sh");
+        cmd("sudo chmod +x " + bin + "/setenv.sh");
+        blank();
+      }
+      cmt("# ── Start Tomcat");
+      if (s.tomcat === "manual" && s.systemd) {
+        cmd("sudo systemctl daemon-reload");
+        cmd("sudo systemctl enable --now tomcat");
+      } else if (s.tomcat === "manual") {
+        cmd("sudo -u " + user + " " + folder + "/bin/startup.sh");
+      } else {
+        cmd("sudo systemctl enable --now tomcat10");
+      }
+      blank();
+    }
+    if (s.db !== "none") {
+      const name = s.dbName.trim() || "uc", u = s.dbUser.trim() || "ucuser";
+      cmt("# ── Database (" + s.db + ") — replace CHANGE_ME first");
+      if (s.db === "postgres") {
+        cmd("sudo " + this.pkgMgr() + " install -y postgresql-server");
+        cmd("sudo postgresql-setup --initdb");
+        cmd("sudo systemctl enable --now postgresql");
+        cmd("sudo -u postgres createuser " + u + " --pwprompt");
+        cmd("sudo -u postgres createdb -O " + u + " " + name);
+      } else {
+        const pkg = s.db === "mysql" ? "mysql-server" : "mariadb-server";
+        cmd("sudo " + this.pkgMgr() + " install -y " + pkg);
+        cmd("sudo systemctl enable --now " + (s.db === "mysql" ? "mysqld" : "mariadb"));
+        cmd("mysql -u root -e \"CREATE DATABASE " + name + " CHARACTER SET utf8mb4;\"");
+        cmd("mysql -u root -e \"CREATE USER '" + u + "'@'%' IDENTIFIED BY 'CHANGE_ME';\"");
+        cmd("mysql -u root -e \"GRANT ALL ON " + name + ".* TO '" + u + "'@'%';\"");
+      }
+      blank();
+    }
+    if (s.agent === "install") {
+      cmt("# ── Universal Agent prerequisites");
+      cmd(s.os === "ubuntu" ? "sudo apt-get install -y libaio1" : "sudo yum install -y libxcrypt-compat");
+      blank();
+    }
+    cmt("# ── Verify");
+    if (s.java !== "none") cmd("java -version");
+    if (s.tomcat !== "none") cmd("systemctl status " + (s.tomcat === "package" ? "tomcat10" : "tomcat") + " --no-pager");
+    return L;
+  }
+
+  unitFile() {
+    const s = this.state, folder = s.tomcatFolder.trim() || "/opt/tomcat";
+    const user = s.tomcatUser.trim() || "tomcat";
+    const jh = s.javaHome.trim();
+    return ["[Unit]", "Description=Apache Tomcat 10", "After=network.target", "",
+      "[Service]", "Type=forking",
+      (jh ? "Environment=JAVA_HOME=" + jh : "#Environment=JAVA_HOME=/usr/lib/jvm/jre-17"),
+      "Environment=CATALINA_HOME=" + folder, "Environment=CATALINA_BASE=" + folder,
+      "ExecStart=" + folder + "/bin/startup.sh", "ExecStop=" + folder + "/bin/shutdown.sh",
+      "User=" + user, "Group=" + user, "Restart=on-failure", "",
+      "[Install]", "WantedBy=multi-user.target"].join("\n");
+  }
+
+  saveFile(name, text, type) {
+    const url = URL.createObjectURL(new Blob([text], { type: type || "text/plain" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const lines = this.script();
+    const text = lines.map(l => l.text).join("\n");
+    const isWindows = s.os === "windows";
+    const noTomcatPkg = s.os === "aws" || s.os === "rhel";
+    const tomcatOn = !isWindows && s.tomcat !== "none";
+    const tomcatManual = tomcatOn && s.tomcat === "manual";
+    const systemdFile = tomcatManual && s.systemd;
+
+    const files = [];
+    if (!isWindows) files.push({ kind: "SH", name: "setup.sh", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("setup.sh", text, "text/x-shellscript"); } });
+    if (systemdFile) files.push({ kind: "UNIT", name: "tomcat.service", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("tomcat.service", this.unitFile()); } });
+    if (s.java !== "none" && (s.javaMethod === "manual" || isWindows)) files.push({ kind: "RPM", name: "corretto-" + s.java + " jdk", glyph: "↗", href: this.javaRpmUrl(), target: "_blank", style: CHIP, onClick: null });
+    if (isWindows && s.java !== "none") files.push({ kind: "MSI", name: "corretto-" + s.java + " Windows", glyph: "↗", href: "https://docs.aws.amazon.com/corretto/latest/corretto-" + s.java + "-ug/downloads-list.html", target: "_blank", style: CHIP, onClick: null });
+    if (tomcatManual || (isWindows && s.tomcat !== "none")) files.push({ kind: isWindows ? "ZIP" : "TGZ", name: "apache-tomcat-10.1.53", glyph: "↗", href: isWindows ? "https://tomcat.apache.org/download-10.cgi" : TOMCAT_URL, target: "_blank", style: CHIP, onClick: null });
+    if (s.db !== "none") files.push({ kind: "DOC", name: "DB install guide", glyph: "↗", href: "https://docs.stonebranch.com/uac/uc/installing-a-database", target: "_blank", style: "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px dashed #cfd5dd;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#5a6472;text-decoration:none", onClick: null });
+
+    return {
+      osOptions: this.group([
+        { label: "AWS (AL2023)", value: "aws" }, { label: "RHEL/CentOS", value: "rhel" },
+        { label: "Ubuntu/Debian", value: "ubuntu" }, { label: "Windows", value: "windows" }
+      ], s.os, v => this.pickOs(v)),
+      javaOptions: this.group([{ label: "None", value: "none" }, { label: "Java 17", value: "17" }, { label: "Java 21", value: "21" }], s.java, v => this.set({ java: v })),
+      javaMethodOptions: this.group([{ label: "yum", value: "package" }, { label: "Corretto RPM", value: "manual" }], s.javaMethod, v => this.set({ javaMethod: v })),
+      tomcatOptions: this.group([
+        { label: "None", value: "none" },
+        { label: this.pkgMgr(), value: "package", title: noTomcatPkg ? "No Tomcat 10 package on this OS" : "" },
+        { label: "tar.gz", value: "manual" }
+      ], s.tomcat, v => this.set({ tomcat: v }), noTomcatPkg ? ["package"] : []),
+      xmxOptions: this.group([
+        { label: "Default", value: "default" }, { label: "1G", value: "1G" }, { label: "2G", value: "2G" },
+        { label: "3G", value: "3G" }, { label: "4G", value: "4G" }, { label: "6G", value: "6G" }, { label: "8G", value: "8G" }
+      ], s.xmx, v => this.set({ xmx: v })),
+      dbOptions: this.group([{ label: "None", value: "none" }, { label: "MySQL", value: "mysql" }, { label: "MariaDB", value: "mariadb" }, { label: "PostgreSQL", value: "postgres" }], s.db, v => this.set({ db: v })),
+      agentOptions: this.group([{ label: "None", value: "none" }, { label: "Install", value: "install" }], s.agent, v => this.set({ agent: v })),
+
+      isWindows, tomcatOn, tomcatManual, systemdFile,
+      javaMethodVisible: !isWindows && s.java !== "none" && s.os === "aws",
+      javaManual: s.javaMethod === "manual" && s.os === "aws" && s.java !== "none",
+      javaHeadless: s.javaHeadless, javaRpmUrl: this.javaRpmUrl(),
+      tomcatPkgUnavailable: !isWindows && noTomcatPkg,
+      systemdVisible: tomcatManual,
+      systemd: s.systemd, javaHome: s.javaHome,
+      tomcatUser: s.tomcatUser, createUser: s.createUser, tomcatFolder: s.tomcatFolder,
+      dbFieldsVisible: !isWindows && s.db !== "none",
+      dbName: s.dbName, dbUser: s.dbUser,
+      xmxNote: s.xmx === "default" ? "Tomcat defaults untouched" : "Xms fixed at 512m",
+      agentPkgNote: s.os === "ubuntu" ? "libaio1" : "libxcrypt-compat",
+      activeCount: [s.java !== "none", s.tomcat !== "none", s.db !== "none", s.agent === "install"].filter(Boolean).length,
+      lineCount: lines.length,
+      scriptLines: lines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      files, fileCount: files.length, unitFile: this.unitFile(),
+      copyLabel: s.copied ? "Copied" : "Copy",
+      copyScript: () => { navigator.clipboard.writeText(text); this.setState({ copied: true }); },
+      downloadScript: () => this.saveFile("setup.sh", text, "text/x-shellscript"),
+      toggleHeadless: e => this.set({ javaHeadless: e.target.checked }),
+      toggleCreateUser: e => this.set({ createUser: e.target.checked }),
+      toggleSystemd: e => this.set({ systemd: e.target.checked }),
+      setTomcatUser: e => this.set({ tomcatUser: e.target.value }),
+      setTomcatFolder: e => this.set({ tomcatFolder: e.target.value }),
+      setJavaHome: e => this.set({ javaHome: e.target.value }),
+      setDbName: e => this.set({ dbName: e.target.value }),
+      setDbUser: e => this.set({ dbUser: e.target.value }),
+      guides: [
+        { title: "Supported versions", hint: "Java 17/21 · Tomcat 10.x", body: "Universal Controller runs on Java 17 or Java 21 (headless recommended) with Apache Tomcat 10.x." },
+        { title: "Tomcat: package vs tar.gz", hint: "why manual on RHEL", body: "No Tomcat 10 package is published for RHEL/CentOS or Amazon Linux 2023, so the manual tar.gz path is selected automatically there. Ubuntu/Debian ships tomcat10 via apt." },
+        { title: "JVM memory (setenv)", hint: "Xms 512m", body: "Choosing a heap size writes a setenv.sh in the Tomcat bin/ directory that sets CATALINA_OPTS. Default leaves Tomcat's built-in settings alone. See the Sizing Calculator for production numbers." },
+        { title: "systemd service file", hint: "manual installs only", body: "Only needed for tar.gz installs — package installs register their own unit. JAVA_HOME is optional; leave it blank to get a commented-out placeholder. Run systemctl daemon-reload after copying the file." },
+        { title: "Database", hint: "MySQL · MariaDB · Postgres · Oracle · MSSQL", body: "The generator scripts MySQL, MariaDB and PostgreSQL. Oracle and SQL Server are supported by the Controller but must be prepared by hand — follow the Stonebranch Database Installation Guide." },
+        { title: "Agent prerequisites", hint: "extra libraries", body: "Universal Agent needs a few system libraries: libxcrypt-compat on Amazon Linux/RHEL, libaio1 on Debian-based systems. Install them before running the agent installer." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

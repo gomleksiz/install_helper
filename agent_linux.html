@@ -4,264 +4,197 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent (Linux) - Command Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260813">
 </head>
 <body>
-    <header>
-        <h1>Installation Command Generator</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="environment.html">Prerequisite</a></li>
-                <li><a href="controller.html">Controller</a></li>
-                <li><a href="agent_linux.html">Agent (Linux)</a></li>
-                <li><a href="agent_windows.html">Agent (Windows)</a></li>
-                <li><a href="post_config.html">Post Configuration</a></li>
-                <li><a href="sizing.html">Sizing Calculator</a></li>
-            </ul>
+<div class="page">
+    <header class="site-header">
+        <span class="brand">Installation Command Generator</span>
+        <nav class="site-nav">
+            <a href="index.html">Home</a>
+            <a href="environment.html">Prerequisite</a>
+            <a href="controller.html">Controller</a>
+            <a href="agent_linux.html" class="active">Agent (Linux)</a>
+            <a href="agent_windows.html">Agent (Windows)</a>
+            <a href="post_config.html">Post Config</a>
+            <a href="sizing.html">Sizing</a>
         </nav>
     </header>
-    <main>
-        <div class="disclaimer-alert disclaimer-top" role="note">
-            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
-            <div class="disclaimer-header">
-                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span class="disclaimer-label">INFO</span>
+
+    <div class="info-banner">
+        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+    </div>
+
+    <form id="linux-form" class="layout">
+        <div class="col-main">
+            <!-- Connection -->
+            <div class="card">
+                <div class="card-title-row"><span class="card-title">Connection</span><span class="rule"></span></div>
+                <label class="field" id="oms-servers-group" for="oms_servers">OMS servers
+                    <input type="text" id="oms_servers" name="oms_servers" value="7878@localhost" placeholder="7878@oms1,7878@oms2" style="max-width:420px">
+                    <span class="field-error" id="oms-servers-error"></span>
+                </label>
+                <div class="subrow">
+                    <label class="toggle-pill"><input type="checkbox" id="oms_autostart" name="oms_autostart">OMS autostart</label>
+                    <label class="toggle-pill"><input type="checkbox" id="python" name="python">Agent Python</label>
+                    <label class="toggle-pill"><input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">systemctl service</label>
+                </div>
+                <div id="ubrokerd-id-group" style="display:none">
+                    <label class="field" for="ubrokerd_id">UBrokerD ID <span class="optional">— usermode installs only</span>
+                        <input type="text" id="ubrokerd_id" name="ubrokerd_id" placeholder="e.g. ubroker2">
+                    </label>
+                </div>
             </div>
-            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
-        </div>
-        <h2>Agent (Linux) Installer</h2>
-        <div class="controller-container">
-            <form id="linux-form" class="controller-form">
-                <fieldset class="base-parameters">
-                    <legend>Base Parameters</legend>
-                    <div class="form-group" id="oms-servers-group">
-                        <label for="oms_servers">OMS Servers:</label>
-                        <div class="form-input-wrapper">
-                            <input type="text" id="oms_servers" name="oms_servers" placeholder="server1,server2">
-                            <div class="error-message" id="oms-servers-error"></div>
+
+            <!-- Install mode -->
+            <div class="card">
+                <div class="row no-push">
+                    <span class="card-title" style="margin-right:4px">Install mode</span>
+                    <label class="toggle-pill"><input type="checkbox" id="no-root-install" name="no-root-install">Regular user (no root)</label>
+                    <label class="toggle-pill"><input type="checkbox" id="toggle-user-options">Different user/group</label>
+                    <label class="toggle-pill"><input type="checkbox" id="toggle-user-mode">Different folders</label>
+                    <label class="toggle-pill"><input type="checkbox" id="toggle-advanced-options">Advanced</label>
+                    <label class="toggle-pill"><input type="checkbox" id="toggle-additional-params">Manual parameters</label>
+                </div>
+
+                <div id="no-root-postinstall-group" style="display:none">
+                    <div class="subrow">
+                        <span class="field-note">Regular-user install — no sudo.</span>
+                        <label class="check" for="no-root-postinstall"><input type="checkbox" id="no-root-postinstall" name="no-root-postinstall">skip post-install root tasks</label>
+                    </div>
+                </div>
+
+                <div id="user-options" style="display:none">
+                    <div class="subrow stack">
+                        <div class="fields-row" style="border-top:none;padding-top:0">
+                            <label class="field grow" for="user">User
+                                <input type="text" id="user" name="user" placeholder="ubroker">
+                            </label>
+                            <label class="field grow" for="group">Group
+                                <input type="text" id="group" name="group" placeholder="ubroker">
+                            </label>
+                            <label class="field grow" id="userdir-group" for="userdir" style="flex:1.4">User directory
+                                <input type="text" id="userdir" name="userdir" placeholder="/home/ubroker">
+                            </label>
+                        </div>
+                        <div style="display:flex;gap:14px">
+                            <label class="check" for="create_user"><input type="checkbox" id="create_user" name="create_user">create user</label>
+                            <label class="check" for="create_group"><input type="checkbox" id="create_group" name="create_group">create group</label>
                         </div>
                     </div>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="oms_autostart" name="oms_autostart">
-                        <label for="oms_autostart">OMS Autostart</label>
-                    </div>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="python" name="python">
-                        <label for="python">Use Agent Python</label>
-                    </div>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">
-                        <label for="register_ubrokerd">Create SystemCtl Service</label>
-                    </div>
-                    <div id="ubrokerd-id-group" class="form-group" style="display: none;">
-                        <label for="ubrokerd_id">UBrokerD ID:</label>
-                        <input type="text" id="ubrokerd_id" name="ubrokerd_id" placeholder="Required for usermode installs only">
-                    </div>
-                    <div class="form-group">
-                        <label for="ac_agent_cluster">Agent Cluster:</label>
-                        <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="e.g., Default Linux Agents">
-                    </div>
-                </fieldset>
+                </div>
 
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="no-root-install" name="no-root-install">
-                <label for="no-root-install">Install as regular user (no root/sudo)</label>
-            </div>
-            <div class="form-group-checkbox" id="no-root-postinstall-group" style="display: none;">
-                <input type="checkbox" id="no-root-postinstall" name="no-root-postinstall">
-                <label for="no-root-postinstall">Skip post-install root tasks</label>
-            </div>
-
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-user-options">
-                <label for="toggle-user-options">I want to install with a different user</label>
-            </div>
-            <fieldset id="user-options" style="display: none;">
-                <legend>User Options</legend>
-                <div class="form-group">
-                    <label for="user">User:</label>
-                    <input type="text" id="user" name="user" placeholder="ubroker">
-                </div>
-                <div class="form-group">
-                    <label for="group">Group:</label>
-                    <input type="text" id="group" name="group" placeholder="ubroker">
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="create_user" name="create_user">
-                    <label for="create_user">Create User</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="create_group" name="create_group">
-                    <label for="create_group">Create Group</label>
-                </div>
-                <div id="userdir-group" class="form-group">
-                    <label for="userdir">User Directory:</label>
-                    <input type="text" id="userdir" name="userdir" placeholder="/home/ubroker">
-                </div>
-            </fieldset>
-
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-user-mode">
-                <label for="toggle-user-mode">I want to install in a different folder</label>
-            </div>
-            <fieldset id="user-mode-parameters" style="display: none;">
-                <legend>User Mode Parameters</legend>
-                <div class="form-group">
-                    <label for="basedir">Base Directory:</label>
-                    <input type="text" id="basedir" name="basedir" placeholder="/usr/local">
-                </div>
-                <div class="form-group" id="unvdir-group">
-                    <label for="unvdir">Install Directory:</label>
-                    <div class="form-input-wrapper">
-                        <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
-                        <div class="error-message" id="unvdir-error"></div>
+                <div id="user-mode-parameters" style="display:none">
+                    <div class="fields-grid">
+                        <label class="field" for="basedir">Base directory
+                            <input type="text" id="basedir" name="basedir" placeholder="/usr/local">
+                        </label>
+                        <label class="field" id="unvdir-group" for="unvdir">Install directory
+                            <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
+                            <span class="field-error" id="unvdir-error"></span>
+                        </label>
+                        <label class="field" id="unvcfgdir-group" for="unvcfgdir">Config directory
+                            <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
+                            <span class="field-error" id="unvcfgdir-error"></span>
+                        </label>
+                        <label class="field" id="unvdatadir-group" for="unvdatadir">Data directory
+                            <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
+                            <span class="field-error" id="unvdatadir-error"></span>
+                        </label>
                     </div>
                 </div>
-                <div class="form-group" id="unvcfgdir-group">
-                    <label for="unvcfgdir">Config Directory:</label>
-                    <div class="form-input-wrapper">
-                        <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
-                        <div class="error-message" id="unvcfgdir-error"></div>
+
+                <div id="advanced-options" style="display:none">
+                    <div class="subrow stack">
+                        <div class="fields-grid" style="border-top:none;padding-top:0">
+                            <label class="field full" for="ac_agent_cluster">Agent cluster <span class="optional">(optional)</span>
+                                <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="Default Linux Agents" style="font-family:var(--font-ui)">
+                            </label>
+                            <label class="field" for="ac_netname">Netname
+                                <input type="text" id="ac_netname" name="ac_netname" placeholder="agent_net">
+                            </label>
+                            <label class="field" for="oms_port">OMS port
+                                <input type="text" id="oms_port" name="oms_port" placeholder="7878">
+                            </label>
+                            <label class="field" for="unvport">UNV port
+                                <input type="text" id="unvport" name="unvport" placeholder="7887">
+                            </label>
+                            <label class="field" for="ac_agent_ip">Agent IP
+                                <input type="text" id="ac_agent_ip" name="ac_agent_ip" placeholder="192.168.1.10">
+                            </label>
+                        </div>
+                        <div class="row no-push">
+                            <span id="security-label" class="sub-name" style="min-width:56px">Security</span>
+                            <input type="hidden" id="security" name="security" value="appdef">
+                            <div class="button-group">
+                                <button type="button" class="option-button active" data-target="security" data-value="appdef">App default</button>
+                                <button type="button" class="option-button" data-target="security" data-value="default">Password-based</button>
+                                <button type="button" class="option-button" data-target="security" data-value="inherit">Inherit</button>
+                                <button type="button" class="option-button" data-target="security" data-value="pam">PAM</button>
+                                <button type="button" class="option-button" data-target="security" data-value="pam_sessions">PAM sessions</button>
+                            </div>
+                        </div>
+                        <div style="display:flex;gap:6px;flex-wrap:wrap">
+                            <label class="toggle-pill"><input type="checkbox" id="use_tls1_3" name="use_tls1_3">TLS 1.3</label>
+                            <label class="toggle-pill"><input type="checkbox" id="opscli" name="opscli">OpsCLI</label>
+                            <label class="toggle-pill"><input type="checkbox" id="ubroker_start" name="ubroker_start" checked>Start UBroker after install</label>
+                        </div>
                     </div>
                 </div>
-                <div class="form-group" id="unvdatadir-group">
-                    <label for="unvdatadir">Data Directory:</label>
-                    <div class="form-input-wrapper">
-                        <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
-                        <div class="error-message" id="unvdatadir-error"></div>
-                    </div>
-                </div>
-            </fieldset>
 
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-advanced-options">
-                <label for="toggle-advanced-options">Show me more options</label>
-            </div>
-            <fieldset id="advanced-options" style="display: none;">
-                <legend>Advanced Parameters</legend>
-                <div class="form-group">
-                    <label for="ac_netname">Netname:</label>
-                    <input type="text" id="ac_netname" name="ac_netname" placeholder="e.g., agent_net">
-                </div>
-                <div class="form-group">
-                    <label for="oms_port">OMS Port:</label>
-                    <input type="text" id="oms_port" name="oms_port" placeholder="7878">
-                </div>
-                <div class="form-group">
-                    <label for="unvport">UNV Port:</label>
-                    <input type="text" id="unvport" name="unvport" placeholder="7887">
-                </div>
-                <div class="form-group">
-                    <label for="ac_agent_ip">Agent IP:</label>
-                    <input type="text" id="ac_agent_ip" name="ac_agent_ip" placeholder="e.g., 192.168.1.10">
-                </div>
-                <div class="form-group">
-                    <label for="security">Security:</label>
-                    <select id="security" name="security">
-                        <option value="appdef">Application Default</option>
-                        <option value="default">Default (Password-based)</option>
-                        <option value="inherit">Inherit from Broker</option>
-                        <option value="pam">PAM</option>
-                        <option value="pam_sessions">PAM Sessions</option>
-                    </select>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="use_tls1_3" name="use_tls1_3">
-                    <label for="use_tls1_3">Use TLS 1.3</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="opscli" name="opscli">
-                    <label for="opscli">Install OpsCLI</label>
-                </div>
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="ubroker_start" name="ubroker_start" checked>
-                    <label for="ubroker_start">Start UBroker after Install</label>
-                </div>
-            </fieldset>
-
-            <div class="form-group-checkbox">
-                <input type="checkbox" id="toggle-additional-params">
-                <label for="toggle-additional-params">Let me write my parameters manually</label>
-            </div>
-            <fieldset id="additional-params-section" style="display: none;">
-                <legend>Additional Parameters</legend>
-                <div class="form-group">
-                    <label for="additional_params">Additional Parameters:</label>
-                    <input type="text" id="additional_params" name="additional_params" placeholder="e.g., -p 8080">
-                </div>
-            </fieldset>
-
-            <button type="submit">Generate Command</button>
-
-            <div id="command-output" style="display:none; margin-top: 20px;">
-                <div class="command-section">
-                    <h3>Generated Command:</h3>
-                    <div class="command-line">
-                        <pre><code id="generated-command"></code></pre>
-                        <button id="copy-button" class="copy-icon" title="Copy to clipboard">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div id="additional-command-output" style="display:none;" class="command-section">
-                    <h3>Additional Command:</h3>
-                    <div class="command-line">
-                        <pre><code id="additional-command"></code></pre>
-                        <button id="copy-additional-button" class="copy-icon" title="Copy to clipboard">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
-                            </svg>
-                        </button>
+                <div id="additional-params-section" style="display:none">
+                    <div class="subrow stack">
+                        <label class="field" for="additional_params">Additional parameters — appended verbatim
+                            <input type="text" id="additional_params" name="additional_params" placeholder="e.g. -p 8080">
+                        </label>
                     </div>
                 </div>
             </div>
-        </form>
 
-        <div class="help-section">
-                <h3>Agent Installation Guidelines</h3>
-                <div class="help-item">
-                    <h4>OMS Servers</h4>
-                    <p>Specify the OMS (Universal Message Service) hostname or IP address where the Universal Controller is running.</p>
-                    <p class="help-example">Single OMS: <code>7878@localhost</code> or <code>oms-server.company.com</code></p>
-                    <p class="help-example">HA OMS: <code>oms1.company.com,oms2.company.com</code></p>
-                    <p class="help-example">With port: <code>7878@oms-server.company.com</code> (port 7878 is optional)</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>Agent Cluster</h4>
-                    <p>Define which cluster this agent belongs to. Agent clusters help organize and manage groups of agents.</p>
-                    <p class="help-example">Single cluster: <code>Linux Production Agents</code></p>
-                    <p class="help-example">Multiple clusters: <code>Production,Linux,Database</code></p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>Agent Python</h4>
-                    <p>Use the Python distribution that comes bundled with the Universal Agent instead of relying on external Python installations.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>SystemCtl Service</h4>
-                    <p>Creates a systemd service for automatic startup and better service management on modern Linux distributions.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>User Installation</h4>
-                    <p>By default, the agent installs and runs as the ubroker user. You can specify a different user for specific security or organizational requirements.</p>
-                    <p class="help-example">Default user: <code>ubroker</code></p>
-                </div>
-            </div>
         </div>
-    </main>
-    <div class="disclaimer-alert disclaimer-bottom" role="note">
-        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
-    </div>
-    <footer>
-        <p>&copy; 2025</p>
+
+        <aside class="col-aside">
+            <div id="command-output" class="terminal" style="display:none">
+                <div class="terminal-head">
+                    <span class="terminal-title">unvinst</span>
+                    <span class="terminal-meta">live</span>
+                    <span class="terminal-actions">
+                        <button id="copy-button" type="button" class="term-btn"><span class="action-label">Copy</span></button>
+                        <button type="button" class="term-btn term-btn-primary" onclick="downloadCommand('install-agent.sh')">Download</button>
+                    </span>
+                </div>
+                <pre><code id="generated-command"></code></pre>
+            </div>
+
+            <div id="additional-command-output" class="terminal" style="display:none">
+                <div class="terminal-head">
+                    <span class="terminal-title">post-install</span>
+                    <span class="terminal-actions">
+                        <button id="copy-additional-button" type="button" class="term-btn"><span class="action-label">Copy</span></button>
+                    </span>
+                </div>
+                <pre><code id="additional-command"></code></pre>
+            </div>
+
+            <div class="panel">
+                <span class="panel-head"><span class="title">Before you run it</span></span>
+                <div class="checklist">
+                    <span class="item"><span class="bullet">•</span>The Universal Agent installer (<code class="inline-code">unvinst</code>) is in the current directory.</span>
+                    <span class="item"><span class="bullet">•</span>Run with <code class="inline-code">sudo</code> unless you chose the regular-user install.</span>
+                    <span class="item"><span class="bullet">•</span>The OMS server is reachable from this host on the OMS port.</span>
+                </div>
+            </div>
+        </aside>
+    </form>
+
+    <footer class="site-footer">
+        <span>&copy; 2025</span>
+        <span>Reference only — verify against official Stonebranch documentation.</span>
     </footer>
-    <script src="version.js"></script>
-    <script src="script.js"></script>
+</div>
+    <script src="version.js?v=20260812"></script>
+    <script src="script.js?v=20260812"></script>
 </body>
 </html>

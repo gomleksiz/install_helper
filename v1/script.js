@@ -4,9 +4,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Make segmented option groups accessible (roles, roving tabindex, arrow keys) ---
     enhanceOptionGroups();
-
-    // --- Add a maximize toggle to every terminal output panel ---
-    addMaximizeButtons();
     
     // --- Initialize Task Slider (only on sizing page) ---
     const taskSlider = document.getElementById('tasks');
@@ -1171,51 +1168,6 @@ function initializeButtonSelectors() {
 // single tab stop (roving tabindex), arrow-key navigation, and a maintained
 // `aria-checked` state so screen readers announce the label, the options, and the
 // current selection — matching what the old <select> elements provided.
-// Add a maximize toggle to each .terminal panel. Toggling widens the output column
-// to 60% and enlarges the code font (a layout-level state shared by all terminals).
-function addMaximizeButtons() {
-    document.querySelectorAll('.terminal').forEach(term => {
-        const actions = term.querySelector('.terminal-actions');
-        if (!actions || actions.querySelector('.maximize')) return;
-        const layout = term.closest('.layout');
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'term-btn maximize';
-        btn.title = 'Expand / collapse output panel';
-        btn.setAttribute('aria-label', 'Expand or collapse the output panel');
-        btn.setAttribute('aria-pressed', 'false');
-        btn.textContent = '⤢';
-        btn.addEventListener('click', () => {
-            if (!layout) return;
-            const on = layout.classList.toggle('output-max');
-            // Keep every maximize button's state in sync.
-            layout.querySelectorAll('.term-btn.maximize').forEach(b => b.setAttribute('aria-pressed', on ? 'true' : 'false'));
-        });
-        actions.insertBefore(btn, actions.firstChild);
-    });
-}
-
-// Download the current generated command text as a file (used by the agent pages' Download button).
-function downloadCommand(filename) {
-    const el = document.getElementById('generated-command');
-    if (!el) return;
-    const blob = new Blob([el.innerText + '\n'], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 2000);
-}
-
-// Fill a text field from a "(use)" preset chip and fire input/change so live render updates.
-function fillField(id, value) {
-    const el = document.getElementById(id);
-    if (!el) return;
-    el.value = value;
-    el.dispatchEvent(new Event('input', { bubbles: true }));
-    el.dispatchEvent(new Event('change', { bubbles: true }));
-}
-
 // Copy text to the clipboard and show a temporary "Copied ✓" label on the button
 // (~2s). If the button has no `.action-label` span it still gets a `.copied` class.
 function copyWithFeedback(button, text) {

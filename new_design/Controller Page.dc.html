@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f5f7;font-family:"Inter Tight",system-ui,sans-serif;color:#1d2126;-webkit-font-smoothing:antialiased}
+a{color:#186CDA;text-decoration:none}a:hover{color:#12539f;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="background:#12233d;color:#fff;padding:0 22px;display:flex;align-items:center;gap:26px;height:52px;flex:none">
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:2px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Home</a>
+      <a href="environment.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Prerequisite</a>
+      <a href="controller.html" style="color:#fff;padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.12);font-weight:600">Controller</a>
+      <a href="agent_linux.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Post Config</a>
+      <a href="sizing.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Sizing</a>
+    </nav>
+  </header>
+
+  <div style="padding:16px 22px 0;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5a6472">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:6px;padding:6px 10px"><span style="width:14px;height:14px;border-radius:50%;background:#186CDA;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+  </div>
+
+  <form id="controller-form" style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;padding:16px 22px 0;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;font-weight:600">Deployment target</span><span style="flex:1;height:1px;background:#f0f2f5"></span></div>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#7a8493">Tomcat directory
+          <input type="text" id="tomcat_dir" name="tomcat_dir" value="{{ tomcatDir }}" onChange="{{ setTomcatDir }}" placeholder="/opt/tomcat" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          <span style="display:flex;gap:5px;flex-wrap:wrap;margin-top:2px">
+            <sc-for list="{{ dirPresets }}" as="p" hint-placeholder-count="4">
+              <button type="button" onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</button>
+            </sc-for>
+          </span>
+        </label>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#7a8493">Controller WAR file
+          <input type="text" id="controllerfile" name="controllerfile" value="{{ warFile }}" onChange="{{ setWarFile }}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          <span style="display:flex;gap:5px;flex-wrap:wrap;margin-top:2px">
+            <sc-for list="{{ warPresets }}" as="p" hint-placeholder-count="2">
+              <button type="button" onClick="{{ p.pick }}" style="{{ p.style }}">{{ p.label }}</button>
+            </sc-for>
+          </span>
+          <span style="font-size:11px;color:#8b95a3;margin-top:2px">The WAR must sit in the same directory as the installer script, and Tomcat must be stopped.</span>
+        </label>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600">Database</span>
+          <input type="hidden" id="rdbms" name="rdbms" value="mysql">
+          <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap;margin-left:auto">
+            <sc-for list="{{ rdbmsOptions }}" as="o" hint-placeholder-count="5">
+              <button type="button" class="option-button" data-target="rdbms" data-value="{{ o.value }}" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#7a8493">JDBC URL — auto-filled from the RDBMS choice
+          <input type="text" id="dburl" name="dburl" value="{{ dbUrl }}" onChange="{{ setDbUrl }}" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+        </label>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <label style="flex:1;min-width:110px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Database name
+            <input type="text" id="dbname" name="dbname" value="{{ dbName }}" onChange="{{ setDbName }}" placeholder="uc" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          </label>
+          <label style="flex:1;min-width:110px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Database user
+            <input type="text" id="dbuser" name="dbuser" value="{{ dbUser }}" onChange="{{ setDbUser }}" placeholder="ucuser" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          </label>
+          <label style="flex:1;min-width:140px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Password — locked
+            <input type="text" id="dbpass" name="dbpass" value="CHANGE_ME" disabled style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #e6e9ed;border-radius:6px;background:#f4f5f7;color:#98a1ad">
+          </label>
+        </div>
+        <p style="margin:0;font-size:11.5px;color:#7a8493">Replace <code style="font-family:'IBM Plex Mono',monospace;background:#f0f2f5;padding:1px 4px;border-radius:3px">CHANGE_ME</code> before running — never pass a real password on a command line you keep.</p>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600;margin-right:4px">Options</span>
+          <sc-for list="{{ toggles }}" as="t" hint-placeholder-count="4">
+            <button type="button" onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showPort }}" hint-placeholder-val="{{ false }}">
+          <div id="advanced-options" style="padding-top:9px;border-top:1px dashed #e6e9ed;display:flex;gap:9px;align-items:end;flex-wrap:wrap">
+            <label style="flex:0 0 140px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Port
+              <input type="text" id="port" name="port" value="{{ port }}" onChange="{{ setPort }}" placeholder="8080" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <span style="font-size:11px;color:#8b95a3;padding-bottom:8px">Only change if 8080 is taken.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showSetenv }}" hint-placeholder-val="{{ false }}">
+          <div id="setenv-section" style="padding-top:9px;border-top:1px dashed #e6e9ed;display:flex;gap:9px;align-items:end;flex-wrap:wrap">
+            <label style="flex:0 0 130px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Xms (initial)
+              <input type="text" id="xms" name="xms" value="{{ xms }}" onChange="{{ setXms }}" placeholder="512m" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <label style="flex:0 0 130px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Xmx (maximum)
+              <input type="text" id="xmx" name="xmx" value="{{ xmx }}" onChange="{{ setXmx }}" placeholder="2048m" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+            <span style="font-size:11px;color:#8b95a3;padding-bottom:8px">Writes <code style="font-family:'IBM Plex Mono',monospace">setenv.sh</code> into Tomcat's <code style="font-family:'IBM Plex Mono',monospace">bin/</code> — see Sizing.</span>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showExtra }}" hint-placeholder-val="{{ false }}">
+          <div id="additional-params-section" style="padding-top:9px;border-top:1px dashed #e6e9ed">
+            <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Additional parameters — appended verbatim
+              <input type="text" id="additional_params" name="additional_params" value="{{ extra }}" onChange="{{ setExtra }}" placeholder="e.g. --verbose" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:4px 14px 6px">
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="5">
+          <details style="border-bottom:1px solid #f0f2f5">
+            <summary style="cursor:pointer;list-style:none;padding:9px 0;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>{{ g.title }}<span style="margin-left:auto;font-size:11px;color:#98a1ad">{{ g.hint }}</span></summary>
+            <p style="margin:0 0 10px 19px;font-size:12px;line-height:1.65;color:#5a6472;max-width:70ch;text-wrap:pretty">{{ g.body }}</p>
+          </details>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:16px;display:flex;flex-direction:column;gap:12px">
+      <div id="command-output" style="background:#12181f;border-radius:10px;overflow:hidden;border:1px solid #1e2731;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #232c37">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#e8ebee;font-weight:600">install command</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6d7885">live</span>
+          <button id="copy-button" type="button" onClick="{{ copyMain }}" style="margin-left:auto;padding:5px 11px;border:1px solid #313b47;background:transparent;color:#dfe4e9;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#4a5764;color:#fff">{{ copyLabel }}</button>
+        </div>
+        <pre style="margin:0;padding:11px 12px;max-height:34vh;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><code id="generated-command" style="display:flex;flex-direction:column"><sc-for list="{{ mainLines }}" as="l" hint-placeholder-count="8"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+      </div>
+
+      <sc-if value="{{ showSetenv }}" hint-placeholder-val="{{ false }}">
+        <div id="additional-command-output" style="background:#12181f;border-radius:10px;overflow:hidden;border:1px solid #1e2731">
+          <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #232c37">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#e8ebee;font-weight:600">setenv.sh</span>
+            <span style="margin-left:auto;display:flex;gap:6px">
+              <button id="copy-additional-button" type="button" onClick="{{ copyExtraCmd }}" style="padding:5px 11px;border:1px solid #313b47;background:transparent;color:#dfe4e9;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer">Copy</button>
+            </span>
+          </div>
+          <pre style="margin:0;padding:11px 12px;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><code id="additional-command" style="display:flex;flex-direction:column"><sc-for list="{{ setenvLines }}" as="l" hint-placeholder-count="3"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+        </div>
+      </sc-if>
+
+      <div id="manual-download-section" style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12.5px;font-weight:600">Files &amp; downloads</span><span style="font-size:11px;color:#8b95a3">{{ fileCount }} items</span></div>
+        <div id="download-links" style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+            <a href="{{ f.href }}" target="{{ f.target }}" onClick="{{ f.onClick }}" style="{{ f.style }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;color:#8b95a3">{{ f.kind }}</span>{{ f.name }}<span style="color:#186CDA;font-weight:600">{{ f.glyph }}</span></a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;font-weight:600">Before you run it</span>
+        <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="4">
+          <span style="display:flex;gap:8px;font-size:11.5px;color:#5a6472;line-height:1.5"><span style="color:#186CDA">•</span>{{ c }}</span>
+        </sc-for>
+      </div>
+    </aside>
+  </form>
+
+  <footer style="margin-top:22px;padding:12px 22px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#8b95a3;display:flex;gap:12px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const MINI = "padding:3px 8px;border:1px solid #e6e9ed;background:#fafbfc;color:#5a6472;border-radius:12px;font-size:10.5px;font-family:'IBM Plex Mono',monospace;cursor:pointer";
+const CHIP = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#1d2126;text-decoration:none";
+const CHIP_DOC = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px dashed #cfd5dd;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#5a6472;text-decoration:none";
+
+const URLS = {
+  mysql: n => "jdbc:mysql://localhost:3306/" + n,
+  postgres: n => "jdbc:postgresql://localhost:5432/" + n,
+  oracle: () => "jdbc:oracle:thin:@localhost:1521:orcl",
+  sqlserver: n => "jdbc:sqlserver://localhost:1433;DatabaseName=" + n,
+  "sqlserver-jtds": n => "jdbc:jtds:sqlserver://localhost:1433/" + n
+};
+
+class Component extends DCLogic {
+  state = {
+    tomcatDir: "/opt/tomcat", warFile: "universal-controller-N.N.N.N-build.N.war",
+    rdbms: "mysql", dbUrl: URLS.mysql("uc"), dbUrlTouched: false,
+    dbName: "uc", dbUser: "ucuser", reporting: false,
+    showPort: false, port: "", showSetenv: false, xms: "512m", xmx: "2048m",
+    showExtra: false, extra: "", copied: false
+  };
+
+  set(p) { this.setState(s => ({ ...p, copied: false })); }
+
+  pickRdbms(v) {
+    this.setState(s => ({ rdbms: v, copied: false, dbUrl: s.dbUrlTouched ? s.dbUrl : URLS[v](s.dbName || "uc") }));
+  }
+  setDbNameVal(v) {
+    this.setState(s => ({ dbName: v, copied: false, dbUrl: s.dbUrlTouched ? s.dbUrl : URLS[s.rdbms](v || "uc") }));
+  }
+
+  group(list, current, onPick) {
+    return list.map(o => ({ label: o.label, value: o.value, style: current === o.value ? PILL_ON : PILL_OFF, pick: () => onPick(o.value) }));
+  }
+
+  command() {
+    const s = this.state, dir = s.tomcatDir.trim() || "/opt/tomcat";
+    const args = [
+      "--tomcat-dir " + dir,
+      "--controller-file " + (s.warFile.trim() || "universal-controller.war"),
+      "--rdbms " + s.rdbms,
+      "--dburl '" + s.dbUrl.trim() + "'",
+      "--dbname " + (s.dbName.trim() || "uc"),
+      "--dbuser " + (s.dbUser.trim() || "ucuser"),
+      "--dbpass CHANGE_ME"
+    ];
+    if (s.reporting) args.push("--reporting-server yes");
+    if (s.showPort && s.port.trim()) args.push("--port " + s.port.trim());
+    if (s.showExtra && s.extra.trim()) args.push(s.extra.trim());
+    const L = [{ text: "sudo sh ./unvinst.sh \\", c: "#cdd4db" }];
+    args.forEach((a, i) => L.push({ text: "  " + a + (i < args.length - 1 ? " \\" : ""), c: "#cdd4db" }));
+    return L;
+  }
+
+  setenvCmd() {
+    const s = this.state, bin = (s.tomcatDir.trim() || "/opt/tomcat") + "/bin";
+    return [
+      { text: "# " + bin + "/setenv.sh", c: "#6d7885" },
+      { text: "echo 'export CATALINA_OPTS=\"-Xms" + (s.xms.trim() || "512m") + " -Xmx" + (s.xmx.trim() || "2048m") + "\"' \\", c: "#cdd4db" },
+      { text: "  | sudo tee " + bin + "/setenv.sh", c: "#cdd4db" },
+      { text: "sudo chmod +x " + bin + "/setenv.sh", c: "#cdd4db" }
+    ];
+  }
+
+  saveFile(name, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const mainLines = this.command();
+    const mainText = mainLines.map(l => l.text).join("\n");
+    const setenvLines = this.setenvCmd();
+    const setenvText = setenvLines.map(l => l.text).join("\n");
+
+    const files = [];
+    files.push({ kind: "SH", name: "install-controller.sh", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("install-controller.sh", "#!/bin/bash\nset -e\n" + mainText.replace(/\\\n/g, "\\\n")); } });
+    if (s.showSetenv) files.push({ kind: "SH", name: "setenv.sh", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("setenv.sh", "export CATALINA_OPTS=\"-Xms" + (s.xms.trim() || "512m") + " -Xmx" + (s.xmx.trim() || "2048m") + "\"\n"); } });
+    files.push({ kind: "DOC", name: "Controller install guide", glyph: "↗", href: "https://docs.stonebranch.com/uac/uc/installation-and-applying-maintenance-overview", target: "_blank", style: CHIP_DOC, onClick: null });
+
+    const preset = (label, apply) => ({ label, style: MINI, pick: () => apply() });
+
+    return {
+      tomcatDir: s.tomcatDir, warFile: s.warFile, dbUrl: s.dbUrl, dbName: s.dbName, dbUser: s.dbUser,
+      port: s.port, xms: s.xms, xmx: s.xmx, extra: s.extra,
+      showPort: s.showPort, showSetenv: s.showSetenv, showExtra: s.showExtra,
+      dirPresets: [
+        preset("/opt/tomcat", () => this.set({ tomcatDir: "/opt/tomcat" })),
+        preset("/usr/local/tomcat", () => this.set({ tomcatDir: "/usr/local/tomcat" })),
+        preset("/usr/share/tomcat10", () => this.set({ tomcatDir: "/usr/share/tomcat10" })),
+        preset("C:\\…\\Tomcat 10.1", () => this.set({ tomcatDir: "C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1" }))
+      ],
+      warPresets: [
+        preset("8.0.2.0-build.133", () => this.set({ warFile: "universal-controller-8.0.2.0-build.133.war" })),
+        preset("7.2.1.3-build.2", () => this.set({ warFile: "universal-controller-7.2.1.3-build.2.war" }))
+      ],
+      rdbmsOptions: this.group([
+        { label: "MySQL", value: "mysql" }, { label: "PostgreSQL", value: "postgres" }, { label: "Oracle", value: "oracle" },
+        { label: "SQL Server", value: "sqlserver" }, { label: "SQL Server JTDS", value: "sqlserver-jtds" }
+      ], s.rdbms, v => this.pickRdbms(v)),
+      toggles: [
+        { label: "Reporting server", on: s.reporting, pick: () => this.set({ reporting: !s.reporting }) },
+        { label: "Custom port", on: s.showPort, pick: () => this.set({ showPort: !s.showPort }) },
+        { label: "JVM memory (setenv)", on: s.showSetenv, pick: () => this.set({ showSetenv: !s.showSetenv }) },
+        { label: "Manual parameters", on: s.showExtra, pick: () => this.set({ showExtra: !s.showExtra }) }
+      ].map(t => ({ label: t.label, pick: t.pick, style: t.on ? PILL_ON : PILL_OFF })),
+      mainLines: mainLines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      setenvLines: setenvLines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      copyLabel: s.copied ? "Copied" : "Copy",
+      copyMain: () => { navigator.clipboard.writeText(mainText); this.setState({ copied: true }); },
+      copyExtraCmd: () => navigator.clipboard.writeText(setenvText),
+      files, fileCount: files.length,
+      setTomcatDir: e => this.set({ tomcatDir: e.target.value }),
+      setWarFile: e => this.set({ warFile: e.target.value }),
+      setDbUrl: e => this.setState({ dbUrl: e.target.value, dbUrlTouched: true, copied: false }),
+      setDbName: e => this.setDbNameVal(e.target.value),
+      setDbUser: e => this.set({ dbUser: e.target.value }),
+      setPort: e => this.set({ port: e.target.value }),
+      setXms: e => this.set({ xms: e.target.value }),
+      setXmx: e => this.set({ xmx: e.target.value }),
+      setExtra: e => this.set({ extra: e.target.value }),
+      checklist: [
+        "Tomcat is stopped and the WAR file sits beside the installer script.",
+        "The database, schema owner and privileges already exist (Prerequisite page).",
+        "CHANGE_ME is replaced with the real database password.",
+        "Run as root or with sudo unless your Tomcat install is user-owned."
+      ],
+      guides: [
+        { title: "Tomcat directory", hint: "full path", body: "The installer deploys the Controller WAR into this Tomcat installation. Use the shortcut chips for the common paths; stop Tomcat before running." },
+        { title: "Controller WAR file", hint: "exact filename", body: "Use the exact file name including version and build number, e.g. universal-controller-8.0.2.0-build.133.war. The file must be in the same directory as the installation script." },
+        { title: "Database configuration", hint: "URL auto-fills", body: "Pick the RDBMS first — the JDBC URL is filled in for you and stays editable. Database name is typically uc or uac, with a dedicated user holding full privileges on it." },
+        { title: "Database password", hint: "always CHANGE_ME", body: "The generated command carries the CHANGE_ME placeholder. Replace it at run time and avoid keeping real passwords in shell history or scripts." },
+        { title: "JVM memory (setenv)", hint: "Xms / Xmx", body: "Writes setenv.sh (or setenv.bat on Windows) into Tomcat's bin/ directory setting CATALINA_OPTS. Default is -Xms512m -Xmx2048m; use the Sizing Calculator for production numbers." },
+        { title: "Port", hint: "default 8080", body: "Only set a port if 8080 is already in use on the host. The value is passed straight through to the installer." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

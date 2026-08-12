@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controller - Command Generator</title>
+    <link rel="stylesheet" href="style.css?v=20260808">
+</head>
+<body>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="environment.html">Prerequisite</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+                <li><a href="post_config.html">Post Configuration</a></li>
+                <li><a href="sizing.html">Sizing Calculator</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main>
+        <div class="disclaimer-alert disclaimer-top" role="note">
+            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
+            <div class="disclaimer-header">
+                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span class="disclaimer-label">INFO</span>
+            </div>
+            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
+        </div>
+        <h2>Controller Installer</h2>
+        <div class="controller-container">
+            <form id="controller-form" class="controller-form">
+                <div class="component-card">
+                    <h3 class="component-card-title">Base Parameters</h3>
+                    <div class="form-group">
+                        <label for="tomcat_dir">Tomcat Directory:</label>
+                        <input type="text" id="tomcat_dir" name="tomcat_dir" value="/opt/tomcat" placeholder="e.g., /opt/tomcat">
+                    </div>
+                    <div class="form-group">
+                        <label for="controllerfile">Controller File:</label>
+                        <input type="text" id="controllerfile" name="controllerfile" value="universal-controller-N.N.N.N-build.N.war">
+                    </div>
+                    <div class="form-group">
+                        <label id="rdbms-label">RDBMS:</label>
+                        <input type="hidden" id="rdbms" name="rdbms" value="mysql">
+                        <div class="button-group">
+                            <button type="button" class="option-button active" data-target="rdbms" data-value="mysql">MySQL</button>
+                            <button type="button" class="option-button" data-target="rdbms" data-value="postgres">PostgreSQL</button>
+                            <button type="button" class="option-button" data-target="rdbms" data-value="oracle">Oracle</button>
+                            <button type="button" class="option-button" data-target="rdbms" data-value="sqlserver">SQL Server</button>
+                            <button type="button" class="option-button" data-target="rdbms" data-value="sqlserver-jtds">SQL Server JTDS</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dburl">Database URL:</label>
+                        <input type="text" id="dburl" name="dburl" placeholder="Select RDBMS to populate">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbname">Database Name:</label>
+                        <input type="text" id="dbname" name="dbname" value="uc" placeholder="uc">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbuser">Database User:</label>
+                        <input type="text" id="dbuser" name="dbuser" value="ucuser" placeholder="e.g., postgres">
+                    </div>
+                    <div class="form-group">
+                        <label for="dbpass">Database Password:</label>
+                        <input type="text" id="dbpass" name="dbpass" value="CHANGE_ME" disabled aria-describedby="ctrl-pass-note">
+                    </div>
+                    <p class="field-note" id="ctrl-pass-note" style="margin-top: 4px;">
+                        The password is locked to the placeholder <code>CHANGE_ME</code> — replace it with your actual
+                        database password before running. Passwords are never written by this tool.
+                    </p>
+                    <div class="form-group-checkbox" style="margin-top: 12px;">
+                        <input type="checkbox" id="reportingserver" name="reportingserver">
+                        <label for="reportingserver">Reporting Server</label>
+                    </div>
+                </div>
+
+                <div class="component-card">
+                    <div class="form-group-checkbox" style="margin-top: 0;">
+                        <input type="checkbox" id="toggle-advanced-options">
+                        <label for="toggle-advanced-options">Show me more options</label>
+                    </div>
+                    <div id="advanced-options" style="display: none; margin-top: 12px;">
+                        <div class="form-group">
+                            <label for="port">Port:</label>
+                            <input type="text" id="port" name="port" placeholder="8080">
+                        </div>
+                    </div>
+
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="toggle-setenv">
+                        <label for="toggle-setenv">Configure JVM Memory (setenv)</label>
+                    </div>
+                    <div id="setenv-section" style="display: none; margin-top: 12px;">
+                        <div class="form-group">
+                            <label for="xms">Initial Heap Size (Xms):</label>
+                            <input type="text" id="xms" name="xms" value="512m" placeholder="e.g., 512m">
+                        </div>
+                        <div class="form-group">
+                            <label for="xmx">Maximum Heap Size (Xmx):</label>
+                            <input type="text" id="xmx" name="xmx" value="2048m" placeholder="e.g., 2048m">
+                        </div>
+                    </div>
+
+                    <div class="form-group-checkbox">
+                        <input type="checkbox" id="toggle-additional-params">
+                        <label for="toggle-additional-params">Let me write my parameters manually</label>
+                    </div>
+                    <div id="additional-params-section" style="display: none; margin-top: 12px;">
+                        <div class="form-group">
+                            <label for="additional_params">Additional Parameters:</label>
+                            <input type="text" id="additional_params" name="additional_params" placeholder="e.g., --verbose">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="command-output" style="display:none; margin-top: 20px;">
+                    <div class="command-section">
+                        <h3>Generated Command:</h3>
+                        <div class="command-line">
+                            <pre><code id="generated-command"></code></pre>
+                        </div>
+                        <div class="output-actions">
+                            <button id="copy-button" type="button" class="action-button copy-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                                </svg>
+                                <span class="action-label">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div id="additional-command-output" style="display:none;" class="command-section">
+                        <h3>Additional Command:</h3>
+                        <div class="command-line">
+                            <pre><code id="additional-command"></code></pre>
+                        </div>
+                        <div class="output-actions">
+                            <button id="copy-additional-button" type="button" class="action-button copy-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
+                                </svg>
+                                <span class="action-label">Copy</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+
+            <div class="help-section">
+                <h3>Installation Guidelines</h3>
+                <div class="help-item">
+                    <h4>Tomcat Directory</h4>
+                    <p>Specify the full path to your Tomcat installation directory. The installer will deploy the Universal Controller WAR file to this location.</p>
+                    <p class="help-example">Linux: <code>/opt/tomcat</code> <a href="#" onclick="document.getElementById('tomcat_dir').value='/opt/tomcat'; return false;">(use)</a>, <code>/usr/local/tomcat</code> <a href="#" onclick="document.getElementById('tomcat_dir').value='/usr/local/tomcat'; return false;">(use)</a>, or <code>/usr/share/tomcat10</code> <a href="#" onclick="document.getElementById('tomcat_dir').value='/usr/share/tomcat10'; return false;">(use)</a></p>
+                    <p class="help-example">Windows: <code>C:\Program Files\Apache Software Foundation\Tomcat 10.1</code> <a href="#" onclick="document.getElementById('tomcat_dir').value='C:\\Program Files\\Apache Software Foundation\\Tomcat 10.1'; return false;">(use)</a></p>
+                    <p><strong>Note:</strong> Ensure Tomcat is stopped before running the installation.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Controller File</h4>
+                    <p>The Universal Controller WAR file name. Use the exact filename including version and build number.</p>
+                    <p class="help-example">Sample: <code>universal-controller-8.0.2.0-build.133.war</code> <a href="#" onclick="document.getElementById('controllerfile').value='universal-controller-8.0.2.0-build.133.war'; return false;">(use)</a></p>
+                    <p class="help-example">Older versions: <code>universal-controller-7.2.1.3-build.2.war</code> <a href="#" onclick="document.getElementById('controllerfile').value='universal-controller-7.2.1.3-build.2.war'; return false;">(use)</a></p>
+                    <p><strong>Note:</strong> The WAR file must be present in the same directory as the installation script.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Database Configuration</h4>
+                    <p>Select your database type first - the Database URL will be automatically populated. Supported databases include MySQL, PostgreSQL, Oracle, and SQL Server.</p>
+                    <p class="help-example">Database Name: Typically <code>uc</code> or <code>uac</code></p>
+                    <p class="help-example">Database User: A dedicated user with full privileges on the Controller database</p>
+                    <p><strong>Note:</strong> Ensure the database exists and the user has appropriate permissions before installation.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Database Password</h4>
+                    <p>For security, the command uses <code>CHANGE_ME</code> as a placeholder. Replace it with your actual database password before running.</p>
+                    <p><strong>Security Best Practice:</strong> Never include actual passwords in command-line arguments or scripts.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>JVM Memory (setenv)</h4>
+                    <p>Creates a <code>setenv.sh</code> (Linux) or <code>setenv.bat</code> (Windows) file in the Tomcat <code>bin/</code> directory to configure JVM memory settings.</p>
+                    <p>The file sets <code>CATALINA_OPTS</code> with <code>-Xms</code> (initial heap) and <code>-Xmx</code> (maximum heap) values.</p>
+                    <p class="help-example">Default: <code>-Xms512m -Xmx2048m</code></p>
+                    <p><strong>Note:</strong> Adjust these values based on your environment. For production, refer to the Sizing Calculator for recommended JVM heap sizes.</p>
+                </div>
+
+                <div class="help-item">
+                    <h4>Port Configuration</h4>
+                    <p>The default port is 8080. Change this only if you need the Controller to run on a different port.</p>
+                    <p><strong>Note:</strong> Ensure the selected port is not in use by another application.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="disclaimer-alert disclaimer-bottom" role="note">
+        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
+    </div>
+    <footer>
+        <p>&copy; 2025</p>
+    </footer>
+    <script src="version.js?v=20260808"></script>
+    <script src="script.js?v=20260808"></script>
+</body>
+</html>

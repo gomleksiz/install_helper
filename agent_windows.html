@@ -4,132 +4,102 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agent (Windows) - Command Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260813">
 </head>
 <body>
-    <header>
-        <h1>Installation Command Generator</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="environment.html">Prerequisite</a></li>
-                <li><a href="controller.html">Controller</a></li>
-                <li><a href="agent_linux.html">Agent (Linux)</a></li>
-                <li><a href="agent_windows.html">Agent (Windows)</a></li>
-                <li><a href="post_config.html">Post Configuration</a></li>
-                <li><a href="sizing.html">Sizing Calculator</a></li>
-            </ul>
+<div class="page">
+    <header class="site-header">
+        <span class="brand">Installation Command Generator</span>
+        <nav class="site-nav">
+            <a href="index.html">Home</a>
+            <a href="environment.html">Prerequisite</a>
+            <a href="controller.html">Controller</a>
+            <a href="agent_linux.html">Agent (Linux)</a>
+            <a href="agent_windows.html" class="active">Agent (Windows)</a>
+            <a href="post_config.html">Post Config</a>
+            <a href="sizing.html">Sizing</a>
         </nav>
     </header>
-    <main>
-        <div class="disclaimer-alert disclaimer-top" role="note">
-            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
-            <div class="disclaimer-header">
-                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span class="disclaimer-label">INFO</span>
-            </div>
-            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
-        </div>
-        <h2>Agent (Windows) Installer</h2>
-        <div class="controller-container">
-            <form id="windows-form" class="controller-form">
-                <fieldset class="base-parameters">
-                    <legend>Base Parameters</legend>
-                    <div class="form-group">
-                        <label for="oms_servers">OMS Servers:</label>
-                        <input type="text" id="oms_servers" name="oms_servers" placeholder="server1,server2">
-                    </div>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="oms_autostart" name="oms_autostart">
-                        <label for="oms_autostart">OMS Autostart</label>
-                    </div>
-                    <div class="form-group-checkbox">
-                        <input type="checkbox" id="python" name="python">
-                        <label for="python">Use Agent Python</label>
-                    </div>
-                    <div class="form-group">
-                        <label for="ac_agent_cluster">Agent Cluster:</label>
-                        <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="e.g., Default Windows Agents">
-                    </div>
-                </fieldset>
 
-                <div class="form-group-checkbox">
-                    <input type="checkbox" id="toggle-additional-params">
-                    <label for="toggle-additional-params">Let me write my parameters manually</label>
-                </div>
-                <fieldset id="additional-params-section" style="display: none;">
-                    <legend>Additional Parameters</legend>
-                    <div class="form-group">
-                        <label for="additional_params">Additional Parameters:</label>
-                        <input type="text" id="additional_params" name="additional_params" placeholder='e.g., AC_AGENT_CLUSTERS=\"Default Linux Agents\"'>
-                    </div>
-                </fieldset>
-
-                <button type="submit">Generate Command</button>
-
-                <div id="command-output" style="display:none; margin-top: 20px;">
-                    <div class="command-section">
-                        <h3>Generated Command:</h3>
-                        <div class="command-line">
-                            <pre><code id="generated-command"></code></pre>
-                            <button id="copy-button" class="copy-icon" title="Copy to clipboard">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                    <div id="additional-command-output" style="display:none;" class="command-section">
-                        <h3>Additional Command:</h3>
-                        <div class="command-line">
-                            <pre><code id="additional-command"></code></pre>
-                            <button id="copy-additional-button" class="copy-icon" title="Copy to clipboard">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
-                                    <path fill="currentColor" d="M5.503 4.627L5.5 6.75v10.504a3.25 3.25 0 0 0 3.25 3.25h8.616a2.251 2.251 0 0 1-2.122 1.5H8.75A4.75 4.75 0 0 1 4 17.254V6.75c0-.98.627-1.815 1.503-2.123ZM17.75 2A2.25 2.25 0 0 1 20 4.25v13a2.25 2.25 0 0 1-2.25 2.25h-9a2.25 2.25 0 0 1-2.25-2.25v-13A2.25 2.25 0 0 1 8.75 2h9Zm0 1.5h-9a.75.75 0 0 0-.75.75v13c0 .414.336.75.75.75h9a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75Z"/>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            <div class="help-section">
-                <h3>Windows Agent Installation Guidelines</h3>
-                <div class="help-item">
-                    <h4>OMS Servers</h4>
-                    <p>Specify the OMS (Universal Message Service) hostname or IP address where the Universal Controller is running.</p>
-                    <p class="help-example">Single OMS: <code>7878@localhost</code> or <code>oms-server.company.com</code></p>
-                    <p class="help-example">HA OMS: <code>oms1.company.com,oms2.company.com</code></p>
-                    <p class="help-example">With port: <code>7878@oms-server.company.com</code> (port 7878 is optional)</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>Agent Cluster</h4>
-                    <p>Define which cluster this agent belongs to. Agent clusters help organize and manage groups of agents. Enter the value without quotes - they will be automatically added in the generated command.</p>
-                    <p class="help-example">Single cluster: <code>Windows Production Agents</code></p>
-                    <p class="help-example">Multiple clusters: <code>Production,Windows,Database</code></p>
-                    <p class="help-example">Generated command will show: <code>\"Windows Production Agents\"</code></p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>Windows Service</h4>
-                    <p>The Windows agent automatically installs as a Windows service for automatic startup and proper service management.</p>
-                </div>
-                
-                <div class="help-item">
-                    <h4>Agent Python</h4>
-                    <p>Use the Python distribution that comes bundled with the Universal Agent instead of relying on external Python installations.</p>
-                </div>
-            </div>
-        </div>
-    </main>
-    <div class="disclaimer-alert disclaimer-bottom" role="note">
-        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
+    <div class="info-banner">
+        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
     </div>
-    <footer>
-        <p>&copy; 2025</p>
+
+    <form id="windows-form" class="layout">
+        <div class="col-main">
+            <div class="card">
+                <div class="card-title-row">
+                    <span class="card-title">Connection</span>
+                    <span class="rule"></span>
+                    <span class="field-note">installs as a Windows service automatically</span>
+                </div>
+                <!-- Source order is oms_servers, oms_autostart, python, ac_agent_cluster so the
+                     generated MSI params keep their exact current order; CSS `order` keeps the
+                     OMS + cluster fields visually paired on the first row. -->
+                <div style="display:flex;flex-wrap:wrap;gap:9px 12px;align-items:flex-end">
+                    <label class="field grow" for="oms_servers" style="min-width:210px;order:1">OMS servers
+                        <input type="text" id="oms_servers" name="oms_servers" value="7878@localhost" placeholder="7878@oms1,7878@oms2">
+                    </label>
+                    <label class="toggle-pill" style="order:3"><input type="checkbox" id="oms_autostart" name="oms_autostart">OMS autostart</label>
+                    <label class="toggle-pill" style="order:4"><input type="checkbox" id="python" name="python">Agent Python</label>
+                    <label class="field grow" for="ac_agent_cluster" style="min-width:190px;order:2">Agent cluster <span class="optional">(no quotes — added for you)</span>
+                        <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="Default Windows Agents" style="font-family:var(--font-ui)">
+                    </label>
+                    <label class="toggle-pill" style="order:5"><input type="checkbox" id="toggle-additional-params">Manual parameters</label>
+                </div>
+                <div id="additional-params-section" style="display:none">
+                    <div class="subrow stack">
+                        <label class="field" for="additional_params">Additional parameters — appended verbatim
+                            <input type="text" id="additional_params" name="additional_params" placeholder='e.g., AC_NETNAME=win_agent'>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <aside class="col-aside">
+            <div id="command-output" class="terminal" style="display:none">
+                <div class="terminal-head">
+                    <span class="terminal-title">unvinst.exe</span>
+                    <span class="terminal-meta">run in elevated cmd</span>
+                    <span class="terminal-actions">
+                        <button id="copy-button" type="button" class="term-btn"><span class="action-label">Copy</span></button>
+                        <button type="button" class="term-btn term-btn-primary" onclick="downloadCommand('install-agent.bat')">Download</button>
+                    </span>
+                </div>
+                <pre><code id="generated-command"></code></pre>
+            </div>
+
+            <div id="additional-command-output" class="terminal" style="display:none">
+                <div class="terminal-head">
+                    <span class="terminal-title">additional</span>
+                    <span class="terminal-actions">
+                        <button id="copy-additional-button" type="button" class="term-btn"><span class="action-label">Copy</span></button>
+                    </span>
+                </div>
+                <pre><code id="additional-command"></code></pre>
+            </div>
+
+            <div class="panel">
+                <span class="panel-head"><span class="title">Before you run it</span></span>
+                <div class="checklist">
+                    <span class="item"><span class="bullet">•</span>Run the command from an <strong>elevated</strong> Command Prompt.</span>
+                    <span class="item"><span class="bullet">•</span>The Universal Agent installer (<code class="inline-code">unvinst.exe</code>) is in the current directory.</span>
+                    <span class="item"><span class="bullet">•</span>The OMS server is reachable from this host on the OMS port.</span>
+                </div>
+            </div>
+        </aside>
+    </form>
+
+    <footer class="site-footer">
+        <span>&copy; 2025</span>
+        <span>Reference only — verify against official Stonebranch documentation.</span>
     </footer>
-    <script src="version.js"></script>
-    <script src="script.js"></script>
+</div>
+    <script src="version.js?v=20260812"></script>
+    <script src="script.js?v=20260812"></script>
 </body>
 </html>

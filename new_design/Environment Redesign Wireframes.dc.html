@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas"><link href="https://fonts.googleapis.com/css2?family=Architects+Daughter&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"><style>
+body{margin:0;background:#f0eee9;font-family:"Architects Daughter",system-ui,sans-serif}
+a{color:#2a78d6}a:hover{color:#1a5aa8}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(0,0,0,.08);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px "IBM Plex Mono",monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 14px/1.2 "Architects Daughter",sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px "IBM Plex Mono",monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 12px/1.3 "Architects Daughter",sans-serif;color:rgba(0,0,0,.6)}
+.dv-card{max-width:100%;background:#fff;border:1px solid rgba(0,0,0,.12);border-radius:8px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow:hidden}
+.dv-opt:target .dv-oid{background:#2a78d6;color:#fff}
+.dv-next{margin:22px 0 0;font:12px/1.5 "Architects Daughter",sans-serif;color:rgba(0,0,0,.55)}
+.mono{font-family:"IBM Plex Mono",monospace}
+</style></helmet>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Where the download buttons live in <a class="dv-oid" href="#1a">1a</a> — script.sh, tomcat.service, Windows/manual links</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="2a">
+<div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Right rail becomes tabbed: <b>Script</b> / <b>Files</b> — every artifact in one list</div>
+<div class="dv-card" style="width:640px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px"><span>Installation Command Generator</span><span class="mono" style="font-size:9px;opacity:.65">Prerequisite</span></div>
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e6e4df;background:#faf9f7"><span style="font-size:12px;color:#555">Target OS</span><div style="display:flex;gap:6px"><span style="padding:4px 9px;background:#1e1e22;color:#fff;border-radius:14px;font-size:11px">AWS AL2023</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">RHEL</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Ubuntu</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Windows</span></div></div>
+  <div style="display:grid;grid-template-columns:1fr 268px;min-height:330px">
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:9px;border-right:1px solid #e6e4df">
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Java</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">17</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#555">21</span></span></div><div style="display:flex;gap:8px;font-size:11px;color:#555;align-items:center"><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;color:#888">yum</span><span style="padding:3px 7px;border:1px solid #1e1e22;border-radius:4px">RPM</span><span class="mono" style="margin-left:auto;font-size:9px;color:#2a78d6">↓ 1 file queued</span></div></div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Tomcat 10</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#bbb;text-decoration:line-through">yum</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">tar.gz</span></span></div><div style="display:flex;gap:5px;align-items:center;font-size:11px;color:#555;flex-wrap:wrap"><span>Xmx</span><span style="padding:2px 7px;background:#1e1e22;color:#fff;border-radius:4px">2G</span><span style="margin-left:auto"><span style="display:inline-block;width:11px;height:11px;background:#1e1e22;border-radius:2px;vertical-align:-1px;margin-right:4px"></span>systemd unit</span><span class="mono" style="font-size:9px;color:#2a78d6">↓ 2 files queued</span></div></div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Database</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">MariaDB</span><span class="mono" style="font-size:9px;color:#2a78d6;align-self:center">↓ guide</span></span></div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Agent prereqs</b><span class="mono" style="margin-left:auto;font-size:9.5px;color:#888">libxcrypt-compat</span></div>
+      <div class="mono" style="font-size:9px;color:#888;border:1px dashed #d8d6d0;border-radius:5px;padding:6px 8px">each card only badges its artifacts — the real buttons stay in the Files tab so there is one place to download from</div>
+    </div>
+    <div style="background:#16161a;display:flex;flex-direction:column">
+      <div style="display:flex;gap:0;border-bottom:1px solid #2b2f36">
+        <span style="flex:1;text-align:center;padding:8px;font-size:11px;color:#9aa0a6">Script</span>
+        <span style="flex:1;text-align:center;padding:8px;font-size:11px;color:#fff;border-bottom:2px solid #2a78d6">Files <span class="mono" style="font-size:9px;background:#2a78d6;border-radius:8px;padding:1px 5px;margin-left:3px">4</span></span>
+      </div>
+      <div style="padding:10px 11px;display:flex;flex-direction:column;gap:7px">
+        <div style="border:1px solid #2b2f36;border-radius:5px;padding:7px 8px;display:flex;align-items:center;gap:7px"><span class="mono" style="font-size:9px;color:#6aa9f0;border:1px solid #2b4a6d;border-radius:3px;padding:1px 4px">SH</span><span style="flex:1;font-size:10.5px;color:#e6e8ea">setup.sh</span><span style="padding:3px 8px;background:#2a78d6;color:#fff;border-radius:4px;font-size:9.5px">Get</span></div>
+        <div style="border:1px solid #2b2f36;border-radius:5px;padding:7px 8px;display:flex;align-items:center;gap:7px"><span class="mono" style="font-size:9px;color:#c0c6cc;border:1px solid #3a3f47;border-radius:3px;padding:1px 4px">UNIT</span><span style="flex:1;font-size:10.5px;color:#e6e8ea">tomcat.service<span class="mono" style="display:block;font-size:8.5px;color:#6f7885">→ /etc/systemd/system/</span></span><span style="padding:3px 8px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:9.5px">Get</span></div>
+        <div class="mono" style="font-size:8.5px;color:#6f7885;margin-top:2px">EXTERNAL DOWNLOADS</div>
+        <div style="border:1px solid #2b2f36;border-radius:5px;padding:7px 8px;display:flex;align-items:center;gap:7px"><span class="mono" style="font-size:9px;color:#c0c6cc;border:1px solid #3a3f47;border-radius:3px;padding:1px 4px">RPM</span><span style="flex:1;font-size:10.5px;color:#e6e8ea">corretto-17…jdk.rpm<span class="mono" style="display:block;font-size:8.5px;color:#6f7885">corretto.aws ↗</span></span><span style="padding:3px 8px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:9.5px">Open</span></div>
+        <div style="border:1px solid #2b2f36;border-radius:5px;padding:7px 8px;display:flex;align-items:center;gap:7px"><span class="mono" style="font-size:9px;color:#c0c6cc;border:1px solid #3a3f47;border-radius:3px;padding:1px 4px">TGZ</span><span style="flex:1;font-size:10.5px;color:#e6e8ea">apache-tomcat-10.1.53<span class="mono" style="display:block;font-size:8.5px;color:#6f7885">dlcdn.apache.org ↗</span></span><span style="padding:3px 8px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:9.5px">Open</span></div>
+        <div style="border:1px dashed #3a3f47;border-radius:5px;padding:7px 8px;display:flex;align-items:center;gap:7px"><span class="mono" style="font-size:9px;color:#9aa0a6;border:1px solid #3a3f47;border-radius:3px;padding:1px 4px">DOC</span><span style="flex:1;font-size:10.5px;color:#9aa0a6">DB install guide ↗</span></div>
+        <div class="mono" style="font-size:8.5px;color:#6f7885;margin-top:4px">Windows OS → Script tab is replaced by this list only</div>
+      </div>
+      <div style="margin-top:auto;padding:10px 11px;border-top:1px solid #2b2f36"><span style="display:block;text-align:center;padding:7px;background:#2a78d6;color:#fff;border-radius:4px;font-size:10.5px">Download all (.zip)</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="2b">
+<div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Script rail stays pure; artifacts sit in a footer tray under both columns</div>
+<div class="dv-card" style="width:640px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;font-size:13px">Installation Command Generator</div>
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e6e4df;background:#faf9f7"><span style="font-size:12px;color:#555">Target OS</span><span style="padding:4px 9px;background:#1e1e22;color:#fff;border-radius:14px;font-size:11px">AWS AL2023</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">RHEL</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Ubuntu</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Windows</span></div>
+  <div style="display:grid;grid-template-columns:1fr 250px;min-height:250px">
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:9px;border-right:1px solid #e6e4df">
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><b>Java</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">17</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#555">21</span></span></div><div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#555"><span style="padding:3px 7px;border:1px solid #1e1e22;border-radius:4px">RPM</span><a href="#2b" class="mono" style="margin-left:auto;font-size:10px">↓ corretto-17.rpm</a></div></div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:6px"><div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><b>Tomcat 10</b><span style="margin-left:auto;padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">tar.gz</span></div><div style="display:flex;gap:8px;align-items:center;font-size:11px;color:#555"><span><span style="display:inline-block;width:11px;height:11px;background:#1e1e22;border-radius:2px;vertical-align:-1px;margin-right:4px"></span>systemd unit</span><a href="#2b" class="mono" style="margin-left:auto;font-size:10px">↓ tomcat.service · ↓ tar.gz</a></div></div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px"><b>Database</b><span style="margin-left:auto;padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">MariaDB</span></div>
+      <div class="mono" style="font-size:9px;color:#888;border:1px dashed #d8d6d0;border-radius:5px;padding:6px 8px">download link lives next to the option that created it — the tray below mirrors them all</div>
+    </div>
+    <div style="background:#16161a;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;color:#9aa0a6;font-size:10.5px"><span>setup.sh — live</span><span class="mono" style="font-size:9px">41 lines</span></div>
+      <div class="mono" style="font-size:8.5px;line-height:1.7;color:#cfd4d9;display:flex;flex-direction:column"><span style="color:#6f7885"># java</span><span>sudo rpm -ivh corretto-17…</span><span style="color:#6f7885"># tomcat</span><span>tar xzf … -C /opt/tomcat</span><span style="color:#6f7885"># setenv 512m/2G</span><span style="opacity:.35">▌</span></div>
+      <div style="margin-top:auto;display:flex;gap:6px"><span style="flex:1;text-align:center;padding:6px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:10.5px">Copy</span><span style="flex:1;text-align:center;padding:6px;background:#2a78d6;color:#fff;border-radius:4px;font-size:10.5px">setup.sh</span></div>
+    </div>
+  </div>
+  <div style="border-top:1px solid #e6e4df;background:#faf9f7;padding:10px 14px;display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;align-items:baseline;gap:8px"><b style="font-size:12px">Files &amp; downloads</b><span class="mono" style="font-size:9px;color:#888">4 items · updates with your choices</span><span style="margin-left:auto;font-size:11px;color:#2a78d6">Download all ↓</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:7px;font-size:11px">
+      <span style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcdc7;border-radius:14px;padding:4px 10px"><span class="mono" style="font-size:8.5px;color:#2a78d6">SH</span>setup.sh<b style="color:#2a78d6">↓</b></span>
+      <span style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcdc7;border-radius:14px;padding:4px 10px"><span class="mono" style="font-size:8.5px;color:#666">UNIT</span>tomcat.service<b style="color:#2a78d6">↓</b></span>
+      <span style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcdc7;border-radius:14px;padding:4px 10px"><span class="mono" style="font-size:8.5px;color:#666">RPM</span>corretto-17 jdk<b style="color:#2a78d6">↗</b></span>
+      <span style="display:flex;align-items:center;gap:6px;background:#fff;border:1px solid #cfcdc7;border-radius:14px;padding:4px 10px"><span class="mono" style="font-size:8.5px;color:#666">TGZ</span>apache-tomcat-10.1.53<b style="color:#2a78d6">↗</b></span>
+      <span style="display:flex;align-items:center;gap:6px;border:1px dashed #bbb;border-radius:14px;padding:4px 10px;color:#888">DOC DB install guide ↗</span>
+    </div>
+    <details style="font-size:11px;color:#555"><summary style="cursor:pointer;color:#2a78d6">Show tomcat.service content</summary><div class="mono" style="margin-top:6px;background:#16161a;color:#cfd4d9;border-radius:5px;padding:7px 9px;font-size:8.5px;line-height:1.7"><span>[Unit] Description=Apache Tomcat 10</span><br><span>[Service] User=tomcat …</span></div></details>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "go with <a class="dv-oid" href="#2a">2a</a>, build the real page" · "<a class="dv-oid" href="#2b">2b</a> but drop the per-card links" · "show the Windows-only state"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Environment / Prerequisite page — four compact directions</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Split view — dense form left, live script always visible right</div>
+<div class="dv-card" style="width:640px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;display:flex;justify-content:space-between;align-items:center;font-size:13px">
+    <span>Installation Command Generator</span>
+    <span class="mono" style="font-size:9px;opacity:.65">Home · <b style="border-bottom:2px solid #6aa9f0">Prerequisite</b> · Controller · Agents · Post · Sizing</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #e6e4df;background:#faf9f7">
+    <span style="font-size:12px;color:#555">Target OS</span>
+    <div style="display:flex;gap:6px">
+      <span style="padding:4px 9px;border:1px solid #1e1e22;background:#1e1e22;color:#fff;border-radius:14px;font-size:11px">AWS AL2023</span>
+      <span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">RHEL</span>
+      <span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Ubuntu</span>
+      <span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:14px;font-size:11px;color:#555">Windows</span>
+    </div>
+    <span class="mono" style="margin-left:auto;font-size:9px;color:#888">reflows options below</span>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 250px;min-height:340px">
+    <div style="padding:12px 14px;display:flex;flex-direction:column;gap:9px;border-right:1px solid #e6e4df">
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Java</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;border:1px solid #1e1e22;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">17</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#555">21</span></span></div>
+        <div style="display:flex;gap:8px;font-size:11px;color:#555;align-items:center"><span>method</span><span style="padding:3px 7px;border:1px solid #1e1e22;border-radius:4px">yum</span><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;color:#888">RPM</span><span style="margin-left:auto"><span style="display:inline-block;width:11px;height:11px;border:1px solid #999;border-radius:2px;vertical-align:-1px;margin-right:4px"></span>headless</span></div>
+      </div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Tomcat 10</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#bbb;text-decoration:line-through">yum</span><span style="padding:3px 8px;border:1px solid #1e1e22;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">tar.gz</span></span></div>
+        <div class="mono" style="font-size:9.5px;color:#a06a00;background:#fdf6e6;border:1px dashed #e0c98a;border-radius:4px;padding:4px 6px">no tomcat10 pkg on AL2023 → manual forced</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px">
+          <div><div style="font-size:10px;color:#777">user</div><div style="border:1px solid #d8d6d0;border-radius:4px;padding:4px 6px;font-size:11px" class="mono">tomcat</div></div>
+          <div><div style="font-size:10px;color:#777">folder</div><div style="border:1px solid #d8d6d0;border-radius:4px;padding:4px 6px;font-size:11px" class="mono">/opt/tomcat</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#555;flex-wrap:wrap"><span>Xmx</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">def</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">1G</span><span style="padding:2px 7px;border:1px solid #1e1e22;background:#1e1e22;color:#fff;border-radius:4px">2G</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">4G</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">8G</span><span style="margin-left:auto"><span style="display:inline-block;width:11px;height:11px;border:1px solid #999;border-radius:2px;vertical-align:-1px;margin-right:4px"></span>systemd unit</span></div>
+      </div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Database</b><span style="margin-left:auto;display:flex;gap:5px"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#555">MySQL</span><span style="padding:3px 8px;border:1px solid #1e1e22;background:#1e1e22;color:#fff;border-radius:4px;font-size:10.5px">MariaDB</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;font-size:10.5px;color:#555">Postgres</span></span></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+          <div><div style="font-size:10px;color:#777">db</div><div class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:4px 6px;font-size:11px">uc</div></div>
+          <div><div style="font-size:10px;color:#777">user</div><div class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:4px 6px;font-size:11px">ucuser</div></div>
+          <div><div style="font-size:10px;color:#777">password 🔒</div><div class="mono" style="border:1px solid #e6e4df;background:#f4f3f0;border-radius:4px;padding:4px 6px;font-size:11px;color:#999">CHANGE_ME</div></div>
+        </div>
+      </div>
+      <div style="border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;display:flex;align-items:center;gap:8px;font-size:12.5px"><span style="width:26px;height:14px;border-radius:8px;background:#1e1e22;position:relative"><span style="position:absolute;right:2px;top:2px;width:10px;height:10px;border-radius:50%;background:#fff"></span></span><b>Agent prereqs</b><span class="mono" style="margin-left:auto;font-size:9.5px;color:#888">libxcrypt-compat</span></div>
+    </div>
+    <div style="background:#16161a;padding:10px 12px;display:flex;flex-direction:column;gap:6px">
+      <div style="display:flex;justify-content:space-between;align-items:center;color:#9aa0a6;font-size:10.5px"><span>setup.sh — live</span><span class="mono" style="font-size:9px">41 lines</span></div>
+      <div class="mono" style="font-size:8.5px;line-height:1.7;color:#cfd4d9;display:flex;flex-direction:column;gap:2px">
+        <span style="color:#6f7885"># java</span><span>sudo yum install -y java-17…</span>
+        <span style="color:#6f7885"># tomcat</span><span>curl -O https://dlcdn…tar.gz</span><span>tar xzf …  -C /opt/tomcat</span>
+        <span style="color:#6f7885"># setenv</span><span>-Xms512m -Xmx2G</span>
+        <span style="color:#6f7885"># database</span><span>sudo yum install -y mariadb…</span>
+        <span style="opacity:.35">▌</span>
+      </div>
+      <div style="margin-top:auto;display:flex;gap:6px"><span style="flex:1;text-align:center;padding:6px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:10.5px">Copy</span><span style="flex:1;text-align:center;padding:6px;background:#2a78d6;color:#fff;border-radius:4px;font-size:10.5px">Download</span></div>
+    </div>
+  </div>
+  <div style="padding:8px 14px;border-top:1px solid #e6e4df;background:#faf9f7;font-size:11px;color:#666">Guidelines moved into <span style="border:1px solid #cfcdc7;border-radius:50%;padding:0 5px">?</span> hints per field &nbsp;·&nbsp; <a href="#1a">full reference ↗</a></div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Summary rows — collapsed lines showing values, one expands at a time</div>
+<div class="dv-card" style="width:520px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;font-size:13px">Prerequisite Generator</div>
+  <div style="padding:12px 14px;display:flex;flex-direction:column;gap:0">
+    <div style="display:flex;gap:6px;margin-bottom:12px;align-items:center"><span style="font-size:12px;color:#555">OS</span><span style="padding:4px 9px;background:#1e1e22;color:#fff;border-radius:4px;font-size:11px">AWS AL2023</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:4px;font-size:11px;color:#666">RHEL</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:4px;font-size:11px;color:#666">Ubuntu</span><span style="padding:4px 9px;border:1px solid #cfcdc7;border-radius:4px;font-size:11px;color:#666">Windows</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #e6e4df"><span style="width:11px;height:11px;border-radius:50%;background:#2a78d6"></span><b style="font-size:12.5px;width:96px">Java</b><span class="mono" style="font-size:10.5px;color:#666">17 · yum · headless</span><span style="margin-left:auto;font-size:11px;color:#2a78d6">edit</span></div>
+    <div style="border-top:1px solid #e6e4df;padding:10px 0 12px;background:#faf9f7;margin:0 -14px;padding-left:14px;padding-right:14px">
+      <div style="display:flex;align-items:center;gap:10px"><span style="width:11px;height:11px;border-radius:50%;background:#2a78d6"></span><b style="font-size:12.5px;width:96px">Tomcat 10</b><span class="mono" style="font-size:10.5px;color:#666">manual · 2G · systemd</span><span style="margin-left:auto;font-size:11px;color:#888">close ▲</span></div>
+      <div style="margin-left:21px;margin-top:9px;display:flex;flex-direction:column;gap:7px">
+        <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#555"><span style="width:58px">method</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#bbb">yum</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px">tar.gz</span></div>
+        <div style="display:flex;gap:6px;align-items:center;font-size:11px;color:#555"><span style="width:58px">paths</span><span class="mono" style="flex:1;border:1px solid #d8d6d0;background:#fff;border-radius:4px;padding:4px 6px">tomcat</span><span class="mono" style="flex:1.4;border:1px solid #d8d6d0;background:#fff;border-radius:4px;padding:4px 6px">/opt/tomcat</span></div>
+        <div style="display:flex;gap:5px;align-items:center;font-size:11px;color:#555;flex-wrap:wrap"><span style="width:58px">Xmx</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">def</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">1G</span><span style="padding:2px 7px;background:#1e1e22;color:#fff;border-radius:4px">2G</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">4G</span><span style="padding:2px 7px;border:1px solid #cfcdc7;border-radius:4px">8G</span></div>
+        <div class="mono" style="font-size:9.5px;color:#666;background:#fff;border:1px dashed #d8d6d0;border-radius:4px;padding:5px 7px">inline hint replaces the old help panel text</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #e6e4df"><span style="width:11px;height:11px;border-radius:50%;background:#2a78d6"></span><b style="font-size:12.5px;width:96px">Database</b><span class="mono" style="font-size:10.5px;color:#666">MariaDB · uc / ucuser</span><span style="margin-left:auto;font-size:11px;color:#2a78d6">edit</span></div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid #e6e4df;border-bottom:1px solid #e6e4df"><span style="width:11px;height:11px;border-radius:50%;border:1px solid #bbb"></span><b style="font-size:12.5px;width:96px;color:#888">Agent prereqs</b><span class="mono" style="font-size:10.5px;color:#999">off</span><span style="margin-left:auto;font-size:11px;color:#2a78d6">edit</span></div>
+  </div>
+  <div style="background:#16161a;padding:10px 14px;display:flex;align-items:center;gap:10px">
+    <div class="mono" style="flex:1;font-size:9px;color:#cfd4d9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">sudo yum install -y java-17-amazon-corretto-headless && curl -O https://dlcdn…</div>
+    <span style="padding:5px 10px;border:1px solid #3a3f47;color:#e6e8ea;border-radius:4px;font-size:10.5px">Copy</span>
+    <span style="padding:5px 10px;background:#2a78d6;color:#fff;border-radius:4px;font-size:10.5px">setup.sh</span>
+    <span style="color:#9aa0a6;font-size:10.5px">▲ view</span>
+  </div>
+  <div class="mono" style="padding:6px 14px;font-size:9px;color:#888;background:#faf9f7;border-top:1px solid #e6e4df">sticky output bar — script expands upward</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1c">
+<div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Matrix — one dense row per component, admin-tool density</div>
+<div class="dv-card" style="width:600px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;font-size:13px;display:flex;justify-content:space-between"><span>Prerequisite Generator</span><span class="mono" style="font-size:9.5px;opacity:.65">4 of 4 components on</span></div>
+  <div style="display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #e6e4df;background:#faf9f7;font-size:11.5px;color:#555">
+    <span>OS</span><span class="mono" style="padding:4px 8px;border:1px solid #d8d6d0;background:#fff;border-radius:4px">AWS AL2023 ▾</span>
+    <span style="margin-left:12px">Preset</span>
+    <span style="padding:4px 8px;background:#1e1e22;color:#fff;border-radius:4px">Controller host</span>
+    <span style="padding:4px 8px;border:1px solid #cfcdc7;border-radius:4px">Agent host</span>
+    <span style="padding:4px 8px;border:1px solid #cfcdc7;border-radius:4px">All-in-one</span>
+  </div>
+  <div style="display:grid;grid-template-columns:16px 88px 1fr;font-size:11.5px">
+    <div style="grid-column:1/4;display:grid;grid-template-columns:16px 88px 1fr;gap:8px;padding:9px 14px;color:#888;font-size:10px;border-bottom:1px solid #e6e4df" class="mono"><span></span><span>COMPONENT</span><span>CHOICE &amp; OPTIONS</span></div>
+    <div style="grid-column:1/4;display:grid;grid-template-columns:16px 88px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #eeece7;align-items:center"><span style="width:11px;height:11px;border-radius:3px;background:#2a78d6"></span><b>Java</b><span style="display:flex;gap:5px;flex-wrap:wrap;align-items:center"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#888">none</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px">17</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px">21</span><span style="width:1px;height:16px;background:#e6e4df;margin:0 3px"></span><span style="padding:3px 8px;border:1px solid #1e1e22;border-radius:4px">yum</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#888">RPM</span></span></div>
+    <div style="grid-column:1/4;display:grid;grid-template-columns:16px 88px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #eeece7;align-items:start"><span style="width:11px;height:11px;border-radius:3px;background:#2a78d6;margin-top:3px"></span><b>Tomcat 10</b><span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;gap:5px;align-items:center;flex-wrap:wrap"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#888">none</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#bbb;text-decoration:line-through">yum</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px">tar.gz</span><span class="mono" style="font-size:9px;color:#a06a00">← forced on AL2023</span></span><span style="display:flex;gap:5px;align-items:center;flex-wrap:wrap"><span class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:3px 6px">tomcat</span><span class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:3px 6px">/opt/tomcat</span><span style="color:#555">Xmx</span><span style="padding:3px 7px;background:#1e1e22;color:#fff;border-radius:4px">2G</span><span style="color:#555">▾</span><span style="margin-left:4px;color:#555"><span style="display:inline-block;width:11px;height:11px;border:1px solid #999;border-radius:2px;vertical-align:-1px;margin-right:4px"></span>systemd</span></span></span></div>
+    <div style="grid-column:1/4;display:grid;grid-template-columns:16px 88px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #eeece7;align-items:start"><span style="width:11px;height:11px;border-radius:3px;background:#2a78d6;margin-top:3px"></span><b>Database</b><span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;gap:5px;flex-wrap:wrap"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#888">none</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px">MySQL</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px">MariaDB</span><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px">Postgres</span></span><span style="display:flex;gap:5px;align-items:center"><span class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:3px 6px">uc</span><span class="mono" style="border:1px solid #d8d6d0;border-radius:4px;padding:3px 6px">ucuser</span><span class="mono" style="border:1px solid #e6e4df;background:#f4f3f0;color:#999;border-radius:4px;padding:3px 6px">CHANGE_ME 🔒</span></span></span></div>
+    <div style="grid-column:1/4;display:grid;grid-template-columns:16px 88px 1fr;gap:8px;padding:10px 14px;border-bottom:1px solid #e6e4df;align-items:center"><span style="width:11px;height:11px;border-radius:3px;background:#2a78d6"></span><b>Agent prereqs</b><span style="display:flex;gap:5px;align-items:center"><span style="padding:3px 8px;border:1px solid #cfcdc7;border-radius:4px;color:#888">none</span><span style="padding:3px 8px;background:#1e1e22;color:#fff;border-radius:4px">install</span><span class="mono" style="font-size:9px;color:#888;margin-left:4px">libxcrypt-compat</span></span></div>
+  </div>
+  <div style="padding:10px 14px;display:flex;flex-direction:column;gap:7px;background:#faf9f7;border-top:1px solid #e6e4df">
+    <div style="display:flex;align-items:center;gap:8px;font-size:11.5px;color:#555"><b>setup.sh</b><span class="mono" style="font-size:9px;color:#888">regenerates on every change</span><span style="margin-left:auto;display:flex;gap:6px"><span style="padding:4px 10px;border:1px solid #cfcdc7;border-radius:4px;background:#fff">Copy</span><span style="padding:4px 10px;background:#2a78d6;color:#fff;border-radius:4px">Download</span></span></div>
+    <div class="mono" style="background:#16161a;border-radius:5px;padding:8px 10px;font-size:8.5px;line-height:1.7;color:#cfd4d9;display:flex;flex-direction:column"><span style="color:#6f7885"># 1 java</span><span>sudo yum install -y java-17-amazon-corretto-headless</span><span style="color:#6f7885"># 2 tomcat (manual)</span><span>useradd -r -s /sbin/nologin tomcat</span><span>curl -O https://dlcdn.apache.org/…/apache-tomcat-10.1.53.tar.gz</span><span style="opacity:.4">… 34 more lines</span></div>
+  </div>
+</div>
+</div>
+
+<div class="dv-opt" id="1d">
+<div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Smart preset first — answer 2 questions, review chips, tweak only what you need</div>
+<div class="dv-card" style="width:560px">
+  <div style="background:#1e1e22;color:#fff;padding:9px 14px;font-size:13px">Prerequisite Generator</div>
+  <div style="padding:14px;display:flex;flex-direction:column;gap:12px">
+    <div>
+      <div style="font-size:12px;color:#666;margin-bottom:6px">1 · What is this machine?</div>
+      <div style="display:flex;gap:8px">
+        <div style="flex:1;border:2px solid #1e1e22;border-radius:6px;padding:9px 10px;background:#f6f8fb"><b style="font-size:12.5px">Controller host</b><div class="mono" style="font-size:9px;color:#666;margin-top:3px">java + tomcat + db</div></div>
+        <div style="flex:1;border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px"><b style="font-size:12.5px;color:#555">Agent host</b><div class="mono" style="font-size:9px;color:#888;margin-top:3px">agent prereqs only</div></div>
+        <div style="flex:1;border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px"><b style="font-size:12.5px;color:#555">All-in-one</b><div class="mono" style="font-size:9px;color:#888;margin-top:3px">everything</div></div>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:12px;color:#666;margin-bottom:6px">2 · Which OS?</div>
+      <div style="display:flex;gap:6px"><span style="padding:5px 10px;background:#1e1e22;color:#fff;border-radius:4px;font-size:11.5px">AWS AL2023</span><span style="padding:5px 10px;border:1px solid #d8d6d0;border-radius:4px;font-size:11.5px;color:#555">RHEL</span><span style="padding:5px 10px;border:1px solid #d8d6d0;border-radius:4px;font-size:11.5px;color:#555">Ubuntu</span><span style="padding:5px 10px;border:1px solid #d8d6d0;border-radius:4px;font-size:11.5px;color:#555">Windows</span></div>
+    </div>
+    <div style="border-top:1px dashed #d8d6d0;padding-top:11px">
+      <div style="display:flex;align-items:baseline;gap:8px;margin-bottom:7px"><span style="font-size:12px;color:#666">3 · Review — click any chip to change</span><span class="mono" style="margin-left:auto;font-size:9px;color:#888">defaults chosen for you</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;font-size:11px">
+        <span style="padding:4px 9px;border:1px solid #1e1e22;border-radius:14px;background:#fff">Java <b>17</b> headless ▾</span>
+        <span style="padding:4px 9px;border:1px solid #1e1e22;border-radius:14px;background:#fff">Tomcat <b>10.1.53</b> tar.gz ▾</span>
+        <span style="padding:4px 9px;border:1px solid #1e1e22;border-radius:14px;background:#fff">Xmx <b>2G</b> ▾</span>
+        <span style="padding:4px 9px;border:1px solid #1e1e22;border-radius:14px;background:#fff">systemd <b>on</b> ▾</span>
+        <span style="padding:4px 9px;border:1px solid #1e1e22;border-radius:14px;background:#fff">MariaDB <b>uc/ucuser</b> ▾</span>
+        <span style="padding:4px 9px;border:1px dashed #bbb;border-radius:14px;color:#888">+ agent prereqs</span>
+      </div>
+      <div style="margin-top:9px;border:1px solid #d8d6d0;border-radius:6px;padding:9px 10px;background:#f6f8fb;width:250px">
+        <div class="mono" style="font-size:9px;color:#888;margin-bottom:6px">popover · Xmx</div>
+        <div style="display:flex;gap:5px;flex-wrap:wrap;font-size:11px"><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;background:#fff">def</span><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;background:#fff">1G</span><span style="padding:3px 7px;background:#1e1e22;color:#fff;border-radius:4px">2G</span><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;background:#fff">4G</span><span style="padding:3px 7px;border:1px solid #cfcdc7;border-radius:4px;background:#fff">8G</span></div>
+        <div class="mono" style="font-size:9px;color:#666;margin-top:6px">Xms fixed 512m · see Sizing ↗</div>
+      </div>
+    </div>
+    <div style="border-top:1px dashed #d8d6d0;padding-top:11px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:7px"><span style="font-size:12px;color:#666">4 · Run it</span><span style="margin-left:auto;display:flex;gap:6px;font-size:11px"><span style="padding:4px 10px;border:1px solid #cfcdc7;border-radius:4px">Copy</span><span style="padding:4px 10px;background:#2a78d6;color:#fff;border-radius:4px">setup.sh</span><span style="padding:4px 10px;border:1px solid #cfcdc7;border-radius:4px">tomcat.service</span></span></div>
+      <div class="mono" style="background:#16161a;border-radius:5px;padding:8px 10px;font-size:8.5px;line-height:1.7;color:#cfd4d9;display:flex;flex-direction:column"><span style="color:#6f7885"># generated for: Controller host / AWS AL2023</span><span>sudo yum install -y java-17-amazon-corretto-headless</span><span>useradd -r -s /sbin/nologin tomcat</span><span style="opacity:.4">… collapsed, click to expand</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+</div>
+<p class="dv-next">Try next: "build out <a class="dv-oid" href="#1a">1a</a> for real" · "mix <a class="dv-oid" href="#1c">1c</a> density with <a class="dv-oid" href="#1d">1d</a> presets" · "more directions, keep the help panel"</p>
+</section>
+</x-dc>
+</body>
+</html>

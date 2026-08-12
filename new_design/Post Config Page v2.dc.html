@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2efe9;font-family:"Public Sans",system-ui,sans-serif;color:#171a1d;-webkit-font-smoothing:antialiased}
+a{color:#0d6e78;text-decoration:none}a:hover{color:#095059;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="background:#fffdf9;border-bottom:1px solid #e2ddd3;padding:0 26px;display:flex;align-items:center;gap:24px;height:60px;flex:none">
+    <span style="font-family:Newsreader,Georgia,serif;font-size:20px;font-weight:500;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:16px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#6b7075;padding:4px 0">Home</a>
+      <a href="environment.html" style="color:#6b7075;padding:4px 0">Prerequisite</a>
+      <a href="controller.html" style="color:#6b7075;padding:4px 0">Controller</a>
+      <a href="agent_linux.html" style="color:#6b7075;padding:4px 0">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#6b7075;padding:4px 0">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#171a1d;padding:4px 0;font-weight:600;box-shadow:inset 0 -2px 0 #0d6e78">Post Config</a>
+      <a href="sizing.html" style="color:#6b7075;padding:4px 0">Sizing</a>
+    </nav>
+  </header>
+
+  <form id="post-config-form" style="flex:1;display:grid;grid-template-columns:198px minmax(0,1fr) 384px;gap:26px;padding:26px 26px 0;align-items:start">
+    <div style="position:sticky;top:26px;display:flex;flex-direction:column;gap:18px">
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:#9a9589;padding-bottom:6px">POST CONFIGURATION</span>
+        <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="3">
+          <button type="button" onClick="{{ t.pick }}" style="{{ t.style }}">{{ t.label }}</button>
+        </sc-for>
+      </div>
+      <p style="margin:0;font-size:11.5px;line-height:1.6;color:#8a857a;border-top:1px solid #e2ddd3;padding-top:12px">Reference only — verify every value against official Stonebranch documentation before applying it to a production instance.</p>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:22px;min-width:0">
+
+      <sc-if value="{{ isProps }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap">
+            <h2 style="margin:0;font-family:Newsreader,Georgia,serif;font-size:26px;font-weight:500;letter-spacing:-.015em">Recommended properties</h2>
+            <span style="font-size:12px;color:#8a857a">Configuration → Properties · {{ propsChecked }} of {{ propsTotal }} ticked</span>
+            <span style="margin-left:auto;display:flex;gap:6px">
+              <button type="button" onClick="{{ checkAll }}" style="{{ miniStyle }}">tick all</button>
+              <button type="button" onClick="{{ clearAll }}" style="{{ miniStyle }}">clear</button>
+            </span>
+          </div>
+          <div style="display:flex;flex-direction:column;background:#fffdf9;border:1px solid #e2ddd3;border-radius:3px">
+            <sc-for list="{{ props }}" as="p" hint-placeholder-count="8">
+              <div style="{{ p.rowStyle }}">
+                <button type="button" onClick="{{ p.toggle }}" style="{{ p.boxStyle }}">{{ p.mark }}</button>
+                <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:13px;font-weight:600">{{ p.name }}</span><span style="font-size:11.5px;color:#8a857a;line-height:1.5">{{ p.why }}</span></span>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#0d6e78;align-self:center;word-break:break-word">{{ p.value }}</span>
+                <button type="button" onClick="{{ p.copy }}" style="{{ miniStyle }}">copy</button>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSsl }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-family:Newsreader,Georgia,serif;font-size:26px;font-weight:500;letter-spacing:-.015em">Tomcat SSL / TLS</h2>
+          <div style="display:flex;flex-direction:column;gap:12px;background:#fffdf9;border:1px solid #e2ddd3;border-radius:3px;padding:16px 18px">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:#9a9589">CERTIFICATE SOURCE</span>
+            <div style="display:flex;gap:7px;flex-wrap:wrap">
+              <sc-for list="{{ certSources }}" as="o" hint-placeholder-count="4">
+                <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <p style="margin:0;font-size:12.5px;line-height:1.6;color:#5f6469;max-width:66ch;text-wrap:pretty">{{ certSourceNote }}</p>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:12px;padding-top:12px;border-top:1px solid #eee9e0">
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Hostname (CN)</span>
+                <input type="text" value="{{ host }}" onChange="{{ setHost }}" placeholder="uc.company.com" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Keystore path</span>
+                <input type="text" value="{{ keystore }}" onChange="{{ setKeystore }}" placeholder="/opt/tomcat/conf/uc.p12" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Alias</span>
+                <input type="text" value="{{ alias }}" onChange="{{ setAlias }}" placeholder="tomcat" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>HTTPS port</span>
+                <input type="text" value="{{ port }}" onChange="{{ setPort }}" placeholder="8443" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Keystore password — locked</span>
+                <input type="text" value="CHANGE_ME" disabled style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px dashed #d8d2c6;background:transparent;color:#b3ada1">
+              </label>
+              <sc-if value="{{ needsPem }}" hint-placeholder-val="{{ false }}">
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>PEM cert / key basename</span>
+                  <input type="text" value="{{ pemBase }}" onChange="{{ setPemBase }}" placeholder="uc" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+                </label>
+              </sc-if>
+            </div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #eee9e0">
+              <sc-for list="{{ sslFlags }}" as="f" hint-placeholder-count="3">
+                <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isUaCert }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <h2 style="margin:0;font-family:Newsreader,Georgia,serif;font-size:26px;font-weight:500;letter-spacing:-.015em">OMS ↔ Agent certificates</h2>
+          <div style="display:flex;flex-direction:column;gap:12px;background:#fffdf9;border:1px solid #e2ddd3;border-radius:3px;padding:16px 18px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(172px,1fr));gap:12px">
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Certificate directory</span>
+                <input type="text" value="{{ certDir }}" onChange="{{ setCertDir }}" placeholder="/etc/universal/cert" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>CA certificate</span>
+                <input type="text" value="{{ caCert }}" onChange="{{ setCaCert }}" placeholder="ca.crt" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>Agent identity</span>
+                <input type="text" value="{{ agentId }}" onChange="{{ setAgentId }}" placeholder="agent01" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+              <label style="display:flex;flex-direction:column;gap:4px;font-size:11.5px;color:#8a857a"><span>OMS identity</span>
+                <input type="text" value="{{ omsId }}" onChange="{{ setOmsId }}" placeholder="oms01" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 0;border:none;border-bottom:1px solid #d8d2c6;background:transparent;color:#171a1d">
+              </label>
+            </div>
+            <div style="display:flex;gap:7px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #eee9e0">
+              <sc-for list="{{ uaFlags }}" as="f" hint-placeholder-count="3">
+                <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:12px;border-top:1px solid #eee9e0">
+              <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:#9a9589">CONFIG FILE</span>
+              <div style="display:flex;gap:7px;flex-wrap:wrap">
+                <sc-for list="{{ confFiles }}" as="o" hint-placeholder-count="4">
+                  <button type="button" onClick="{{ o.pick }}" style="{{ o.style }}">{{ o.label }}</button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <div style="display:flex;flex-direction:column;gap:2px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:#9a9589;padding-bottom:6px">NOTES</span>
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="4">
+          <details style="border-top:1px solid #e2ddd3">
+            <summary style="cursor:pointer;list-style:none;padding:11px 0;font-size:13px;font-weight:500;display:flex;align-items:baseline;gap:10px"><span style="color:#0d6e78;font-family:'IBM Plex Mono',monospace;font-size:11px">＋</span>{{ g.title }}<span style="margin-left:auto;font-size:11px;color:#a5a099">{{ g.hint }}</span></summary>
+          <p style="margin:0 0 12px 21px;font-size:12.5px;line-height:1.7;color:#5f6469;max-width:68ch;text-wrap:pretty">{{ g.body }}</p>
+          </details>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:26px;display:flex;flex-direction:column;gap:16px">
+      <div id="command-output" style="background:#fffdf9;border:1px solid #e2ddd3;border-radius:3px;display:flex;flex-direction:column;overflow:hidden">
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #eee9e0">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:#171a1d">{{ primaryTitle }}</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#a5a099">{{ primaryMeta }}</span>
+          <span style="margin-left:auto;display:flex;gap:7px">
+            <button id="copy-button" type="button" onClick="{{ copyPrimary }}" style="padding:5px 11px;border:1px solid #d8d2c6;background:transparent;color:#3f454b;border-radius:2px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#0d6e78;color:#0d6e78">{{ copyLabel }}</button>
+            <button type="button" onClick="{{ downloadPrimary }}" style="padding:5px 11px;border:1px solid #0d6e78;background:#0d6e78;color:#fffdf9;border-radius:2px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="background:#095059">Download</button>
+          </span>
+        </div>
+        <pre style="margin:0;padding:13px 14px;max-height:44vh;overflow:auto;background:#faf7f1;border-left:3px solid #0d6e78;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.85"><code id="generated-command" style="display:flex;flex-direction:column"><sc-for list="{{ primaryLines }}" as="l" hint-placeholder-count="10"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+      </div>
+
+      <sc-if value="{{ hasSecondary }}" hint-placeholder-val="{{ false }}">
+        <div id="additional-command-output" style="background:#fffdf9;border:1px solid #e2ddd3;border-radius:3px;overflow:hidden">
+          <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;border-bottom:1px solid #eee9e0">
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:#171a1d">{{ secondaryTitle }}</span>
+            <button id="copy-additional-button" type="button" onClick="{{ copySecondary }}" style="margin-left:auto;padding:5px 11px;border:1px solid #d8d2c6;background:transparent;color:#3f454b;border-radius:2px;font-size:11.5px;font-family:inherit;cursor:pointer">Copy</button>
+          </div>
+          <pre style="margin:0;padding:13px 14px;max-height:30vh;overflow:auto;background:#faf7f1;border-left:3px solid #c8b98a;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.85"><code id="additional-command" style="display:flex;flex-direction:column"><sc-for list="{{ secondaryLines }}" as="l" hint-placeholder-count="6"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+        </div>
+      </sc-if>
+
+      <div id="manual-download-section" style="display:flex;flex-direction:column;gap:9px">
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:#9a9589">FILES · {{ fileCount }}</span>
+        <div id="download-links" style="display:flex;flex-wrap:wrap;gap:7px">
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+            <a href="{{ f.href }}" target="{{ f.target }}" onClick="{{ f.onClick }}" style="{{ f.style }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;color:#a5a099">{{ f.kind }}</span>{{ f.name }}<span style="color:#0d6e78;font-weight:600">{{ f.glyph }}</span></a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;border-top:1px solid #e2ddd3;padding-top:14px">
+        <span style="font-family:Newsreader,Georgia,serif;font-size:15px;font-weight:500">{{ asideTitle }}</span>
+        <sc-for list="{{ asideList }}" as="c" hint-placeholder-count="4">
+          <span style="display:flex;gap:9px;font-size:12px;color:#5f6469;line-height:1.6"><span style="color:#c8b98a">—</span>{{ c }}</span>
+        </sc-for>
+      </div>
+    </aside>
+  </form>
+
+  <footer style="margin-top:30px;padding:14px 26px;border-top:1px solid #e2ddd3;font-size:11.5px;color:#a5a099;display:flex;gap:14px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PILL_ON = "padding:6px 12px;border:1px solid #0d6e78;background:#0d6e78;color:#fffdf9;border-radius:2px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap;text-align:left";
+const PILL_OFF = "padding:6px 12px;border:1px solid #ddd7cb;background:transparent;color:#5f6469;border-radius:2px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap;text-align:left";
+const MINI = "padding:3px 9px;border:1px solid #e6e1d6;background:transparent;color:#8a857a;border-radius:2px;font-size:10.5px;font-family:'IBM Plex Mono',monospace;cursor:pointer";
+const CHIP = "display:inline-flex;align-items:center;gap:7px;background:#fffdf9;border:1px solid #ddd7cb;border-radius:2px;padding:6px 11px;font-size:11.5px;color:#171a1d;text-decoration:none";
+const CHIP_DOC = "display:inline-flex;align-items:center;gap:7px;background:transparent;border:1px dashed #ddd7cb;border-radius:2px;padding:6px 11px;font-size:11.5px;color:#6b7075;text-decoration:none";
+const ROW = "display:grid;grid-template-columns:24px minmax(0,1.4fr) minmax(0,1fr) 48px;gap:10px;padding:11px 16px;border-bottom:1px solid #f1ece3;align-items:start";
+const BOX_OFF = "width:16px;height:16px;margin-top:2px;border:1px solid #d0cabd;background:transparent;border-radius:2px;cursor:pointer;font-size:10px;color:transparent;padding:0";
+const BOX_ON = "width:16px;height:16px;margin-top:2px;border:1px solid #0d6e78;background:#0d6e78;color:#fffdf9;border-radius:2px;cursor:pointer;font-size:10px;line-height:1;padding:0";
+const C_CMT = "#a5a099";
+const C_CMD = "#2b3138";
+
+const PROPS = [
+  { name: "Administrator Email", value: "uac-admin@company.com", why: "Where the Controller sends system notifications and license warnings." },
+  { name: "System Identifier", value: "UAC-PROD", why: "Names this instance in emails, audits and cross-instance references." },
+  { name: "Banner Text", value: "PRODUCTION", why: "Makes it obvious which instance a user is logged into." },
+  { name: "Banner Background Color", value: "#c0392b", why: "Red for production, amber for test, grey for dev." },
+  { name: "Record Change History", value: "true", why: "Keeps who-changed-what audit trails on all records." },
+  { name: "Web Service Default Response", value: "application/json", why: "Avoids surprises for REST clients that omit an Accept header." },
+  { name: "Task Instance Retention Period In Days", value: "45", why: "Balance forensic value against database growth — see Sizing." },
+  { name: "Audit Retention Period In Days", value: "365", why: "Common compliance floor; align with your retention policy." },
+  { name: "Agent Heartbeat Interval In Seconds", value: "120", why: "Lower detects agent loss faster at the cost of chatter." },
+  { name: "Maximum Concurrent Task Instances", value: "500", why: "Protect the Controller from run-away workload bursts." },
+  { name: "Password Expiration In Days", value: "90", why: "Applies to Controller-managed (non-LDAP) users." },
+  { name: "LDAP Synchronization", value: "enabled", why: "Only if identities come from your directory rather than local users." }
+];
+
+class Component extends DCLogic {
+  state = {
+    tab: "props", checked: {},
+    certSource: "self", host: "uc.company.com", keystore: "/opt/tomcat/conf/uc.p12",
+    alias: "tomcat", port: "8443", pemBase: "uc", redirectHttp: true, tls13Only: false, hsts: false,
+    certDir: "/etc/universal/cert", caCert: "ca.crt", agentId: "agent01", omsId: "oms01",
+    enforceAgent: true, enforceOms: true, uaclRestrict: false, confFile: "ubroker.conf",
+    copied: false
+  };
+
+  set(p) { this.setState(s => ({ ...p, copied: false })); }
+  flip(k) { this.setState(s => ({ [k]: !s[k], copied: false })); }
+  pills(list) { return list.map(o => ({ label: o.label, style: o.on ? PILL_ON : PILL_OFF, pick: o.pick })); }
+
+  sslPrimary() {
+    const s = this.state, ks = s.keystore.trim(), al = s.alias.trim() || "tomcat", h = s.host.trim() || "localhost";
+    const L = [], cmt = t => L.push({ text: t, c: C_CMT }), cmd = t => L.push({ text: t, c: C_CMD });
+    if (s.certSource === "self") {
+      cmt("# self-signed PKCS12 keystore, 2 years");
+      cmd("keytool -genkeypair -alias " + al + " -keyalg RSA -keysize 2048 \\");
+      cmd("  -storetype PKCS12 -keystore " + ks + " -validity 730 \\");
+      cmd("  -dname \"CN=" + h + ", O=Company, C=US\" \\");
+      cmd("  -ext SAN=dns:" + h + " \\");
+      cmd("  -storepass CHANGE_ME");
+    } else if (s.certSource === "ca") {
+      cmt("# 1 · keypair + CSR for your CA");
+      cmd("keytool -genkeypair -alias " + al + " -keyalg RSA -keysize 2048 \\");
+      cmd("  -storetype PKCS12 -keystore " + ks + " -storepass CHANGE_ME \\");
+      cmd("  -dname \"CN=" + h + ", O=Company, C=US\"");
+      cmd("keytool -certreq -alias " + al + " -keystore " + ks + " \\");
+      cmd("  -storepass CHANGE_ME -file " + h + ".csr");
+      L.push({ text: "", c: C_CMD });
+      cmt("# 2 · import the signed chain when it comes back");
+      cmd("keytool -importcert -alias " + al + " -trustcacerts \\");
+      cmd("  -file " + h + ".p7b -keystore " + ks + " -storepass CHANGE_ME");
+    } else if (s.certSource === "pem") {
+      const b = s.pemBase.trim() || "uc";
+      cmt("# convert PEM cert + key into a PKCS12 keystore");
+      cmd("openssl pkcs12 -export -name " + al + " \\");
+      cmd("  -in " + b + ".crt -inkey " + b + ".key -certfile chain.crt \\");
+      cmd("  -out " + ks + " -passout pass:CHANGE_ME");
+      L.push({ text: "", c: C_CMD });
+      cmt("# verify what landed in the keystore");
+      cmd("keytool -list -v -keystore " + ks + " -storepass CHANGE_ME");
+    } else {
+      cmt("# existing keystore — just confirm alias and validity");
+      cmd("keytool -list -v -keystore " + ks + " -storepass CHANGE_ME | head -30");
+      L.push({ text: "", c: C_CMD });
+      cmt("# optional: rename the alias Tomcat should use");
+      cmd("keytool -changealias -alias old -destalias " + al + " \\");
+      cmd("  -keystore " + ks + " -storepass CHANGE_ME");
+    }
+    L.push({ text: "", c: C_CMD });
+    cmt("# restart Tomcat after editing server.xml");
+    cmd("sudo systemctl restart tomcat");
+    return L;
+  }
+
+  serverXml() {
+    const s = this.state, protocols = s.tls13Only ? "TLSv1.3" : "TLSv1.2+TLSv1.3";
+    const L = [], cmt = t => L.push({ text: t, c: C_CMT }), cmd = t => L.push({ text: t, c: C_CMD });
+    cmt("<!-- conf/server.xml -->");
+    cmd("<Connector port=\"" + (s.port.trim() || "8443") + "\" protocol=\"org.apache.coyote.http11.Http11NioProtocol\"");
+    cmd("           maxThreads=\"200\" SSLEnabled=\"true\" scheme=\"https\" secure=\"true\">");
+    cmd("  <SSLHostConfig protocols=\"" + protocols + "\" hostName=\"" + (s.host.trim() || "localhost") + "\">");
+    cmd("    <Certificate certificateKeystoreFile=\"" + s.keystore.trim() + "\"");
+    cmd("                 certificateKeystorePassword=\"CHANGE_ME\"");
+    cmd("                 certificateKeyAlias=\"" + (s.alias.trim() || "tomcat") + "\"");
+    cmd("                 type=\"RSA\" />");
+    cmd("  </SSLHostConfig>");
+    cmd("</Connector>");
+    if (s.redirectHttp) {
+      L.push({ text: "", c: C_CMD });
+      cmt("<!-- force HTTP 8080 to redirect to HTTPS -->");
+      cmd("<Connector port=\"8080\" protocol=\"HTTP/1.1\"");
+      cmd("           redirectPort=\"" + (s.port.trim() || "8443") + "\" />");
+    }
+    if (s.hsts) {
+      L.push({ text: "", c: C_CMD });
+      cmt("<!-- web.xml: HSTS response header filter -->");
+      cmd("Strict-Transport-Security: max-age=31536000 ; includeSubDomains");
+    }
+    return L;
+  }
+
+  ucertLines() {
+    const s = this.state, dir = s.certDir.trim() || "/etc/universal/cert";
+    const L = [], cmt = t => L.push({ text: t, c: C_CMT }), cmd = t => L.push({ text: t, c: C_CMD });
+    cmt("# 1 · trust the issuing CA on this host");
+    cmd("ucert -add-ca " + dir + "/" + (s.caCert.trim() || "ca.crt"));
+    L.push({ text: "", c: C_CMD });
+    cmt("# 2 · install the identity certificates");
+    cmd("ucert -add-identity " + (s.agentId.trim() || "agent01") + " \\");
+    cmd("  -cert " + dir + "/" + (s.agentId.trim() || "agent01") + ".crt \\");
+    cmd("  -key " + dir + "/" + (s.agentId.trim() || "agent01") + ".key");
+    cmd("ucert -add-identity " + (s.omsId.trim() || "oms01") + " \\");
+    cmd("  -cert " + dir + "/" + (s.omsId.trim() || "oms01") + ".crt \\");
+    cmd("  -key " + dir + "/" + (s.omsId.trim() || "oms01") + ".key");
+    L.push({ text: "", c: C_CMD });
+    cmt("# 3 · list what is installed, then restart the services");
+    cmd("ucert -list");
+    cmd("sudo systemctl restart ubrokerd");
+    cmd("sudo systemctl restart omsd");
+    return L;
+  }
+
+  confLines() {
+    const s = this.state, dir = s.certDir.trim() || "/etc/universal/cert";
+    const L = [], cmt = t => L.push({ text: t, c: C_CMT }), cmd = t => L.push({ text: t, c: C_CMD });
+    const yes = v => (v ? "yes" : "no");
+    if (s.confFile === "ubroker.conf") {
+      cmt("# " + dir.replace("/cert", "") + "/ubroker.conf");
+      cmd("certificates                 " + yes(s.enforceAgent));
+      cmd("ca_certificates              " + dir + "/" + (s.caCert.trim() || "ca.crt"));
+      cmd("certificate                  " + dir + "/" + (s.agentId.trim() || "agent01") + ".crt");
+      cmd("private_key                  " + dir + "/" + (s.agentId.trim() || "agent01") + ".key");
+      cmd("certificate_verify_depth     3");
+    } else if (s.confFile === "omss.conf") {
+      cmt("# omss.conf — OMS server side");
+      cmd("certificates                 " + yes(s.enforceOms));
+      cmd("ca_certificates              " + dir + "/" + (s.caCert.trim() || "ca.crt"));
+      cmd("certificate                  " + dir + "/" + (s.omsId.trim() || "oms01") + ".crt");
+      cmd("private_key                  " + dir + "/" + (s.omsId.trim() || "oms01") + ".key");
+      cmd("client_authentication        " + yes(s.enforceAgent));
+    } else if (s.confFile === "uags.conf") {
+      cmt("# uags.conf — Universal Agent server component");
+      cmd("certificates                 " + yes(s.enforceAgent));
+      cmd("ca_certificates              " + dir + "/" + (s.caCert.trim() || "ca.crt"));
+      cmd("certificate                  " + dir + "/" + (s.agentId.trim() || "agent01") + ".crt");
+      cmd("private_key                  " + dir + "/" + (s.agentId.trim() || "agent01") + ".key");
+    } else {
+      cmt("# uacl.conf — who may talk to this agent");
+      cmd("uags_access   " + (s.uaclRestrict ? "cert:" + (s.omsId.trim() || "oms01") : "all"));
+      cmd("ubroker_access " + (s.uaclRestrict ? "cert:" + (s.omsId.trim() || "oms01") : "all"));
+      if (s.uaclRestrict) cmd("# only the certificate identity above is accepted");
+    }
+    return L;
+  }
+
+  saveFile(name, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const isProps = s.tab === "props", isSsl = s.tab === "ssl", isUaCert = s.tab === "uacert";
+
+    let primaryLines, primaryTitle, primaryMeta, primaryFile, secondaryLines = [], secondaryTitle = "", hasSecondary = false;
+    if (isProps) {
+      const on = PROPS.filter(p => s.checked[p.name]);
+      const list = on.length ? on : PROPS;
+      primaryLines = [{ text: on.length ? "# ticked properties" : "# all recommended properties", c: C_CMT }]
+        .concat(list.map(p => ({ text: p.name.padEnd(38, " ") + "= " + p.value, c: C_CMD })));
+      primaryTitle = "properties checklist";
+      primaryMeta = list.length + " entries";
+      primaryFile = "uc-properties.txt";
+    } else if (isSsl) {
+      primaryLines = this.sslPrimary();
+      secondaryLines = this.serverXml();
+      hasSecondary = true;
+      secondaryTitle = "server.xml connector";
+      primaryTitle = s.certSource === "pem" ? "openssl + keytool" : "keytool";
+      primaryMeta = "run in " + (s.keystore.trim().split("/").slice(0, -1).join("/") || "conf");
+      primaryFile = "tomcat-ssl.sh";
+    } else {
+      primaryLines = this.ucertLines();
+      secondaryLines = this.confLines();
+      hasSecondary = true;
+      secondaryTitle = s.confFile;
+      primaryTitle = "ucert";
+      primaryMeta = "run as root on the agent host";
+      primaryFile = "ua-cert.sh";
+    }
+    const primaryText = primaryLines.map(l => l.text).join("\n");
+    const secondaryText = secondaryLines.map(l => l.text).join("\n");
+
+    const files = [{ kind: primaryFile.endsWith(".txt") ? "TXT" : "SH", name: primaryFile, glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile(primaryFile, primaryText + "\n"); } }];
+    if (isSsl) files.push({ kind: "XML", name: "server.xml snippet", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("server-xml-connector.xml", secondaryText + "\n"); } });
+    if (isUaCert) files.push({ kind: "CONF", name: s.confFile, glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile(s.confFile, secondaryText + "\n"); } });
+    files.push({
+      kind: "DOC", name: isUaCert ? "UA security guide" : (isSsl ? "Tomcat SSL guide" : "Controller properties"),
+      glyph: "↗", target: "_blank", style: CHIP_DOC, onClick: null,
+      href: isUaCert ? "https://docs.stonebranch.com/uac/ua/universal-agent-installation-information"
+        : (isSsl ? "https://tomcat.apache.org/tomcat-10.1-doc/ssl-howto.html"
+          : "https://docs.stonebranch.com/uac/uc/universal-controller-properties")
+    });
+
+    return {
+      tabs: this.pills([
+        { label: "Controller properties", on: isProps, pick: () => this.set({ tab: "props" }) },
+        { label: "Tomcat SSL/TLS", on: isSsl, pick: () => this.set({ tab: "ssl" }) },
+        { label: "UA certificates", on: isUaCert, pick: () => this.set({ tab: "uacert" }) }
+      ]),
+      isProps, isSsl, isUaCert, miniStyle: MINI,
+      props: PROPS.map(p => ({
+        name: p.name, value: p.value, why: p.why, rowStyle: ROW,
+        mark: s.checked[p.name] ? "✓" : "·",
+        boxStyle: s.checked[p.name] ? BOX_ON : BOX_OFF,
+        toggle: () => this.setState(st => ({ checked: { ...st.checked, [p.name]: !st.checked[p.name] }, copied: false })),
+        copy: () => navigator.clipboard.writeText(p.value)
+      })),
+      propsTotal: PROPS.length, propsChecked: PROPS.filter(p => s.checked[p.name]).length,
+      checkAll: () => { const c = {}; PROPS.forEach(p => { c[p.name] = true; }); this.set({ checked: c }); },
+      clearAll: () => this.set({ checked: {} }),
+
+      certSources: this.pills([
+        { label: "Self-signed", on: s.certSource === "self", pick: () => this.set({ certSource: "self" }) },
+        { label: "CA-issued (CSR)", on: s.certSource === "ca", pick: () => this.set({ certSource: "ca" }) },
+        { label: "PEM → PKCS12", on: s.certSource === "pem", pick: () => this.set({ certSource: "pem" }) },
+        { label: "Existing keystore", on: s.certSource === "keystore", pick: () => this.set({ certSource: "keystore" }) }
+      ]),
+      certSourceNote: {
+        self: "Fine for lab and internal use — browsers will warn until the certificate is trusted manually.",
+        ca: "Two steps: generate the keypair and CSR now, import the signed chain when your CA returns it.",
+        pem: "Use when your CA gave you PEM files; openssl packs them into a keystore Tomcat can read.",
+        keystore: "You already have a keystore — verify the alias and validity, then wire up the connector."
+      }[s.certSource],
+      needsPem: s.certSource === "pem",
+      host: s.host, keystore: s.keystore, alias: s.alias, port: s.port, pemBase: s.pemBase,
+      sslFlags: this.pills([
+        { label: "Redirect HTTP → HTTPS", on: s.redirectHttp, pick: () => this.flip("redirectHttp") },
+        { label: "TLS 1.3 only", on: s.tls13Only, pick: () => this.flip("tls13Only") },
+        { label: "HSTS header", on: s.hsts, pick: () => this.flip("hsts") }
+      ]),
+      setHost: e => this.set({ host: e.target.value }),
+      setKeystore: e => this.set({ keystore: e.target.value }),
+      setAlias: e => this.set({ alias: e.target.value }),
+      setPort: e => this.set({ port: e.target.value }),
+      setPemBase: e => this.set({ pemBase: e.target.value }),
+
+      certDir: s.certDir, caCert: s.caCert, agentId: s.agentId, omsId: s.omsId,
+      uaFlags: this.pills([
+        { label: "Require agent certificate", on: s.enforceAgent, pick: () => this.flip("enforceAgent") },
+        { label: "Require OMS certificate", on: s.enforceOms, pick: () => this.flip("enforceOms") },
+        { label: "Restrict access list (uacl)", on: s.uaclRestrict, pick: () => this.flip("uaclRestrict") }
+      ]),
+      confFiles: this.pills(["ubroker.conf", "omss.conf", "uags.conf", "uacl.conf"].map(f => ({ label: f, on: s.confFile === f, pick: () => this.set({ confFile: f }) }))),
+      setCertDir: e => this.set({ certDir: e.target.value }),
+      setCaCert: e => this.set({ caCert: e.target.value }),
+      setAgentId: e => this.set({ agentId: e.target.value }),
+      setOmsId: e => this.set({ omsId: e.target.value }),
+
+      primaryTitle, primaryMeta, hasSecondary, secondaryTitle,
+      primaryLines: primaryLines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      secondaryLines: secondaryLines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      copyLabel: s.copied ? "Copied" : "Copy",
+      copyPrimary: () => { navigator.clipboard.writeText(primaryText); this.setState({ copied: true }); },
+      copySecondary: () => navigator.clipboard.writeText(secondaryText),
+      downloadPrimary: () => this.saveFile(primaryFile, primaryText + "\n"),
+      files, fileCount: files.length,
+
+      asideTitle: isProps ? "How to apply these" : (isSsl ? "Before you restart" : "Order of operations"),
+      asideList: isProps ? [
+        "Configuration → Properties in the Controller UI; most take effect immediately.",
+        "Tick the rows you intend to change — the panel above becomes your handover checklist.",
+        "Retention values interact with database sizing — check the Sizing Calculator first.",
+        "Banner text and colour are the cheapest way to stop production accidents."
+      ] : isSsl ? [
+        "Replace CHANGE_ME in both the keystore and the connector before starting Tomcat.",
+        "Keystore file must be readable by the Tomcat user and nobody else (chmod 640).",
+        "Keep the old connector commented out until the new one is proven.",
+        "Update the Controller's base URL and any agent OMS URLs to https."
+      ] : [
+        "Distribute the CA certificate to every OMS and agent host first.",
+        "Install identities with ucert, then enable certificates in the conf files.",
+        "Enable on OMS and agents together — a one-sided switch drops the connection.",
+        "Restart ubrokerd and omsd, then confirm the agent reconnects in the Controller."
+      ],
+      guides: [
+        { title: "Controller properties", hint: "Configuration → Properties", body: "The values here are a starting point for a new instance, not a mandate: administrator email, system identifier, banner, change history, retention windows, heartbeat and concurrency limits. Confirm each against your own policy." },
+        { title: "Tomcat SSL/TLS", hint: "keytool / openssl", body: "Pick how the certificate arrives — self-signed, CA-issued via CSR, PEM files converted to PKCS12, or an existing keystore — and the page generates the matching commands plus the server.xml connector. Passwords stay as CHANGE_ME." },
+        { title: "UA certificate authentication", hint: "ucert + conf files", body: "Certificate-based authentication between OMS and agents: install the CA and identity certificates with ucert, then enable them in ubroker.conf, omss.conf, uags.conf and constrain callers in uacl.conf." },
+        { title: "Sequencing", hint: "after install", body: "Do properties first (they are safe and reversible), then Tomcat TLS during a maintenance window, then agent certificates — the last one requires both sides restarted together." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

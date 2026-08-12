@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet"><style>
+*{box-sizing:border-box}
+body{margin:0;background:#f4f5f7;font-family:"Inter Tight",system-ui,sans-serif;color:#1d2126;-webkit-font-smoothing:antialiased}
+a{color:#186CDA;text-decoration:none}a:hover{color:#12539f;text-decoration:underline}
+input{font-family:inherit}
+summary::-webkit-details-marker{display:none}
+</style></helmet>
+<div style="min-height:100vh;display:flex;flex-direction:column">
+  <header style="background:#12233d;color:#fff;padding:0 22px;display:flex;align-items:center;gap:26px;height:52px;flex:none">
+    <span style="font-size:15px;font-weight:600;letter-spacing:-.01em">Installation Command Generator</span>
+    <nav style="display:flex;gap:2px;margin-left:auto;font-size:12.5px">
+      <a href="index.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Home</a>
+      <a href="environment.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Prerequisite</a>
+      <a href="controller.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Controller</a>
+      <a href="agent_linux.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Agent (Linux)</a>
+      <a href="agent_windows.html" style="color:#fff;padding:6px 10px;border-radius:5px;background:rgba(255,255,255,.12);font-weight:600">Agent (Windows)</a>
+      <a href="post_config.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Post Config</a>
+      <a href="sizing.html" style="color:#b9c4d4;padding:6px 10px;border-radius:5px">Sizing</a>
+    </nav>
+  </header>
+
+  <div style="padding:16px 22px 0;display:flex;align-items:center;gap:10px;font-size:12.5px;color:#5a6472">
+    <span style="display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:6px;padding:6px 10px"><span style="width:14px;height:14px;border-radius:50%;background:#186CDA;color:#fff;font-size:10px;font-weight:700;display:inline-flex;align-items:center;justify-content:center">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+  </div>
+
+  <form id="windows-form" style="flex:1;display:grid;grid-template-columns:minmax(0,1fr) 400px;gap:16px;padding:16px 22px 0;align-items:start">
+    <div style="display:flex;flex-direction:column;gap:12px;min-width:0">
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;font-weight:600">Connection</span><span style="flex:1;height:1px;background:#f0f2f5"></span><span style="font-size:11px;color:#8b95a3">installs as a Windows service automatically</span></div>
+        <div style="display:flex;gap:9px;flex-wrap:wrap">
+          <label style="flex:1;min-width:210px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">OMS servers
+            <input type="text" id="oms_servers" name="oms_servers" value="{{ oms }}" onChange="{{ setOms }}" placeholder="7878@oms1,7878@oms2" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            <span style="{{ omsErrStyle }}">{{ omsErr }}</span>
+          </label>
+          <label style="flex:1;min-width:190px;display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493"><span>Agent cluster <span style="color:#98a1ad">(no quotes — added for you)</span></span>
+            <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" value="{{ cluster }}" onChange="{{ setCluster }}" placeholder="Default Windows Agents" style="font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+          </label>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;padding-top:9px;border-top:1px dashed #e6e9ed">
+          <sc-for list="{{ flagsList }}" as="f" hint-placeholder-count="3">
+            <button type="button" onClick="{{ f.pick }}" style="{{ f.style }}">{{ f.label }}</button>
+          </sc-for>
+        </div>
+        <sc-if value="{{ showExtra }}" hint-placeholder-val="{{ false }}">
+          <div id="additional-params-section" style="padding-top:9px;border-top:1px dashed #e6e9ed">
+            <label style="display:flex;flex-direction:column;gap:3px;font-size:11.5px;color:#7a8493">Additional parameters — appended verbatim
+              <input type="text" id="additional_params" name="additional_params" value="{{ extra }}" onChange="{{ setExtra }}" placeholder="e.g. AC_NETNAME=win_agent" style="font-family:'IBM Plex Mono',monospace;font-size:12px;padding:7px 9px;border:1px solid #dfe3e8;border-radius:6px;color:#1d2126">
+            </label>
+          </div>
+        </sc-if>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:4px 14px 6px">
+        <sc-for list="{{ guides }}" as="g" hint-placeholder-count="4">
+          <details style="border-bottom:1px solid #f0f2f5">
+            <summary style="cursor:pointer;list-style:none;padding:9px 0;font-size:12.5px;font-weight:500;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>{{ g.title }}<span style="margin-left:auto;font-size:11px;color:#98a1ad">{{ g.hint }}</span></summary>
+            <p style="margin:0 0 10px 19px;font-size:12px;line-height:1.65;color:#5a6472;max-width:70ch;text-wrap:pretty">{{ g.body }}</p>
+          </details>
+        </sc-for>
+      </div>
+    </div>
+
+    <aside style="position:sticky;top:16px;display:flex;flex-direction:column;gap:12px">
+      <div id="command-output" style="background:#12181f;border-radius:10px;overflow:hidden;border:1px solid #1e2731;display:flex;flex-direction:column">
+        <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #232c37">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#e8ebee;font-weight:600">unvinst.exe</span>
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6d7885">{{ argCount }} params · run in elevated cmd</span>
+          <span style="margin-left:auto;display:flex;gap:6px">
+            <button id="copy-button" type="button" onClick="{{ copyMain }}" style="padding:5px 11px;border:1px solid #313b47;background:transparent;color:#dfe4e9;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="border-color:#4a5764;color:#fff">{{ copyLabel }}</button>
+            <button type="button" onClick="{{ downloadBat }}" style="padding:5px 11px;border:none;background:#186CDA;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer" style-hover="background:#1259b4">Download</button>
+          </span>
+        </div>
+        <pre style="margin:0;padding:11px 12px;max-height:42vh;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8"><code id="generated-command" style="display:flex;flex-direction:column"><sc-for list="{{ mainLines }}" as="l" hint-placeholder-count="6"><span style="{{ l.style }}">{{ l.text }}</span></sc-for></code></pre>
+      </div>
+
+      <div id="manual-download-section" style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;align-items:baseline;gap:8px"><span style="font-size:12.5px;font-weight:600">Files &amp; downloads</span><span style="font-size:11px;color:#8b95a3">{{ fileCount }} items</span></div>
+        <div id="download-links" style="display:flex;flex-wrap:wrap;gap:6px">
+          <sc-for list="{{ files }}" as="f" hint-placeholder-count="2">
+            <a href="{{ f.href }}" target="{{ f.target }}" onClick="{{ f.onClick }}" style="{{ f.style }}"><span style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.05em;color:#8b95a3">{{ f.kind }}</span>{{ f.name }}<span style="color:#186CDA;font-weight:600">{{ f.glyph }}</span></a>
+          </sc-for>
+        </div>
+      </div>
+
+      <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 13px;display:flex;flex-direction:column;gap:7px">
+        <span style="font-size:12.5px;font-weight:600">Before you run it</span>
+        <sc-for list="{{ checklist }}" as="c" hint-placeholder-count="3">
+          <span style="display:flex;gap:8px;font-size:11.5px;color:#5a6472;line-height:1.5"><span style="color:#186CDA">•</span>{{ c }}</span>
+        </sc-for>
+      </div>
+    </aside>
+  </form>
+
+  <footer style="margin-top:22px;padding:12px 22px;border-top:1px solid #dfe3e8;font-size:11.5px;color:#8b95a3;display:flex;gap:12px">
+    <span>© 2025</span><span>Reference only — verify against official Stonebranch documentation.</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:900}}">
+const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+const CHIP = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px solid #dfe3e8;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#1d2126;text-decoration:none";
+const CHIP_DOC = "display:inline-flex;align-items:center;gap:6px;background:#fff;border:1px dashed #cfd5dd;border-radius:16px;padding:5px 11px;font-size:11.5px;color:#5a6472;text-decoration:none";
+
+class Component extends DCLogic {
+  state = { oms: "7878@localhost", cluster: "", omsAutostart: false, python: false, showExtra: false, extra: "", copied: false };
+
+  set(p) { this.setState(s => ({ ...p, copied: false })); }
+  flip(k) { this.setState(s => ({ [k]: !s[k], copied: false })); }
+
+  args() {
+    const s = this.state, a = [];
+    a.push("OMS_SERVERS=" + s.oms.trim());
+    if (s.cluster.trim()) a.push('AC_AGENT_CLUSTERS=\\"' + s.cluster.trim() + '\\"');
+    if (s.omsAutostart) a.push("OMS_AUTOSTART=yes");
+    if (s.python) a.push("PYTHON=yes");
+    if (s.showExtra && s.extra.trim()) a.push(s.extra.trim());
+    return a;
+  }
+
+  lines() {
+    const a = this.args();
+    const L = [{ text: "unvinst.exe ^", c: "#cdd4db" }];
+    a.forEach((x, i) => L.push({ text: "  " + x + (i < a.length - 1 ? " ^" : ""), c: "#cdd4db" }));
+    return L;
+  }
+
+  saveFile(name, text) {
+    const url = URL.createObjectURL(new Blob([text], { type: "text/plain" }));
+    const a = document.createElement("a");
+    a.href = url; a.download = name; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  }
+
+  renderVals() {
+    const s = this.state;
+    const lines = this.lines();
+    const text = lines.map(l => l.text).join("\r\n");
+    const omsBad = s.oms.trim() === "";
+
+    const files = [
+      { kind: "BAT", name: "install-agent.bat", glyph: "↓", href: "#", target: "", style: CHIP, onClick: e => { e.preventDefault(); this.saveFile("install-agent.bat", "@echo off\r\n" + text + "\r\n"); } },
+      { kind: "DOC", name: "Agent install guide", glyph: "↗", href: "https://docs.stonebranch.com/uac/ua/universal-agent-installation-information", target: "_blank", style: CHIP_DOC, onClick: null }
+    ];
+
+    return {
+      oms: s.oms, cluster: s.cluster, extra: s.extra, showExtra: s.showExtra,
+      omsErr: omsBad ? "OMS servers is required — e.g. 7878@localhost" : "",
+      omsErrStyle: "font-size:11px;color:" + (omsBad ? "#c0392b" : "#8b95a3") + ";min-height:14px",
+      flagsList: [
+        { label: "OMS autostart", on: s.omsAutostart, pick: () => this.flip("omsAutostart") },
+        { label: "Agent Python", on: s.python, pick: () => this.flip("python") },
+        { label: "Manual parameters", on: s.showExtra, pick: () => this.flip("showExtra") }
+      ].map(f => ({ label: f.label, pick: f.pick, style: f.on ? PILL_ON : PILL_OFF })),
+      mainLines: lines.map(l => ({ text: l.text || " ", style: "color:" + l.c + ";white-space:pre" })),
+      argCount: this.args().length,
+      copyLabel: s.copied ? "Copied" : "Copy",
+      copyMain: () => { navigator.clipboard.writeText(text); this.setState({ copied: true }); },
+      downloadBat: () => this.saveFile("install-agent.bat", "@echo off\r\n" + text + "\r\n"),
+      files, fileCount: files.length,
+      setOms: e => this.set({ oms: e.target.value }),
+      setCluster: e => this.set({ cluster: e.target.value }),
+      setExtra: e => this.set({ extra: e.target.value }),
+      checklist: [
+        "Run from an elevated command prompt in the extracted installer folder.",
+        "The agent registers itself as a Windows service — no extra flag needed.",
+        "Cluster names with spaces are quoted for you in the generated command."
+      ],
+      guides: [
+        { title: "OMS servers", hint: "host list", body: "Where the Universal Message Service runs: 7878@localhost, oms-server.company.com, or a comma-separated pair for HA. The port prefix is optional." },
+        { title: "Agent cluster", hint: "quotes added", body: "Enter the cluster name without quotes — escaped quotes are added in the generated command, e.g. AC_AGENT_CLUSTERS=\\\"Windows Production Agents\\\". Comma-separate for several clusters." },
+        { title: "Windows service", hint: "automatic", body: "The Windows agent always installs as a Windows service, so it starts with the machine and is managed through Services." },
+        { title: "Agent Python", hint: "bundled runtime", body: "Uses the Python distribution shipped with Universal Agent instead of any Python installed on the host." }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

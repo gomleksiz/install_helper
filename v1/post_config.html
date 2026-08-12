@@ -4,28 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Post Configuration - Command Generator</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260813">
-    <link rel="stylesheet" href="post_config.css?v=20260813">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-<div class="page">
-    <header class="site-header">
-        <span class="brand">Installation Command Generator</span>
-        <nav class="site-nav">
-            <a href="index.html">Home</a>
-            <a href="environment.html">Prerequisite</a>
-            <a href="controller.html">Controller</a>
-            <a href="agent_linux.html">Agent (Linux)</a>
-            <a href="agent_windows.html">Agent (Windows)</a>
-            <a href="post_config.html" class="active">Post Config</a>
-            <a href="sizing.html">Sizing</a>
+    <header>
+        <h1>Installation Command Generator</h1>
+        <nav>
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="environment.html">Prerequisite</a></li>
+                <li><a href="controller.html">Controller</a></li>
+                <li><a href="agent_linux.html">Agent (Linux)</a></li>
+                <li><a href="agent_windows.html">Agent (Windows)</a></li>
+                <li><a href="post_config.html">Post Configuration</a></li>
+                <li><a href="sizing.html">Sizing Calculator</a></li>
+            </ul>
         </nav>
     </header>
-    <main class="pc-page" style="padding:16px 22px">
-        <div class="info-banner" style="padding:0 0 12px">
-            <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+    <main>
+        <div class="disclaimer-alert disclaimer-top" role="note">
+            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
+            <div class="disclaimer-header">
+                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span class="disclaimer-label">INFO</span>
+            </div>
+            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
         </div>
         <h2>Post Configuration</h2>
         <p>Recommended configuration steps to perform after installing Universal Controller and Universal Agent components.</p>
@@ -168,8 +171,7 @@
                 <h3>Configure SSL/TLS for Tomcat</h3>
                 <p>Pick how you obtained your certificate. The form below generates the matching <code>keytool</code>/<code>openssl</code> commands and the <code>server.xml</code> connector snippet you need.</p>
 
-                <form id="ssl-form" class="ssl-form-full pc-split" onsubmit="return false;">
-                    <div class="pc-col-form">
+                <form id="ssl-form" class="ssl-form-full" onsubmit="return false;">
                         <fieldset>
                             <legend>What kind of certificate do you have?</legend>
                             <div class="cert-cards" id="cert-type-group">
@@ -330,8 +332,6 @@
                             </div>
                         </fieldset>
 
-                    </div>
-                    <div class="pc-col-out">
                         <div id="command-output" style="display:block; margin-top: 20px;">
                             <div class="ssl-subtab-bar">
                                 <button type="button" class="ssl-subtab active" id="ssl-tab-xml">server.xml snippet</button>
@@ -367,7 +367,6 @@
                                 </button>
                             </div>
                         </fieldset>
-                    </div>
                 </form>
             </section>
 
@@ -375,8 +374,7 @@
                 <h3>Configure Universal Agent Certificates</h3>
                 <p>Pick whether you already have certificates. The form generates the matching <code>ucert</code> commands, the <code>ubroker.conf</code> / <code>omss.conf</code> / <code>uags.conf</code> snippets, and the <code>uacl.conf</code> rules to enforce certificate-based authentication between OMS and agents.</p>
 
-                <form id="uacert-form" class="ssl-form-full pc-split" onsubmit="return false;">
-                    <div class="pc-col-form">
+                <form id="uacert-form" class="ssl-form-full" onsubmit="return false;">
                     <fieldset>
                         <legend>Do you already have certificates?</legend>
                         <div class="cert-cards" id="uacert-type-group">
@@ -465,8 +463,7 @@
                         </div>
                         <p class="prop-hint" style="margin:0">When disabled, <code>uacl.conf</code> only contains the <code>oms_access</code> rules that reject agents without certs. Enable to additionally restrict access to a specific certificate subject.</p>
                     </fieldset>
-                    </div>
-                    <div class="pc-col-out">
+
                     <div id="uacert-output" style="display:block; margin-top: 20px;">
                         <div class="ssl-subtab-bar">
                             <button type="button" class="ssl-subtab active" data-uacert-tab="cmd">ucert commands</button>
@@ -532,18 +529,18 @@
                             </button>
                         </div>
                     </fieldset>
-                    </div>
                 </form>
             </section>
 
         </div>
     </main>
-    <footer class="site-footer">
-        <span>&copy; 2025</span>
-        <span>Reference only — verify against official Stonebranch documentation.</span>
+    <div class="disclaimer-alert disclaimer-bottom" role="note">
+        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
+    </div>
+    <footer>
+        <p>&copy; 2025</p>
     </footer>
-</div>
-    <script src="version.js?v=20260812"></script>
+    <script src="version.js"></script>
     <script>
         document.querySelectorAll('.tab-button').forEach(btn => {
             btn.addEventListener('click', () => {
@@ -961,15 +958,6 @@ oms_cert_access *,deny`;
             }
 
             regenerate();
-        })();
-    </script>
-    <script>
-        // Open a tab from the URL hash, e.g. post_config.html#ssl-config
-        (function () {
-            var h = (location.hash || '').replace('#', '');
-            if (!h) return;
-            var btn = document.querySelector('.tab-button[data-tab="' + h + '"]');
-            if (btn) btn.click();
         })();
     </script>
 </body>

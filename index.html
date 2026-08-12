@@ -4,158 +4,126 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Installation Command Generator</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=20260813">
+    <style>
+        .home { padding: 16px 22px 0; display: flex; flex-direction: column; gap: 16px; max-width: 1100px; }
+        .home h1 { font-size: 22px; margin: 6px 0 2px; }
+        .home .lede { color: var(--text-muted); font-size: 13.5px; margin: 0; max-width: 70ch; }
+        .steps { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .step { display: flex; flex-direction: column; gap: 6px; padding: 14px 12px; border: 1px solid var(--border); border-top: 4px solid var(--accent, var(--ink)); border-radius: 10px; background: var(--tint, #fff); }
+        .step .num { width: 24px; height: 24px; border-radius: 50%; background: var(--accent, var(--ink)); color: #fff; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; }
+        .step .t { font-size: 12.5px; font-weight: 600; line-height: 1.35; }
+        .step a { font-size: 11.5px; font-weight: 500; }
+        .step:nth-child(1) { --accent: #00acc1; --tint: #e0f7fa; }
+        .step:nth-child(2) { --accent: #8e24aa; --tint: #f6e9fb; }
+        .step:nth-child(3) { --accent: #ef6c00; --tint: #fff3e0; }
+        .step:nth-child(4) { --accent: #5e35b1; --tint: #ede7f6; }
+        .step:nth-child(5) { --accent: #43a047; --tint: #edf7ed; }
+        .overview-img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--border); background: #fff; display: block; }
+        .hero { background: linear-gradient(120deg, #12233d 0%, #186CDA 60%, #05B8D8 100%); color: #fff; border-radius: 12px; padding: 22px 22px; }
+        .hero h1 { margin: 0 0 6px; color: #fff; }
+        .hero .lede { color: rgba(255,255,255,.88); }
+        .tool { border-top: 3px solid var(--taccent, var(--brand)); }
+        .tool:nth-child(1) { --taccent: #00acc1; }
+        .tool:nth-child(2) { --taccent: #ef6c00; }
+        .tool:nth-child(3) { --taccent: #5e35b1; }
+        .tool:nth-child(4) { --taccent: #8e24aa; }
+        .tool:nth-child(5) { --taccent: #43a047; }
+        .tools { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+        .tool { display: flex; flex-direction: column; gap: 8px; }
+        .tool h3 { margin: 0; font-size: 14px; color: var(--ink); }
+        .tool p { margin: 0; font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+        .tool .go { display: flex; gap: 8px; flex-wrap: wrap; margin-top: auto; padding-top: 4px; }
+        .btn { display: inline-block; padding: 7px 14px; background: var(--brand); color: #fff; border-radius: 6px; font-size: 12.5px; font-weight: 500; }
+        .btn:hover { background: var(--brand-hover); color: #fff; text-decoration: none; }
+        .doclinks { display: flex; flex-direction: column; gap: 8px; }
+        .doclinks a { font-size: 13px; }
+        @media (max-width: 800px) { .steps { grid-template-columns: 1fr 1fr; } }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Installation Command Generator</h1>
-        <nav>
-            <ul>
-                <li><a href="index.html">Home</a></li>
-                <li><a href="environment.html">Prerequisite</a></li>
-                <li><a href="controller.html">Controller</a></li>
-                <li><a href="agent_linux.html">Agent (Linux)</a></li>
-                <li><a href="agent_windows.html">Agent (Windows)</a></li>
-                <li><a href="post_config.html">Post Configuration</a></li>
-                <li><a href="sizing.html">Sizing Calculator</a></li>
-            </ul>
+<div class="page">
+    <header class="site-header">
+        <span class="brand">Installation Command Generator</span>
+        <nav class="site-nav">
+            <a href="index.html" class="active">Home</a>
+            <a href="environment.html">Prerequisite</a>
+            <a href="controller.html">Controller</a>
+            <a href="agent_linux.html">Agent (Linux)</a>
+            <a href="agent_windows.html">Agent (Windows)</a>
+            <a href="post_config.html">Post Config</a>
+            <a href="sizing.html">Sizing</a>
         </nav>
     </header>
-    <main>
-        <div class="disclaimer-alert disclaimer-top" role="note">
-            <button type="button" class="disclaimer-close" aria-label="Close disclaimer">&times;</button>
-            <div class="disclaimer-header">
-                <svg class="disclaimer-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                <span class="disclaimer-label">INFO</span>
-            </div>
-            <div class="disclaimer-body">Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.</div>
-        </div>
-        <h2>Stonebranch Installation Command Generator</h2>
-        <p>This website helps you generate installation commands for Stonebranch Universal Agent and Controller components. Simply fill out the configuration forms to generate the appropriate installation commands for your environment.</p>
-        
-        <div style="margin: 30px 0; text-align: center;">
-            <h3>Installation Overview</h3>
-            <img src="images/uac-installation-steps.jpeg" alt="UAC Installation Steps: 1) Prepare Java and Tomcat Environment, 2) Install Database User and Schema, 3) Install Universal Controller, 4) Install Universal Agent with OMS, 5) Link OMS to the Controller" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
-            <p style="margin-top: 12px; color: #555; font-size: 0.95em;">The five major phases of a Stonebranch UAC deployment: prepare the Java/Tomcat environment, set up the database, deploy the Universal Controller, install Universal Agent with OMS, then link OMS back to the Controller.</p>
 
-            <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 20px; text-align: center;">
-                <div style="padding: 12px 8px; background: #e0f7fa; border-radius: 8px; border-top: 4px solid #00acc1;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: #00acc1;">1</div>
-                    <div style="font-size: 0.82em; font-weight: 600; margin: 4px 0;">Prepare Java &amp; Tomcat</div>
-                    <a href="environment.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">→ Prerequisite</a>
-                </div>
-                <div style="padding: 12px 8px; background: #f3e5f5; border-radius: 8px; border-top: 4px solid #8e24aa;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: #8e24aa;">2</div>
-                    <div style="font-size: 0.82em; font-weight: 600; margin: 4px 0;">Install Database &amp; Schema</div>
-                    <a href="environment.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">→ Prerequisite</a>
-                </div>
-                <div style="padding: 12px 8px; background: #fff3e0; border-radius: 8px; border-top: 4px solid #ef6c00;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: #ef6c00;">3</div>
-                    <div style="font-size: 0.82em; font-weight: 600; margin: 4px 0;">Install Universal Controller</div>
-                    <a href="controller.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">→ Controller</a>
-                </div>
-                <div style="padding: 12px 8px; background: #ede7f6; border-radius: 8px; border-top: 4px solid #5e35b1;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: #5e35b1;">4</div>
-                    <div style="font-size: 0.82em; font-weight: 600; margin: 4px 0;">Install Universal Agent &amp; OMS</div>
-                    <a href="agent_linux.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">→ Agent (Linux)</a>
-                    <span style="font-size: 0.78em; color: #555;"> / </span>
-                    <a href="agent_windows.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">Agent (Windows)</a>
-                </div>
-                <div style="padding: 12px 8px; background: #f1f8e9; border-radius: 8px; border-top: 4px solid #7cb342;">
-                    <div style="font-size: 1.3em; font-weight: 700; color: #7cb342;">5</div>
-                    <div style="font-size: 0.82em; font-weight: 600; margin: 4px 0;">Link OMS to Controller</div>
-                    <a href="post_config.html" style="font-size: 0.78em; color: #1e3a8a; text-decoration: none; font-weight: 500;">→ Post Configuration</a>
-                </div>
+    <div class="info-banner">
+        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+    </div>
+
+    <main class="home">
+        <div class="hero">
+            <h1>Stonebranch Installation Command Generator</h1>
+            <p class="lede">Generate installation commands and scripts for Stonebranch Universal Agent and Controller. Fill out the forms for your environment and copy the generated commands — nothing is sent anywhere, everything runs in your browser.</p>
+        </div>
+
+        <div class="card" style="gap:14px">
+            <div class="card-title-row"><span class="card-title">Installation overview</span><span class="rule"></span></div>
+            <img class="overview-img" src="images/uac-installation-steps.jpeg" alt="UAC installation steps: 1) Prepare Java and Tomcat, 2) Install Database user and schema, 3) Install Universal Controller, 4) Install Universal Agent with OMS, 5) Link OMS to the Controller">
+            <div class="steps">
+                <div class="step"><span class="num">1</span><span class="t">Prepare Java &amp; Tomcat</span><a href="environment.html">→ Prerequisite</a></div>
+                <div class="step"><span class="num">2</span><span class="t">Install Database &amp; Schema</span><a href="environment.html">→ Prerequisite</a></div>
+                <div class="step"><span class="num">3</span><span class="t">Install Universal Controller</span><a href="controller.html">→ Controller</a></div>
+                <div class="step"><span class="num">4</span><span class="t">Install Universal Agent &amp; OMS</span><a href="agent_linux.html">→ Agent (Linux)</a> <a href="agent_windows.html">/ Windows</a></div>
+                <div class="step"><span class="num">5</span><span class="t">Link OMS to Controller</span><a href="post_config.html">→ Post Config</a></div>
             </div>
         </div>
 
-        <div style="margin: 30px 0;">
-            <h3>Available Tools</h3>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin: 20px 0;">
-                <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #fafbfc;">
-                    <h4 style="margin-top: 0; color: #1e3a8a;">Environment Setup</h4>
-                    <p>Generate prerequisite installation scripts for Java, Tomcat, Database, and Agent dependencies.</p>
-                    <div style="margin-top: 15px;">
-                        <a href="environment.html" style="display: inline-block; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Prerequisite</a>
-                    </div>
-                </div>
-
-                <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #fafbfc;">
-                    <h4 style="margin-top: 0; color: #1e3a8a;">Universal Controller</h4>
-                    <p>Generate installation commands for Universal Controller with database configuration.</p>
-                    <div style="margin-top: 15px;">
-                        <a href="controller.html" style="display: inline-block; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Controller</a>
-                    </div>
-                </div>
-
-                <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #fafbfc;">
-                    <h4 style="margin-top: 0; color: #1e3a8a;">Universal Agent</h4>
-                    <p>Generate installation commands for Universal Agent on Linux and Windows platforms.</p>
-                    <div style="margin-top: 15px;">
-                        <a href="agent_linux.html" style="display: inline-block; margin-right: 10px; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Linux Agent</a>
-                        <a href="agent_windows.html" style="display: inline-block; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Windows Agent</a>
-                    </div>
-                </div>
+        <div class="section-divider"><span class="label">TOOLS</span><span class="rule"></span></div>
+        <div class="tools">
+            <div class="card tool">
+                <h3>Environment Setup</h3>
+                <p>Prerequisite installation scripts for Java, Tomcat, Database, and Agent dependencies.</p>
+                <div class="go"><a class="btn" href="environment.html">Prerequisite</a></div>
             </div>
-            
-            <div style="margin: 20px 0;">
-                <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #fafbfc;">
-                    <h4 style="margin-top: 0; color: #1e3a8a;">Post Configuration</h4>
-                    <p>Reference for tasks to perform after installation. Includes a curated list of recommended <strong>Universal Controller properties</strong> (administrator email, banner color, change history, system identifier, web service response defaults, and more) with suggested values, an interactive <strong>SSL/TLS setup guide for Tomcat</strong> that generates the matching <code>keytool</code>/<code>openssl</code> commands and <code>server.xml</code> connector snippet for self-signed, CA-issued, PEM/PKCS12, or pre-built keystore certificates, and a <strong>UA Cert Configuration</strong> generator that builds the <code>ucert</code> commands plus the <code>ubroker.conf</code>/<code>omss.conf</code>/<code>uags.conf</code>/<code>uacl.conf</code> snippets to enforce certificate-based OMS-to-agent authentication.</p>
-                    <div style="margin-top: 15px;">
-                        <a href="post_config.html" style="display: inline-block; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Post Configuration</a>
-                    </div>
-                </div>
+            <div class="card tool">
+                <h3>Universal Controller</h3>
+                <p>Installation command for Universal Controller with database configuration.</p>
+                <div class="go"><a class="btn" href="controller.html">Controller</a></div>
             </div>
-
-            <div style="margin: 20px 0;">
-                <div style="border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; background: #fafbfc;">
-                    <h4 style="margin-top: 0; color: #1e3a8a;">Hardware Sizing Calculator</h4>
-                    <p>Calculate recommended hardware specifications based on your expected task volume and retention requirements.</p>
-                    <div style="margin-top: 15px;">
-                        <a href="sizing.html" style="display: inline-block; padding: 8px 16px; background: #1e3a8a; color: white; text-decoration: none; border-radius: 4px;">Sizing Calculator</a>
-                    </div>
-                </div>
+            <div class="card tool">
+                <h3>Universal Agent</h3>
+                <p>Installation commands for Universal Agent on Linux and Windows.</p>
+                <div class="go"><a class="btn" href="agent_linux.html">Linux Agent</a><a class="btn" href="agent_windows.html">Windows Agent</a></div>
+            </div>
+            <div class="card tool">
+                <h3>Post Configuration</h3>
+                <p>Recommended Controller properties, an SSL/TLS setup guide for Tomcat (keytool/openssl + server.xml), and a UA certificate configuration generator.</p>
+                <div class="go"><a class="btn" href="post_config.html">Post Config</a></div>
+            </div>
+            <div class="card tool">
+                <h3>Hardware Sizing Calculator</h3>
+                <p>Recommended hardware specs based on your task volume and retention requirements.</p>
+                <div class="go"><a class="btn" href="sizing.html">Sizing Calculator</a></div>
             </div>
         </div>
 
-        <div style="margin: 30px 0;">
-            <h3>Documentation Links</h3>
-            <p>For detailed installation instructions and requirements, please refer to the official Stonebranch documentation:</p>
-            <ul style="list-style-type: none; padding: 0;">
-                <li style="margin: 10px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8f9fa;">
-                    <strong>Universal Controller Installation:</strong><br>
-                    <a href="https://docs.stonebranch.com/uac/uc/installation-and-applying-maintenance-overview" target="_blank" style="color: #1e3a8a; text-decoration: none;">
-                        Installation and Applying Maintenance
-                    </a>
-                </li>
-                <li style="margin: 10px 0; padding: 15px; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8f9fa;">
-                    <strong>Universal Agent Installation:</strong><br>
-                    <a href="https://docs.stonebranch.com/uac/ua/universal-agent-installation-information" target="_blank" style="color: #1e3a8a; text-decoration: none;">
-                        Universal Agent Installation Information
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <div style="margin: 30px 0; padding: 20px; background: #f1f5f9; border-radius: 8px; border-left: 4px solid #1e3a8a;">
-            <h4 style="margin-top: 0; color: #1e3a8a;">How to Use</h4>
-            <ol>
-                <li><strong>Environment Setup (Optional):</strong> First, use the Environment tool to generate prerequisite installation scripts for Java, Tomcat, Database, or Agent dependencies</li>
-                <li><strong>Select Component:</strong> Choose the component you want to install (Controller, Agent Linux, or Agent Windows)</li>
-                <li><strong>Configure:</strong> Fill out the configuration form with your environment-specific values</li>
-                <li><strong>Generate:</strong> Click "Generate Command" to create the installation command</li>
-                <li><strong>Execute:</strong> Copy the generated command and run it on your target system</li>
-            </ol>
+        <div class="card" style="gap:10px">
+            <div class="card-title-row"><span class="card-title">Documentation</span><span class="rule"></span></div>
+            <div class="doclinks">
+                <a href="https://docs.stonebranch.com/uac/uc/installation-and-applying-maintenance-overview" target="_blank">Universal Controller — Installation and Applying Maintenance ↗</a>
+                <a href="https://docs.stonebranch.com/uac/ua/universal-agent-installation-information" target="_blank">Universal Agent — Installation Information ↗</a>
+            </div>
         </div>
     </main>
-    <div class="disclaimer-alert disclaimer-bottom" role="note">
-        <strong>Disclaimer:</strong> Information on this page is for reference only and may be outdated or inaccurate. Always verify against official Stonebranch documentation.
-    </div>
-    <footer>
-        <p>&copy; 2025</p>
+
+    <footer class="site-footer">
+        <span>&copy; 2025</span>
+        <span>Reference only — verify against official Stonebranch documentation.</span>
     </footer>
-    <script src="version.js"></script>
-    <script src="script.js"></script>
+</div>
+    <script src="version.js?v=20260812"></script>
+    <script src="script.js?v=20260812"></script>
 </body>
 </html>

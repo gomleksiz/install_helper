@@ -1,0 +1,20 @@
+/* Sizing page v2 — the layout is mostly inline (rendered by sizing.js). This file
+   only carries the range accent and the print / PDF view rules. */
+#tasks { accent-color: #186CDA; width: 100%; height: 22px; }
+
+.print-only { display: none; }
+@page { size: letter; margin: 16mm 14mm; }
+@media print {
+  html, body { background: #fff !important; margin: 0 !important; padding: 0 !important; }
+  /* Neutralise the flex/min-height shell so @page margins are respected */
+  .page { display: block !important; min-height: 0 !important; }
+  .noprint { display: none !important; }
+  .print-only { display: block !important; }
+  .pbreak { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* Responsive: stack the category grid and mid grid on narrow screens */
+@media (max-width: 760px) {
+  #cat-grid { grid-template-columns: 1fr 1fr !important; }
+  #mid-grid { grid-template-columns: 1fr !important; }
+}
