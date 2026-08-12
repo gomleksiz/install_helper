@@ -24,7 +24,7 @@
     </header>
 
     <div class="info-banner">
-        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+        <span class="pill"><span class="dot">i</span>Reference only — for non-production environments. Always verify against official Stonebranch documentation; for production setups follow the documentation and contact Stonebranch support for help.</span>
     </div>
 
     <form id="linux-form" class="layout">
@@ -37,8 +37,8 @@
                     <span class="field-error" id="oms-servers-error"></span>
                 </label>
                 <div class="subrow">
-                    <label class="toggle-pill"><input type="checkbox" id="oms_autostart" name="oms_autostart">OMS autostart</label>
-                    <label class="toggle-pill"><input type="checkbox" id="python" name="python">Agent Python</label>
+                    <label class="toggle-pill"><input type="checkbox" id="oms_autostart" name="oms_autostart" checked>OMS autostart</label>
+                    <label class="toggle-pill"><input type="checkbox" id="python" name="python" checked>Agent Python</label>
                     <label class="toggle-pill"><input type="checkbox" id="register_ubrokerd" name="register_ubrokerd">systemctl service</label>
                 </div>
                 <div id="ubrokerd-id-group" style="display:none">

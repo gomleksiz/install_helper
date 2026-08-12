@@ -24,7 +24,7 @@
     </header>
 
     <div class="info-banner">
-        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+        <span class="pill"><span class="dot">i</span>Reference only — for non-production environments. Always verify against official Stonebranch documentation; for production setups follow the documentation and contact Stonebranch support for help.</span>
     </div>
 
     <form id="windows-form" class="layout">
@@ -36,19 +36,19 @@
                     <span class="field-note">installs as a Windows service automatically</span>
                 </div>
                 <!-- Source order is oms_servers, oms_autostart, python, ac_agent_cluster so the
-                     generated MSI params keep their exact current order; CSS `order` keeps the
-                     OMS + cluster fields visually paired on the first row. -->
-                <div style="display:flex;flex-wrap:wrap;gap:9px 12px;align-items:flex-end">
-                    <label class="field grow" for="oms_servers" style="min-width:210px;order:1">OMS servers
-                        <input type="text" id="oms_servers" name="oms_servers" value="7878@localhost" placeholder="7878@oms1,7878@oms2">
-                    </label>
-                    <label class="toggle-pill" style="order:3"><input type="checkbox" id="oms_autostart" name="oms_autostart">OMS autostart</label>
-                    <label class="toggle-pill" style="order:4"><input type="checkbox" id="python" name="python">Agent Python</label>
-                    <label class="field grow" for="ac_agent_cluster" style="min-width:190px;order:2">Agent cluster <span class="optional">(no quotes — added for you)</span>
-                        <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="Default Windows Agents" style="font-family:var(--font-ui)">
-                    </label>
-                    <label class="toggle-pill" style="order:5"><input type="checkbox" id="toggle-additional-params">Manual parameters</label>
+                     generated MSI params keep their exact current order. -->
+                <label class="field" id="oms-servers-group" for="oms_servers">OMS servers
+                    <input type="text" id="oms_servers" name="oms_servers" value="7878@localhost" placeholder="7878@oms1,7878@oms2" style="max-width:420px">
+                    <span class="field-error" id="oms-servers-error"></span>
+                </label>
+                <div class="subrow">
+                    <label class="toggle-pill"><input type="checkbox" id="oms_autostart" name="oms_autostart" checked>OMS autostart</label>
+                    <label class="toggle-pill"><input type="checkbox" id="python" name="python" checked>Agent Python</label>
+                    <label class="toggle-pill"><input type="checkbox" id="toggle-additional-params">Manual parameters</label>
                 </div>
+                <label class="field" for="ac_agent_cluster">Agent cluster <span class="optional">(optional — quotes added for you)</span>
+                    <input type="text" id="ac_agent_cluster" name="ac_agent_cluster" placeholder="Default Windows Agents" style="max-width:420px;font-family:var(--font-ui)">
+                </label>
                 <div id="additional-params-section" style="display:none">
                     <div class="subrow stack">
                         <label class="field" for="additional_params">Additional parameters — appended verbatim

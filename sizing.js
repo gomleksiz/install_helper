@@ -7,19 +7,19 @@
   if (!slider) return; // only run on the sizing page
 
   // ---- style constants (mirror the design's inline pills) ------------------
-  const PILL_ON = "padding:5px 10px;border:1px solid #12233d;background:#12233d;color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
-  const PILL_OFF = "padding:5px 10px;border:1px solid #dfe3e8;background:#fff;color:#5a6472;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
-  const CAT_ON = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid #186CDA;background:#eef5fe;border-radius:9px;font-family:inherit;cursor:pointer";
-  const CAT_OFF = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid #dfe3e8;background:#fff;border-radius:9px;font-family:inherit;cursor:pointer";
+  const PILL_ON = "padding:5px 10px;border:1px solid var(--ink);background:var(--ink);color:#fff;border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+  const PILL_OFF = "padding:5px 10px;border:1px solid var(--border);background:var(--surface);color:var(--text-muted);border-radius:6px;font-size:11.5px;font-family:inherit;cursor:pointer;white-space:nowrap";
+  const CAT_ON = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid var(--brand);background:#eef5fe;border-radius:9px;font-family:inherit;cursor:pointer";
+  const CAT_OFF = "display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:11px 13px;border:1px solid var(--border);background:var(--surface);border-radius:9px;font-family:inherit;cursor:pointer";
   const NUM = "font-family:'IBM Plex Mono',monospace;font-size:20px;font-weight:600;text-align:right;align-self:center;letter-spacing:-.01em";
-  const ROW = "display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:13px 16px;border-bottom:1px solid #f0f2f5;align-items:center";
+  const ROW = "display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:13px 16px;border-bottom:1px solid var(--border-soft);align-items:center";
 
   const STEPS = [10000, 25000, 40000, 100000, 250000, 300000, 400000, 500000, 1000000, 3000000, 5000000, 7000000, 10000000, 15000000];
   // Category chips — labels/limits match the original sizing page.
   const CATEGORIES = [
     { name: "Micro", index: 1, limit: "≤ 100K / month", desc: "Small environments or test systems" },
-    { name: "Small", index: 4, limit: "≤ 500K / month", desc: "Smaller production workloads" },
-    { name: "Medium", index: 8, limit: "≤ 3M / month", desc: "Standard mid-size production" },
+    { name: "Small", index: 4, limit: "≤ 500K / month", desc: "Smaller workloads" },
+    { name: "Medium", index: 8, limit: "≤ 3M / month", desc: "Standard mid-size environments" },
     { name: "Large", index: 12, limit: "≤ 15M / month", desc: "Enterprise high-volume" }
   ];
   // --- Original sizing matrix (carried over verbatim from script.js) ---------
@@ -134,7 +134,7 @@
   function warnings() {
     const s = state, t = STEPS[s.taskIndex], st = storage(), i = tierIndex(), out = [];
     const amber = "display:flex;gap:10px;align-items:baseline;background:#fdf6e3;border:1px solid #f0dfae;border-left:4px solid #d99e1f;border-radius:8px;padding:10px 13px;color:#7a5b00";
-    const blue = "display:flex;gap:10px;align-items:baseline;background:#eef5fe;border:1px solid #cfe0f8;border-left:4px solid #186CDA;border-radius:8px;padding:10px 13px;color:#12539f";
+    const blue = "display:flex;gap:10px;align-items:baseline;background:#eef5fe;border:1px solid #cfe0f8;border-left:4px solid var(--brand);border-radius:8px;padding:10px 13px;color:#12539f";
     if (st.total >= 1000) out.push({ tag: "Storage", text: "Over 1 TB of database. Confirm your storage growth policy and plan purges before go-live.", style: amber });
     const histShare = st.history / st.raw;
     if (histShare > 0.5 && s.history >= 120) out.push({ tag: "Retention", text: "History retention of " + s.history + " days is " + Math.round(histShare * 100) + "% of the database. Dropping to 90 days would save roughly " + gb((st.history - st.history * 90 / s.history) * 1.3) + ".", style: amber });
@@ -182,7 +182,7 @@
       return `<button type="button" data-act="cat" data-i="${c.index}" style="${on ? CAT_ON : CAT_OFF}">
         <span style="font-size:14px;font-weight:600">${c.name}</span>
         <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6b7580">${c.limit}</span>
-        <span style="font-size:11px;color:#8b95a3;line-height:1.4">${c.desc}</span>
+        <span style="font-size:11px;color:var(--text-dim);line-height:1.4">${c.desc}</span>
       </button>`;
     }).join("");
   }
@@ -192,9 +192,9 @@
     const share = key === "activity" ? gb(st.activity) : key === "history" ? gb(st.history) : gb(st.audit);
     const btns = opts.map(v => `<button type="button" data-act="ret" data-k="${key}" data-v="${v}" style="${state[key] === v ? PILL_ON : PILL_OFF}">${v}</button>`).join("");
     return `<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-      <span style="font-size:12px;color:#7a8493;min-width:74px">${label}</span>
+      <span style="font-size:12px;color:var(--text-faint);min-width:74px">${label}</span>
       <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">${btns}</div>
-      <span style="margin-left:auto;font-size:11px;color:#a3abb5;font-family:'IBM Plex Mono',monospace">${share}</span>
+      <span style="margin-left:auto;font-size:11px;color:var(--text-dim);font-family:'IBM Plex Mono',monospace">${share}</span>
     </div>`;
   }
 
@@ -215,16 +215,16 @@
       : "Instance types below are the closest fit in your provider's general-purpose and memory-optimised families.";
     const cloud = s.deployment !== "on-prem"
       ? `<div id="cloud-provider-group" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-          <span style="font-size:12px;color:#7a8493;min-width:74px">Provider</span>
+          <span style="font-size:12px;color:var(--text-faint);min-width:74px">Provider</span>
           <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">${prov}</div>
         </div>` : "";
     return `<span style="font-size:13px;font-weight:600">Deployment</span>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
-        <span style="font-size:12px;color:#7a8493;min-width:74px">Where</span>
+        <span style="font-size:12px;color:var(--text-faint);min-width:74px">Where</span>
         <div class="button-group" style="display:flex;gap:5px;flex-wrap:wrap">${dep}</div>
       </div>
       ${cloud}
-      <p style="margin:0;font-size:11.5px;color:#8b95a3;line-height:1.5">${note}</p>`;
+      <p style="margin:0;font-size:11.5px;color:var(--text-dim);line-height:1.5">${note}</p>`;
   }
 
   function renderResult() {
@@ -232,7 +232,7 @@
     const wl = warnings();
     const pct = v => Math.max(2, Math.round(v / st.raw * 100));
 
-    const summaryBar = `<div style="background:#12233d;color:#fff;border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+    const summaryBar = `<div style="background:var(--ink);color:#fff;border-radius:10px;padding:16px 18px;display:flex;align-items:center;gap:20px;flex-wrap:wrap">
       <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;letter-spacing:.1em;color:#93a3ba;font-family:'IBM Plex Mono',monospace">SIZING CATEGORY</span><span style="font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.1">${categoryName()}</span></div>
       <div style="width:1px;height:38px;background:rgba(255,255,255,.16)"></div>
       <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:11px;letter-spacing:.1em;color:#93a3ba;font-family:'IBM Plex Mono',monospace">TOTAL DATABASE</span><span style="font-family:'IBM Plex Mono',monospace;font-size:27px;font-weight:600;line-height:1.1">${gb(st.total)}</span></div>
@@ -254,12 +254,12 @@
       { name: "Database", sub: "MySQL · MariaDB · Postgres · Oracle · MSSQL", cpu: sp.db.cpu, ram: sp.db.ram + " GB", disk: gb(sp.db.disk), extra: sp.db.inst, extraSub: sp.db.iops.toLocaleString() + " IOPS minimum" },
       { name: "Universal Agent + OMS", sub: "message bus and agent host", cpu: sp.agent.cpu, ram: sp.agent.ram + " GB", disk: sp.agent.disk.replace("SSD/GP3 ", ""), extra: sp.agent.inst, extraSub: "per agent host" }
     ];
-    const specTable = `<div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;overflow:hidden">
-      <div style="display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:10px 16px;background:#fafbfc;border-bottom:1px solid #e6e9ed;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;color:#98a1ad"><span>SERVER</span><span style="text-align:right">vCPU</span><span style="text-align:right">MEMORY</span><span style="text-align:right">DISK</span><span>${extraHeader}</span></div>
+    const specTable = `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden">
+      <div style="display:grid;grid-template-columns:minmax(150px,1.5fr) 82px 92px 108px minmax(120px,1.1fr);gap:12px;padding:10px 16px;background:#fafbfc;border-bottom:1px solid var(--dash);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.09em;color:#98a1ad"><span>SERVER</span><span style="text-align:right">vCPU</span><span style="text-align:right">MEMORY</span><span style="text-align:right">DISK</span><span>${extraHeader}</span></div>
       ${specRows.map(r => `<div style="${ROW}">
-        <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:14px;font-weight:600">${r.name}</span><span style="font-size:11.5px;color:#8b95a3">${r.sub}</span></span>
+        <span style="display:flex;flex-direction:column;gap:1px;min-width:0"><span style="font-size:14px;font-weight:600">${r.name}</span><span style="font-size:11.5px;color:var(--text-dim)">${r.sub}</span></span>
         <span style="${NUM}">${r.cpu}</span><span style="${NUM}">${r.ram}</span><span style="${NUM}">${r.disk}</span>
-        <span style="display:flex;flex-direction:column;gap:1px;font-size:11.5px;color:#5a6472;align-self:center"><span style="font-family:'IBM Plex Mono',monospace;color:#1d2126">${r.extra}</span><span style="color:#a3abb5">${r.extraSub}</span></span>
+        <span style="display:flex;flex-direction:column;gap:1px;font-size:11.5px;color:var(--text-muted);align-self:center"><span style="font-family:'IBM Plex Mono',monospace;color:var(--text)">${r.extra}</span><span style="color:var(--text-dim)">${r.extraSub}</span></span>
       </div>`).join("")}
     </div>`;
 
@@ -269,28 +269,28 @@
       { title: "Load balancer", value: (category().loadbalancer[envKey()]||{}).type, note: "High availability and traffic distribution across the controller pair." }
     ];
     const sideBlock = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px">${sideCards.map(c =>
-      `<div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:7px"><span style="font-size:12.5px;font-weight:600">${c.title}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;letter-spacing:-.01em">${c.value}</span><span style="font-size:11.5px;color:#8b95a3;line-height:1.5">${c.note}</span></div>`).join("")}</div>`;
+      `<div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;flex-direction:column;gap:7px"><span style="font-size:12.5px;font-weight:600">${c.title}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:21px;font-weight:600;letter-spacing:-.01em">${c.value}</span><span style="font-size:11.5px;color:var(--text-dim);line-height:1.5">${c.note}</span></div>`).join("")}</div>`;
 
     const bars = [
-      { label: "Activity", formula: fmtTasks(t) + " ÷ 30 × 10 KB × " + s.activity + "d", value: gb(st.activity), color: "#186CDA", p: pct(st.activity) },
+      { label: "Activity", formula: fmtTasks(t) + " ÷ 30 × 10 KB × " + s.activity + "d", value: gb(st.activity), color: "var(--brand)", p: pct(st.activity) },
       { label: "History", formula: fmtTasks(t) + " ÷ 30 × 10 KB × " + s.history + "d", value: gb(st.history), color: "#7048C6", p: pct(st.history) },
       { label: "Audit", formula: fmtTasks(t) + "25% of task+activity+history × " + s.audit + "/" + s.history, value: gb(st.audit), color: "#0E8A76", p: pct(st.audit) }
     ];
-    const storageDetails = `<details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
-      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Where the database size comes from<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">${gb(st.total)}</span></summary>
+    const storageDetails = `<details style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 15px">
+      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--brand);font-size:11px">＋</span>Where the database size comes from<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">${gb(st.total)}</span></summary>
       <div style="display:flex;flex-direction:column;gap:8px;padding-top:11px">
-        ${bars.map(b => `<div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;align-items:baseline;gap:8px;font-size:12px"><span style="font-weight:500">${b.label}</span><span style="color:#8b95a3;font-size:11.5px">${b.formula}</span><span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:600">${b.value}</span></div><div style="height:7px;background:#eef0f3;border-radius:4px;overflow:hidden"><span style="display:block;height:100%;background:${b.color};border-radius:4px;width:${b.p}%"></span></div></div>`).join("")}
-        <p style="margin:4px 0 0;font-size:11.5px;color:#8b95a3;line-height:1.55">Based on ~10 KB per task execution per day across the retention window, audit at 25% of task+activity+history scaled by audit/history, plus a 310 MB WAR allowance and a 4x risk factor.</p>
+        ${bars.map(b => `<div style="display:flex;flex-direction:column;gap:4px"><div style="display:flex;align-items:baseline;gap:8px;font-size:12px"><span style="font-weight:500">${b.label}</span><span style="color:var(--text-dim);font-size:11.5px">${b.formula}</span><span style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-weight:600">${b.value}</span></div><div style="height:7px;background:#eef0f3;border-radius:4px;overflow:hidden"><span style="display:block;height:100%;background:${b.color};border-radius:4px;width:${b.p}%"></span></div></div>`).join("")}
+        <p style="margin:4px 0 0;font-size:11.5px;color:var(--text-dim);line-height:1.55">Based on ~10 KB per task execution per day across the retention window, audit at 25% of task+activity+history scaled by audit/history, plus a 310 MB WAR allowance and a 4x risk factor.</p>
       </div>
     </details>`;
 
-    const procurement = `<details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
-      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Procurement summary<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">plain text</span></summary>
+    const procurement = `<details style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 15px">
+      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--brand);font-size:11px">＋</span>Procurement summary<span style="margin-left:auto;font-size:11px;color:#98a1ad;font-family:'IBM Plex Mono',monospace">plain text</span></summary>
       <pre style="margin:11px 0 0;background:#12181f;border-radius:8px;padding:12px 14px;overflow:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;line-height:1.8;color:#cdd4db;white-space:pre-wrap">${esc(summary())}</pre>
     </details>`;
 
-    const arch = `<details style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:11px 15px">
-      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:#186CDA;font-size:11px">＋</span>Reference architecture<span style="margin-left:auto;font-size:11px;color:#98a1ad">active / passive controllers, shared DB and file system</span></summary>
+    const arch = `<details style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:11px 15px">
+      <summary style="cursor:pointer;list-style:none;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:8px"><span style="color:var(--brand);font-size:11px">＋</span>Reference architecture<span style="margin-left:auto;font-size:11px;color:#98a1ad">active / passive controllers, shared DB and file system</span></summary>
       <img src="architecture.png" alt="UAC architecture" style="display:block;max-width:100%;margin:12px auto 0">
     </details>`;
 
@@ -322,13 +322,13 @@
       { title: "Log & backup share", value: gb(st.backupGb) },
       { title: "Load balancer", value: (category().loadbalancer[envKey()]||{}).type }
     ];
-    return `<div style="display:flex;align-items:flex-end;gap:14px;border-bottom:2px solid #12233d;padding-bottom:8px">
+    return `<div style="display:flex;align-items:flex-end;gap:14px;border-bottom:2px solid var(--ink);padding-bottom:8px">
         <div style="display:flex;flex-direction:column;gap:2px"><span style="font-family:'IBM Plex Mono',monospace;font-size:8.5pt;letter-spacing:.12em;color:#666">STONEBRANCH UAC · HARDWARE SIZING</span><span style="font-size:20pt;font-weight:600;letter-spacing:-.01em;line-height:1.1">${categoryName()} deployment</span></div>
         <span style="margin-left:auto;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:9pt;color:#444">${targetLabel()}<br>${printDate}</span>
       </div>
       <table style="width:100%;border-collapse:collapse;margin-top:12px" class="pbreak"><tbody>${printInputs.map(r => `<tr><td style="width:34%;padding:4px 0;font-size:9.5pt;color:#555;vertical-align:top">${r.label}</td><td style="padding:4px 0;font-family:'IBM Plex Mono',monospace;font-size:10pt;font-weight:500">${r.value}</td></tr>`).join("")}</tbody></table>
       <h2 style="margin:18px 0 6px;font-size:12pt;font-weight:600;letter-spacing:.02em">Server specifications</h2>
-      <table style="width:100%;border-collapse:collapse" class="pbreak"><thead><tr style="border-bottom:1px solid #12233d">
+      <table style="width:100%;border-collapse:collapse" class="pbreak"><thead><tr style="border-bottom:1px solid var(--ink)">
         <th style="text-align:left;padding:5px 6px 5px 0;font-size:8.5pt;letter-spacing:.09em;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">SERVER</th><th style="text-align:right;padding:5px 6px;font-size:8.5pt;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">vCPU</th><th style="text-align:right;padding:5px 6px;font-size:8.5pt;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">MEMORY</th><th style="text-align:right;padding:5px 6px;font-size:8.5pt;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">DISK</th><th style="text-align:left;padding:5px 0 5px 12px;font-size:8.5pt;color:#555;font-family:'IBM Plex Mono',monospace;font-weight:500">${s.deployment === "on-prem" ? "NOTES" : "INSTANCE"}</th>
       </tr></thead><tbody>${specRows.map(r => `<tr style="border-bottom:1px solid #ddd"><td style="padding:8px 6px 8px 0;vertical-align:top"><span style="font-size:10.5pt;font-weight:600;display:block">${r.name}</span><span style="font-size:8.5pt;color:#666">${r.sub}</span></td><td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">${r.cpu}</td><td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">${r.ram}</td><td style="padding:8px 6px;text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12pt;font-weight:600">${r.disk}</td><td style="padding:8px 0 8px 12px;vertical-align:top"><span style="font-family:'IBM Plex Mono',monospace;font-size:9.5pt;display:block">${r.extra}</span><span style="font-size:8.5pt;color:#666">${r.extraSub}</span></td></tr>`).join("")}</tbody></table>
       <div style="display:flex;gap:22px;margin-top:18px" class="pbreak">

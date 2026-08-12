@@ -900,7 +900,7 @@ const sizingMatrix = [
     { 
       name: "Small", 
       max_tasks: 500000,
-      description: "Recommended for smaller production workloads",
+      description: "Suitable for smaller workloads",
       agent: { cpu: 2, memory: 8, disk: "SSD/GP3 50 GB" },
       controller: { 
         cpu: 4, memory: 8, jvm: 6, baseDisk: 50,
@@ -941,7 +941,7 @@ const sizingMatrix = [
     { 
       name: "Medium", 
       max_tasks: 3000000,
-      description: "Standard mid-size production environments",
+      description: "Standard mid-size environments",
       agent: { cpu: 2, memory: 8, disk: "SSD/GP3 100 GB" },
       controller: { 
         cpu: 4, memory: 16, jvm: 12, baseDisk: 100,

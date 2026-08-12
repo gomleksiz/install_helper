@@ -24,7 +24,7 @@
     </header>
 
     <div class="info-banner">
-        <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
+        <span class="pill"><span class="dot">i</span>Reference only — for non-production environments. Always verify against official Stonebranch documentation; for production setups follow the documentation and contact Stonebranch support for help.</span>
     </div>
 
     <form id="environment-form" class="layout">
@@ -191,7 +191,7 @@
                 </details>
                 <details>
                     <summary><span class="marker">＋</span>JVM memory (setenv)<span class="hint">Xms 512m</span></summary>
-                    <p>Choosing a heap size writes a setenv.sh in the Tomcat bin/ directory that sets CATALINA_OPTS. Default leaves Tomcat's built-in settings alone. See the Sizing Calculator for production numbers.</p>
+                    <p>Choosing a heap size writes a setenv.sh in the Tomcat bin/ directory that sets CATALINA_OPTS. Default leaves Tomcat's built-in settings alone. See the Sizing Calculator for heap sizing guidance.</p>
                 </details>
                 <details>
                     <summary><span class="marker">＋</span>systemd service file<span class="hint">manual installs only</span></summary>

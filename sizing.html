@@ -24,30 +24,34 @@
         </nav>
     </header>
 
-    <main class="noprint" style="flex:1;width:100%;max-width:1180px;margin:0 auto;padding:18px 22px 0;display:flex;flex-direction:column;gap:16px">
+    <div class="info-banner noprint">
+        <span class="pill"><span class="dot">i</span>Reference only — for non-production environments. Always verify against official Stonebranch documentation; for production setups follow the documentation and contact Stonebranch support for help.</span>
+    </div>
 
-        <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+    <main class="sizing-main noprint">
+
+        <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
             <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
                 <span style="font-size:13px;font-weight:600">Workload</span>
-                <span style="font-size:11.5px;color:#8b95a3">pick a category, or fine-tune the volume below</span>
+                <span style="font-size:11.5px;color:var(--text-dim)">pick a category, or fine-tune the volume below</span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:9px" id="cat-grid"></div>
-            <div style="display:flex;flex-direction:column;gap:6px;padding-top:11px;border-top:1px dashed #e6e9ed">
+            <div style="display:flex;flex-direction:column;gap:6px;padding-top:11px;border-top:1px dashed var(--dash)">
                 <div style="display:flex;align-items:baseline;gap:10px">
-                    <span style="font-size:12px;color:#7a8493">Task executions per month</span>
+                    <span style="font-size:12px;color:var(--text-faint)">Task executions per month</span>
                     <span id="task-label" style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:19px;font-weight:600"></span>
                 </div>
                 <input type="range" id="tasks" min="0" max="13" step="1" value="8">
-                <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:#a3abb5"><span>10K</span><span>100K</span><span>500K</span><span>3M</span><span>10M</span><span>15M</span></div>
+                <div style="display:flex;justify-content:space-between;font-family:'IBM Plex Mono',monospace;font-size:9.5px;color:var(--text-dim)"><span>10K</span><span>100K</span><span>500K</span><span>3M</span><span>10M</span><span>15M</span></div>
             </div>
         </div>
 
         <div style="display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:16px" id="mid-grid">
-            <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px">
                 <span style="font-size:13px;font-weight:600">Retention</span>
                 <div id="retention-rows" style="display:flex;flex-direction:column;gap:12px"></div>
             </div>
-            <div style="background:#fff;border:1px solid #dfe3e8;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px" id="deploy-block"></div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:12px" id="deploy-block"></div>
         </div>
 
         <div id="sizing-result" style="display:flex;flex-direction:column;gap:14px;padding-top:4px"></div>

@@ -23,10 +23,12 @@
             <a href="sizing.html">Sizing</a>
         </nav>
     </header>
-    <main class="pc-page" style="padding:16px 22px">
-        <div class="info-banner" style="padding:0 0 12px">
-            <span class="pill"><span class="dot">i</span>Reference only — always verify against official Stonebranch documentation.</span>
-        </div>
+
+    <div class="info-banner">
+        <span class="pill"><span class="dot">i</span>Reference only — for non-production environments. Always verify against official Stonebranch documentation; for production setups follow the documentation and contact Stonebranch support for help.</span>
+    </div>
+
+    <main class="pc-page">
         <h2>Post Configuration</h2>
         <p>Recommended configuration steps to perform after installing Universal Controller and Universal Agent components.</p>
 
@@ -122,7 +124,7 @@
                         </tr>
                         <tr>
                             <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#change-history-enabled" target="_blank" rel="noopener">Change History Enabled</a><span class="prop-hint">Controls whether users are prompted with a Change Description field when modifying records. Expected: true or false.</span></td>
-                            <td><code>true</code> <em>(recommended for prod)</em></td>
+                            <td><code>true</code></td>
                         </tr>
                         <tr>
                             <td><a class="prop-name" href="https://docs.stonebranch.com/uac/uc/properties-system#critical-path-calculations-permitted" target="_blank" rel="noopener">Critical Path Calculations Permitted</a><span class="prop-hint">Determines whether users can utilize the Critical Path feature. Expected: true or false.</span></td>

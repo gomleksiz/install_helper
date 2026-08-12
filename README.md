@@ -2,6 +2,28 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.1.0 — consistent page shell and agent defaults
+
+**Scope notice:** this tool targets **non-production** environments. For production setups,
+follow the official Stonebranch documentation — Stonebranch support can help. Production-specific
+recommendations have been removed from the generated guidance.
+
+Agent form changes:
+
+- **OMS autostart** and **Agent Python** are now **selected by default** on both the Agent (Linux) and Agent (Windows) pages, so the generated command includes them unless you turn them off
+- **Agent (Windows) Connection card** now matches the Agent (Linux) layout — OMS servers on its own line, the toggle pills on a shared row, and **Agent cluster on its own line** (previously all four were crammed into one wrapping row with CSS `order` overrides). Generated MSI parameter order is unchanged.
+- Windows now gets the same **OMS servers validation** feedback as Linux
+- The **"Reference only" banner is larger and red** on every page, and states the non-production scope
+
+Layout consistency — every page now shares one centered content width, so switching pages no
+longer shifts the layout horizontally:
+
+- **Unified shell**: a single `--shell-max` / `--shell-gutter` pair in `style.css` drives the header, info banner, page body and footer, so all four align on the same left/right edges on every page. Previously the home page capped at 1100px left-aligned, Sizing at 1180px centered, and the form and Post Config pages ran full width.
+- **Consistent gutters** at every breakpoint — the narrow-screen gutter now applies to all pages, not just the two-column form pages
+- **Info banner added to the Sizing page**, the only page that was missing it (hidden in the print/PDF view)
+- **Home page styles moved** out of an inline `<style>` block in `index.html` and into `style.css`
+- **Sizing page** now uses the shared design tokens instead of hardcoded hex colors
+
 ## ✨ What's new in 1.0.0 — full redesign
 
 The whole site was rebuilt on a new design system. The generated commands and scripts are **unchanged** — the redesign was verified to produce byte-identical output to the previous version for the same inputs.
