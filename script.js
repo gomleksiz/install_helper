@@ -164,6 +164,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     createGroupCheckbox.checked = false;
                     createGroupCheckbox.disabled = true;
                 }
+                const createUserNote = document.getElementById('create-user-note');
+                if (createUserNote) createUserNote.style.display = '';
             } else {
                 noRootPostinstallGroup.style.display = 'none';
                 // Uncheck the post-install checkbox when hiding
@@ -179,6 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (createGroupCheckbox) {
                     createGroupCheckbox.disabled = false;
                 }
+                const createUserNote = document.getElementById('create-user-note');
+                if (createUserNote) createUserNote.style.display = 'none';
             }
         }
     }
@@ -411,12 +415,12 @@ function handleLinuxForm(form, script, prefix, defaults, isLive) {
                 continue;
             }
 
-            // Special handling for create_user and create_group
+            // Special handling for create_user and create_group. Emit whenever ticked —
+            // creating the installer's default 'ubroker' account is a valid request, and
+            // previously the flag was silently dropped for it, so the checkbox did nothing.
+            // The loop above already skips hidden inputs, so a collapsed section stays out.
             if (name === 'create_user' || name === 'create_group') {
-                const userValue = document.getElementById('user').value.trim();
-                const isUbrokerOrEmpty = !userValue || userValue === 'ubroker';
-                
-                if (element.checked && !isUbrokerOrEmpty) {
+                if (element.checked) {
                     command += ` --${name} yes`;
                 }
                 continue;

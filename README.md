@@ -2,6 +2,12 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.3.0 — Agent (Linux) form fixes
+
+- **Fixed: "create user" / "create group" had no effect** when the user field was left empty or set to `ubroker`. The flags were silently dropped, so ticking the boxes did nothing. They are now emitted whenever ticked — creating the installer's default `ubroker` account is a valid request.
+- **Installation folder fields are now full width**, one per row. Base/Install/Config/Data directory previously shared a single wrapping row at ~132px each, too narrow to read a path like `/var/opt/universal`.
+- The "create user"/"create group" checkboxes are still disabled for **Regular user (no root)** installs — creating a system account needs root — but now show a note saying so instead of just appearing greyed out.
+
 ## ✨ What's new in 1.2.1 — setenv command form
 
 - **`setenv.sh` is now written with `sudo sh -c` instead of a `sudo tee` heredoc**, on both the Prerequisite and Controller pages. Note the quote escaping is required: `echo CATALINA_OPTS=\"...\"` — without the backslashes the inner shell strips the quotes and `CATALINA_OPTS` silently loses its `-Xmx` value. (`sudo -c` is not a valid option; the shell itself has to run as root so the redirect happens in root's shell.)

@@ -82,24 +82,25 @@
                         <div style="display:flex;gap:14px">
                             <label class="check" for="create_user"><input type="checkbox" id="create_user" name="create_user">create user</label>
                             <label class="check" for="create_group"><input type="checkbox" id="create_group" name="create_group">create group</label>
+                            <span class="field-note" id="create-user-note" style="display:none">needs root — unavailable for regular-user installs</span>
                         </div>
                     </div>
                 </div>
 
                 <div id="user-mode-parameters" style="display:none">
                     <div class="fields-grid">
-                        <label class="field" for="basedir">Base directory
+                        <label class="field full" for="basedir">Base directory
                             <input type="text" id="basedir" name="basedir" placeholder="/usr/local">
                         </label>
-                        <label class="field" id="unvdir-group" for="unvdir">Install directory
+                        <label class="field full" id="unvdir-group" for="unvdir">Install directory
                             <input type="text" id="unvdir" name="unvdir" placeholder="/opt/universal">
                             <span class="field-error" id="unvdir-error"></span>
                         </label>
-                        <label class="field" id="unvcfgdir-group" for="unvcfgdir">Config directory
+                        <label class="field full" id="unvcfgdir-group" for="unvcfgdir">Config directory
                             <input type="text" id="unvcfgdir" name="unvcfgdir" placeholder="/etc/universal">
                             <span class="field-error" id="unvcfgdir-error"></span>
                         </label>
-                        <label class="field" id="unvdatadir-group" for="unvdatadir">Data directory
+                        <label class="field full" id="unvdatadir-group" for="unvdatadir">Data directory
                             <input type="text" id="unvdatadir" name="unvdatadir" placeholder="/var/opt/universal">
                             <span class="field-error" id="unvdatadir-error"></span>
                         </label>
