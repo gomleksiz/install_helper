@@ -825,10 +825,12 @@ function handleControllerForm(form, script, prefix, defaults, isLive) {
             setenvCommand = `REM Run from an elevated Command Prompt — Tomcat's bin directory is not user-writable\n`
                 + `echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "${binDir}\\setenv.bat"`;
         } else {
-            // sudo tee, not `cat >` or `sudo cat >` — the redirection runs in the calling
-            // shell, which does not own Tomcat's bin directory after installation.
+            // `sudo sh -c`, not `cat >` or `sudo cat >` — the redirection has to happen in a
+            // root shell, since the calling user does not own Tomcat's bin directory. The \"
+            // escapes keep the quotes in the written file; without them the inner shell strips
+            // them and CATALINA_OPTS loses its -Xmx value.
             const binDir = tomcatDir.replace(/\/$/, '') + '/bin';
-            setenvCommand = `sudo tee ${binDir}/setenv.sh > /dev/null << 'EOF'\nCATALINA_OPTS="-Xms${xms} -Xmx${xmx}"\nEOF\nsudo chmod +x ${binDir}/setenv.sh`;
+            setenvCommand = `sudo sh -c 'echo CATALINA_OPTS=\\"-Xms${xms} -Xmx${xmx}\\" > ${binDir}/setenv.sh'\nsudo chmod +x ${binDir}/setenv.sh`;
         }
 
         const additionalCommand = document.getElementById('additional-command');

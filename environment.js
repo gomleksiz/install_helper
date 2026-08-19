@@ -412,11 +412,11 @@ function generateEnvironmentScript() {
                 binDir = '/usr/share/tomcat/bin';
             }
             commands.push('# Configure JVM Memory (setenv.sh)');
-            // sudo tee, not `sudo cat >` — the redirection would run in the calling
-            // shell, which no longer owns this directory after the chown above.
-            commands.push(`sudo tee ${binDir}/setenv.sh > /dev/null << 'EOF'`);
-            commands.push(`CATALINA_OPTS="-Xms${xms} -Xmx${xmx}"`);
-            commands.push('EOF');
+            // `sudo sh -c`, not a plain `sudo cat >` — the redirection has to happen in a
+            // root shell, since the calling user no longer owns this directory after the
+            // chown above. The \" escapes keep the quotes in the written file: without
+            // them the inner shell strips them and CATALINA_OPTS loses its -Xmx value.
+            commands.push(`sudo sh -c 'echo CATALINA_OPTS=\\"-Xms${xms} -Xmx${xmx}\\" > ${binDir}/setenv.sh'`);
             // 640 rather than +x when hardened: catalina.sh sources setenv.sh, it never execs it.
             commands.push(`sudo chmod ${setenvMode || '+x'} ${binDir}/setenv.sh`);
             if (setenvOwner) {
@@ -443,10 +443,8 @@ function generateEnvironmentScript() {
             const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
             const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
             commands.push(`# Start Tomcat as the ${tomcatUser} user.`);
-            commands.push(`# runuser (not sudo -u / su -) because ${tomcatUser} is a service account`);
-            commands.push('# with no login shell — su and "sudo -u ... -i" fail on those accounts.');
             commands.push('# For a permanent setup prefer the systemd unit option above.');
-            commands.push(`sudo runuser -u ${tomcatUser} -- ${tomcatFolder}/bin/startup.sh`);
+            commands.push(`sudo -u ${tomcatUser} ${tomcatFolder}/bin/startup.sh`);
             commands.push('# Verify Tomcat is responding (default port 8080) — allow time to boot');
             commands.push('sleep 10');
             commands.push('curl -I http://localhost:8080/');

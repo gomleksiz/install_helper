@@ -2,6 +2,11 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.2.1 — setenv command form
+
+- **`setenv.sh` is now written with `sudo sh -c` instead of a `sudo tee` heredoc**, on both the Prerequisite and Controller pages. Note the quote escaping is required: `echo CATALINA_OPTS=\"...\"` — without the backslashes the inner shell strips the quotes and `CATALINA_OPTS` silently loses its `-Xmx` value. (`sudo -c` is not a valid option; the shell itself has to run as root so the redirect happens in root's shell.)
+- **Tomcat is started with `sudo -u` again** rather than `runuser`.
+
 ## ✨ What's new in 1.2.0 — Tomcat permission fixes
 
 - **Fixed: `setenv.sh` failed with "Permission denied" on the Controller page.** It was written with a bare `cat >` redirect into Tomcat's `bin/`, which the Prerequisite page has already handed to the Tomcat user. Now uses `sudo tee` — note that `sudo cat >` would not have worked either, since the redirect runs in the calling shell.
