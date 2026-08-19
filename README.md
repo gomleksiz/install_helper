@@ -2,6 +2,12 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.2.0 — Tomcat permission fixes
+
+- **Fixed: `setenv.sh` failed with "Permission denied" on the Controller page.** It was written with a bare `cat >` redirect into Tomcat's `bin/`, which the Prerequisite page has already handed to the Tomcat user. Now uses `sudo tee` — note that `sudo cat >` would not have worked either, since the redirect runs in the calling shell.
+- **New optional "harden permissions" checkbox** on the Prerequisite page (manual Tomcat install, off by default). When enabled, root takes back `bin/`, `lib/` and `conf/` so a compromised Tomcat cannot rewrite its own startup scripts, drop a jar or edit `server.xml`. The install root stays owned by the Tomcat user because Universal Controller creates `uc_logs/` and `uc_export/` underneath it; `logs/`, `temp/`, `work/` and `webapps/` stay writable by inheritance. With the box unticked the generated script is unchanged.
+- Tomcat is now started with `runuser` rather than `sudo -u`, which is the correct tool for a service account with no login shell, and the verification `curl` waits for Tomcat to boot first.
+
 ## ✨ What's new in 1.1.0 — consistent page shell and agent defaults
 
 **Scope notice:** this tool targets **non-production** environments. For production setups,

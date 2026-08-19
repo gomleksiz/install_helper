@@ -366,7 +366,8 @@ function generateEnvironmentScript() {
                 const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
                 const createUser = document.getElementById('create_tomcat_user').checked;
                 const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
-                const tomcatCommands = generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder);
+                const hardenPerms = document.getElementById('harden_tomcat_perms')?.checked || false;
+                const tomcatCommands = generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder, hardenPerms);
                 commands.push('# Install Tomcat 10 Manually');
                 commands.push(...tomcatCommands);
                 commands.push('');
@@ -387,19 +388,40 @@ function generateEnvironmentScript() {
             const xmx = (document.getElementById('env_xmx').value.trim()) || '2G';
             const tomcatMethod = document.getElementById('tomcat_method').value;
             let binDir;
+            let setenvOwner = '';
+            let setenvMode = '';
             if (tomcatMethod === 'manual') {
                 const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
                 binDir = `${tomcatFolder}/bin`;
+                // The manual install chowns the whole tree to the Tomcat user, so the new
+                // file has to be created with sudo and then handed to that user too —
+                // unless hardening applies, where bin/ is root-owned and Tomcat only reads it.
+                const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
+                if (tomcatUser !== 'root') {
+                    if (document.getElementById('harden_tomcat_perms')?.checked) {
+                        // bin/ is root-owned under hardening; Tomcat sources this file, never writes it.
+                        setenvOwner = `root:${tomcatUser}`;
+                        setenvMode = '640';
+                    } else {
+                        setenvOwner = `${tomcatUser}:${tomcatUser}`;
+                    }
+                }
             } else if (osEnvironment === 'ubuntu') {
                 binDir = '/usr/share/tomcat10/bin';
             } else {
                 binDir = '/usr/share/tomcat/bin';
             }
             commands.push('# Configure JVM Memory (setenv.sh)');
-            commands.push(`cat > ${binDir}/setenv.sh << 'EOF'`);
+            // sudo tee, not `sudo cat >` — the redirection would run in the calling
+            // shell, which no longer owns this directory after the chown above.
+            commands.push(`sudo tee ${binDir}/setenv.sh > /dev/null << 'EOF'`);
             commands.push(`CATALINA_OPTS="-Xms${xms} -Xmx${xmx}"`);
             commands.push('EOF');
-            commands.push(`chmod +x ${binDir}/setenv.sh`);
+            // 640 rather than +x when hardened: catalina.sh sources setenv.sh, it never execs it.
+            commands.push(`sudo chmod ${setenvMode || '+x'} ${binDir}/setenv.sh`);
+            if (setenvOwner) {
+                commands.push(`sudo chown ${setenvOwner} ${binDir}/setenv.sh`);
+            }
             if (tomcatMethod === 'package') {
                 commands.push('# Restart Tomcat to apply the new JVM memory settings');
                 commands.push('sudo systemctl restart tomcat10');
@@ -420,9 +442,13 @@ function generateEnvironmentScript() {
             // No systemd unit requested: start Tomcat directly as the tomcat user
             const tomcatUser = document.getElementById('tomcat_user').value.trim() || 'tomcat';
             const tomcatFolder = document.getElementById('tomcat_folder').value.trim() || '/opt/tomcat';
-            commands.push(`# Start Tomcat as the ${tomcatUser} user`);
-            commands.push(`sudo -u ${tomcatUser} ${tomcatFolder}/bin/startup.sh`);
-            commands.push('# Verify Tomcat is responding (default port 8080)');
+            commands.push(`# Start Tomcat as the ${tomcatUser} user.`);
+            commands.push(`# runuser (not sudo -u / su -) because ${tomcatUser} is a service account`);
+            commands.push('# with no login shell — su and "sudo -u ... -i" fail on those accounts.');
+            commands.push('# For a permanent setup prefer the systemd unit option above.');
+            commands.push(`sudo runuser -u ${tomcatUser} -- ${tomcatFolder}/bin/startup.sh`);
+            commands.push('# Verify Tomcat is responding (default port 8080) — allow time to boot');
+            commands.push('sleep 10');
             commands.push('curl -I http://localhost:8080/');
             commands.push('');
         }
@@ -608,7 +634,7 @@ function generateTomcatPackageCommand(osEnvironment) {
     return commands;
 }
 
-function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder) {
+function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder, hardenPerms) {
     const commands = [];
     const downloadUrl = getTomcatDownloadUrl();
     const filename = downloadUrl.split('/').pop();
@@ -638,6 +664,18 @@ function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder) {
 
     commands.push('# Set permissions (trailing slash dereferences the symlink so -R recurses into the real directory)');
     commands.push(`sudo chown -R ${tomcatUser}:${tomcatUser} ${tomcatFolder}/`);
+
+    // Hardening keeps the blanket chown above as the base and takes back only the
+    // executable/config surface. The install root itself has to stay owned by the
+    // service account: Universal Controller creates uc_logs/ and uc_export/ under it.
+    if (hardenPerms && tomcatUser !== 'root') {
+        commands.push('# Tomcat creates its config base at startup; pre-create it so root can keep conf/');
+        commands.push(`sudo mkdir -p ${tomcatFolder}/conf/Catalina/localhost`);
+        commands.push('# Take back the directories Tomcat must not be able to modify at runtime');
+        commands.push(`sudo chown -R root:${tomcatUser} ${tomcatFolder}/bin/ ${tomcatFolder}/lib/ ${tomcatFolder}/conf/`);
+        commands.push(`sudo chmod -R g-w,o-rwx ${tomcatFolder}/conf/`);
+    }
+
     commands.push(`sudo chmod +x ${tomcatFolder}/bin/*.sh`);
 
     return commands;

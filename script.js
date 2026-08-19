@@ -822,10 +822,13 @@ function handleControllerForm(form, script, prefix, defaults, isLive) {
         let setenvCommand;
         if (isWindowsPath) {
             const binDir = tomcatDir.replace(/\\$/, '') + '\\bin';
-            setenvCommand = `echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "${binDir}\\setenv.bat"`;
+            setenvCommand = `REM Run from an elevated Command Prompt — Tomcat's bin directory is not user-writable\n`
+                + `echo set "CATALINA_OPTS=-Xms${xms} -Xmx${xmx}" > "${binDir}\\setenv.bat"`;
         } else {
+            // sudo tee, not `cat >` or `sudo cat >` — the redirection runs in the calling
+            // shell, which does not own Tomcat's bin directory after installation.
             const binDir = tomcatDir.replace(/\/$/, '') + '/bin';
-            setenvCommand = `cat > ${binDir}/setenv.sh << 'EOF'\nCATALINA_OPTS="-Xms${xms} -Xmx${xmx}"\nEOF\nchmod +x ${binDir}/setenv.sh`;
+            setenvCommand = `sudo tee ${binDir}/setenv.sh > /dev/null << 'EOF'\nCATALINA_OPTS="-Xms${xms} -Xmx${xmx}"\nEOF\nsudo chmod +x ${binDir}/setenv.sh`;
         }
 
         const additionalCommand = document.getElementById('additional-command');
