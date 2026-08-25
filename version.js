@@ -1,12 +1,13 @@
 // Central version configuration
-const APP_VERSION = "1.4.0";
+const APP_VERSION = "1.4.1";
 
 // Function to display version in footer
+// The footer is a flex row of <span>s (.site-footer); the copyright span is the
+// one containing ©. Older pages used <p>, so both are matched.
 function displayVersion() {
-    const footers = document.querySelectorAll('footer p');
-    footers.forEach(footer => {
-        if (footer.textContent.includes('©')) {
-            footer.textContent = `© 2025 | Version ${APP_VERSION}`;
+    document.querySelectorAll('footer p, footer span').forEach(el => {
+        if (el.textContent.includes('\u00a9')) {
+            el.textContent = `\u00a9 2025 | Version ${APP_VERSION}`;
         }
     });
 }

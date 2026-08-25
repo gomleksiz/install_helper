@@ -2,6 +2,10 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.4.1 — version now shows in the footer
+
+- **Fixed: the app version never appeared in the footer.** `displayVersion()` looked for `footer p`, but the redesigned footer (`.site-footer`) is a flex row of `<span>`s, so the selector matched nothing on every page. It now matches both, and the footer reads `© 2025 | Version 1.4.1`.
+
 ## ✨ What's new in 1.4.0 — Windows account prerequisites
 
 - **New "Windows account prerequisites" card on the Agent (Windows) page.** Lists the user rights the Universal Broker service account needs (Act as part of the operating system, Log on as a service, Replace a process level token, Impersonate a client after authentication, Adjust memory quotas, Increase scheduling priority, Bypass traverse checking, Debug programs, Take ownership) **with an explanation of what Universal Agent actually uses each one for**, so you can justify them to a Windows admin rather than just requesting a list.
