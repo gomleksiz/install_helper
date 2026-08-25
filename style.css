@@ -405,3 +405,11 @@ summary::-webkit-details-marker { display: none; }
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; }
 }
+
+/* Windows account prerequisites — rights table (agent_windows.html) */
+.rights-table { width: 100%; border-collapse: collapse; font-size: 12px; margin-top: 4px; }
+.rights-table th, .rights-table td { text-align: left; padding: 6px 10px 6px 0; border-bottom: 1px solid var(--border-soft); vertical-align: top; }
+.rights-table th { font-size: 11px; font-weight: 600; color: var(--text-faint); text-transform: uppercase; letter-spacing: .04em; }
+.rights-table tr:last-child td { border-bottom: none; }
+.rights-table td.right { font-family: var(--font-mono, ui-monospace, Menlo, monospace); color: var(--text); white-space: normal; width: 40%; }
+.rights-table td.why { color: var(--text-muted); line-height: 1.55; }

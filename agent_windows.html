@@ -6,7 +6,7 @@
     <title>Agent (Windows) - Command Generator</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=20260813">
+    <link rel="stylesheet" href="style.css?v=20260825">
 </head>
 <body>
 <div class="page">
@@ -56,6 +56,46 @@
                         </label>
                     </div>
                 </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title-row">
+                    <span class="card-title">Windows account prerequisites</span>
+                    <span class="rule"></span>
+                    <span class="field-note">before you run the installer</span>
+                </div>
+                <p class="field-note">The account you <strong>install with</strong> must be a local administrator. Separately, the account the <strong>Universal Broker service runs as</strong> needs the user rights below — or you can let it run as <code class="inline-code">Local System</code>. A system install creates the <code class="inline-code">UBrokerService</code> account with these rights automatically if it does not already exist.</p>
+                <table class="rights-table">
+                    <thead>
+                        <tr><th scope="col">User right</th><th scope="col">What Universal Agent needs it for</th></tr>
+                    </thead>
+                    <tbody>
+                        <tr><td class="right">Act as part of the operating system</td><td class="why">Lets the Broker build a logon token for another user, so tasks can run under the account the Controller specifies instead of the service account.</td></tr>
+                        <tr><td class="right">Log on as a service</td><td class="why">Required for the Universal Broker service to start at all under this account.</td></tr>
+                        <tr><td class="right">Replace a process level token</td><td class="why">Hands the token it created to the child process it launches for each task.</td></tr>
+                        <tr><td class="right">Impersonate a client after authentication</td><td class="why">Lets the Broker act on behalf of the authenticated user when checking access to files and resources.</td></tr>
+                        <tr><td class="right">Adjust memory quotas for a process</td><td class="why">Sets the memory quota on the task processes it spawns for other users.</td></tr>
+                        <tr><td class="right">Increase scheduling priority</td><td class="why">Adjusts process priority so component and task processes get scheduled predictably.</td></tr>
+                        <tr><td class="right">Bypass traverse checking</td><td class="why">Reaches working directories, scripts and spool files through paths whose parent folders it cannot list.</td></tr>
+                        <tr><td class="right">Debug programs</td><td class="why">Opens and manages the task processes it started — status, resource usage and termination.</td></tr>
+                        <tr><td class="right">Take ownership of files and other objects</td><td class="why">Manages files and spool data left behind by tasks that ran as other users.</td></tr>
+                    </tbody>
+                </table>
+                <div class="guides" style="padding:6px 0 0">
+                    <details>
+                        <summary><span class="marker">＋</span>Extra rights for a system install<span class="hint">hardening the service account</span></summary>
+                        <p>A system install also sets <code class="inline-code">Access this computer from the network</code>, plus the deny rights <code class="inline-code">Deny log on as a batch job</code>, <code class="inline-code">Deny log on locally</code> and <code class="inline-code">Deny log on through Terminal Services</code>. The deny rights are protective: the service account is powerful, so it is blocked from being used to sign in interactively or submit batch jobs.</p>
+                    </details>
+                    <details>
+                        <summary><span class="marker">＋</span>Using a domain account<span class="hint">AD policy</span></summary>
+                        <p>A domain account must be granted these rights on the local machine or through Active Directory policy. Depending on the environment it may also need to be in Domain Admins so it is recognised consistently across the domain.</p>
+                    </details>
+                    <details>
+                        <summary><span class="marker">＋</span>Local System instead<span class="hint">simplest option</span></summary>
+                        <p>Running the Broker as <code class="inline-code">Local System</code> avoids managing these rights and password expiry, but the service then holds full local machine authority and cannot use a domain identity for network access. Prefer a dedicated service account where domain resources or least privilege matter.</p>
+                    </details>
+                </div>
+                <p class="field-note">Source: <a href="https://docs.stonebranch.com/uac/ua/installation-requirements-and-summary-windows" target="_blank" rel="noopener">Stonebranch — Installation Requirements and Summary (Windows)</a></p>
             </div>
 
         </div>

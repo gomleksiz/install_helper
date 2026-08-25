@@ -2,6 +2,12 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.4.0 — Windows account prerequisites
+
+- **New "Windows account prerequisites" card on the Agent (Windows) page.** Lists the user rights the Universal Broker service account needs (Act as part of the operating system, Log on as a service, Replace a process level token, Impersonate a client after authentication, Adjust memory quotas, Increase scheduling priority, Bypass traverse checking, Debug programs, Take ownership) **with an explanation of what Universal Agent actually uses each one for**, so you can justify them to a Windows admin rather than just requesting a list.
+- Expandable notes cover the **extra rights a system install sets** (including the deny-logon rights and why they are protective), **domain account** considerations, and the **Local System** alternative with its trade-offs.
+- Links back to the official Stonebranch requirements page.
+
 ## ✨ What's new in 1.3.0 — Agent (Linux) form fixes
 
 - **Fixed: "create user" / "create group" had no effect** when the user field was left empty or set to `ubroker`. The flags were silently dropped, so ticking the boxes did nothing. They are now emitted whenever ticked — creating the installer's default `ubroker` account is a valid request.
