@@ -577,9 +577,9 @@ function generateEnvironmentScript() {
 function generateJavaCommand(osEnvironment, javaVersion) {
     switch (osEnvironment) {
         case 'aws':
-            return `sudo yum install java-${javaVersion}-amazon-corretto-headless -y`;
+            return `sudo dnf install java-${javaVersion}-amazon-corretto-headless -y`;
         case 'rhel':
-            return `sudo yum install java-${javaVersion}-openjdk-headless -y`;
+            return `sudo dnf install java-${javaVersion}-openjdk-headless -y`;
         case 'ubuntu':
             return `sudo apt-get update && sudo apt-get install openjdk-${javaVersion}-jdk-headless -y`;
     }
@@ -600,7 +600,7 @@ function generateJavaManualCommand(javaVersion, isHeadless) {
     commands.push(`wget ${rpmUrl}`);
     commands.push('');
     commands.push('# Step 2: Install the RPM');
-    commands.push(`sudo yum localinstall -y ${filename}`);
+    commands.push(`sudo dnf install -y ./${filename}`);
     commands.push('');
     commands.push('# Step 3: Verify');
     commands.push('java -version');
@@ -614,7 +614,7 @@ function generateTomcatPackageCommand(osEnvironment) {
     switch (osEnvironment) {
         case 'aws':
         case 'rhel':
-            commands.push('sudo yum install tomcat10 -y');
+            commands.push('sudo dnf install tomcat10 -y');
             break;
         case 'ubuntu':
             commands.push('sudo apt-get update && sudo apt-get install tomcat10 -y');
@@ -686,9 +686,9 @@ function getTomcatDownloadUrl() {
 function generateAgentPrereqsCommand(osEnvironment) {
     switch (osEnvironment) {
         case 'aws':
-            return 'sudo yum install libxcrypt-compat -y';
+            return 'sudo dnf install libxcrypt-compat -y';
         case 'rhel':
-            return 'sudo yum install libxcrypt-compat -y';
+            return 'sudo dnf install libxcrypt-compat -y';
         case 'ubuntu':
             // Ubuntu typically doesn't need this package
             return '';
@@ -706,15 +706,15 @@ function generateDatabaseCommand(osEnvironment, databaseType, dbName, dbUser, db
         case 'aws':
         case 'rhel':
             if (databaseType === 'mysql') {
-                commands.push('sudo yum install mysql-server -y');
+                commands.push('sudo dnf install mysql-server -y');
                 commands.push('sudo systemctl start mysqld');
                 commands.push('sudo systemctl enable mysqld');
             } else if (databaseType === 'mariadb') {
-                commands.push('sudo yum install mariadb105-server -y');
+                commands.push('sudo dnf install mariadb105-server -y');
                 commands.push('sudo systemctl start mariadb');
                 commands.push('sudo systemctl enable mariadb');
             } else if (databaseType === 'postgres') {
-                commands.push('sudo yum install postgresql-server postgresql-contrib -y');
+                commands.push('sudo dnf install postgresql-server postgresql-contrib -y');
                 commands.push('sudo postgresql-setup --initdb');
                 commands.push('sudo systemctl start postgresql');
                 commands.push('sudo systemctl enable postgresql');

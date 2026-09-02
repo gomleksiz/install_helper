@@ -2,6 +2,12 @@
 
 A web-based tool for generating installation commands for Stonebranch Universal Agent and Controller components. This tool simplifies the process of creating properly formatted installation commands with the correct parameters for your specific environment.
 
+## ✨ What's new in 1.4.2 — dnf on RHEL / Amazon Linux
+
+- **`yum` replaced with `dnf`** throughout the RHEL and Amazon Linux command paths (Java, Tomcat, agent prerequisites and all three databases). Ubuntu/Debian still uses `apt-get`.
+- **`yum localinstall` became `dnf install -y ./<file>.rpm`** for the Corretto RPM — `localinstall` is deprecated under dnf, and a local file needs the `./` path prefix so it is not read as a package name.
+- Method labels now read **Package (dnf)** and **Package (dnf/apt)**.
+
 ## ✨ What's new in 1.4.1 — version now shows in the footer
 
 - **Fixed: the app version never appeared in the footer.** `displayVersion()` looked for `footer p`, but the redesigned footer (`.site-footer`) is a flex row of `<span>`s, so the selector matched nothing on every page. It now matches both, and the footer reads `© 2025 | Version 1.4.1`.
@@ -11,6 +17,7 @@ A web-based tool for generating installation commands for Stonebranch Universal 
 - **New "Windows account prerequisites" card on the Agent (Windows) page.** Lists the user rights the Universal Broker service account needs (Act as part of the operating system, Log on as a service, Replace a process level token, Impersonate a client after authentication, Adjust memory quotas, Increase scheduling priority, Bypass traverse checking, Debug programs, Take ownership) **with an explanation of what Universal Agent actually uses each one for**, so you can justify them to a Windows admin rather than just requesting a list.
 - Expandable notes cover the **extra rights a system install sets** (including the deny-logon rights and why they are protective), **domain account** considerations, and the **Local System** alternative with its trade-offs.
 - Links back to the official Stonebranch requirements page.
+
 
 ## ✨ What's new in 1.3.0 — Agent (Linux) form fixes
 

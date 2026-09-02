@@ -1,5 +1,5 @@
 // Central version configuration
-const APP_VERSION = "1.4.1";
+const APP_VERSION = "1.4.2";
 
 // Function to display version in footer
 // The footer is a flex row of <span>s (.site-footer); the copyright span is the
