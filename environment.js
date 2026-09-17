@@ -258,14 +258,14 @@ function generateEnvironmentScript() {
             const tomcatMethod = document.getElementById('tomcat_method').value;
             if (tomcatMethod === 'package') {
                 downloadLinks.push({
-                    title: 'Download Apache Tomcat 10.1.53 for Windows (Installer)',
-                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.exe',
+                    title: 'Download Apache Tomcat 10.1.60 for Windows (Installer)',
+                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.60/bin/apache-tomcat-10.1.60.exe',
                     description: 'Windows Service Installer (.exe)'
                 });
             } else {
                 downloadLinks.push({
-                    title: 'Download Apache Tomcat 10.1.53 for Windows (ZIP)',
-                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.zip',
+                    title: 'Download Apache Tomcat 10.1.60 for Windows (ZIP)',
+                    url: 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.60/bin/apache-tomcat-10.1.60.zip',
                     description: 'ZIP archive — for manual installation'
                 });
             }
@@ -674,13 +674,13 @@ function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder, harde
         commands.push(`sudo chmod -R g-w,o-rwx ${tomcatFolder}/conf/`);
     }
 
-    commands.push(`sudo chmod +x ${tomcatFolder}/bin/*.sh`);
+    commands.push(`sudo sh -c 'chmod +x ${tomcatFolder}/bin/*.sh'`);
 
     return commands;
 }
 
 function getTomcatDownloadUrl() {
-    return 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.53/bin/apache-tomcat-10.1.53.tar.gz';
+    return 'https://dlcdn.apache.org/tomcat/tomcat-10/v10.1.60/bin/apache-tomcat-10.1.60.tar.gz';
 }
 
 function generateAgentPrereqsCommand(osEnvironment) {
