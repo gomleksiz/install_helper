@@ -660,7 +660,7 @@ function generateTomcatManualCommand(tomcatUser, createUser, tomcatFolder, harde
         commands.push('');
     }
 
-    commands.push(`sudo sh -c 'chmod +x ${tomcatFolder}/bin/*.sh'`);
+    commands.push(`sudo chmod +x ${tomcatFolder}/bin/*.sh`);
 
     commands.push('# Set permissions (trailing slash dereferences the symlink so -R recurses into the real directory)');
     commands.push(`sudo chown -R ${tomcatUser}:${tomcatUser} ${tomcatFolder}/`);
